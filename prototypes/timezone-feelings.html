@@ -795,15 +795,20 @@ function drawJourneySvg(myPts, friendPts, me, otherConfig) {
   const W = 600, H = 260, PT = 24, PB = 24, PL = 4, PR = 16;
   const cW = W - PL - PR, cH = H - PT - PB;
 
-  const nowH = new Date().getHours() + new Date().getMinutes() / 60;
-  const maxH = Math.max(nowH + 1, 12);
+  // X축 범위: 데이터 최솟값~최댓값 ±1시간, 최소 8시간 폭
+  const allHours = [...myPts, ...friendPts]
+    .map(p => p.timeStr ? (parseInt(p.timeStr) + parseInt(p.timeStr.split(':')[1]||0)/60) : null)
+    .filter(h => h !== null);
+  const minH = allHours.length ? Math.max(0, Math.min(...allHours) - 1) : 0;
+  const maxH = allHours.length ? Math.min(24, Math.max(...allHours) + 1) : 24;
+  const rangeH = Math.max(maxH - minH, 8);
 
   function timeStrToH(timeStr) {
     if (!timeStr) return null;
     const [h, m] = timeStr.split(':').map(Number);
     return h + m / 60;
   }
-  function xOf(h) { return PL + (h / maxH) * cW; }
+  function xOf(h) { return PL + ((h - minH) / rangeH) * cW; }
   function xOfStr(timeStr) {
     const h = timeStrToH(timeStr);
     return h === null ? null : xOf(h);
@@ -817,7 +822,7 @@ function drawJourneySvg(myPts, friendPts, me, otherConfig) {
   const labelCount = 6;
   const labels = [];
   for (let i = 0; i <= labelCount; i++) {
-    const h = Math.round((i / labelCount) * maxH);
+    const h = Math.round(minH + (i / labelCount) * rangeH);
     labels.push(`${String(h).padStart(2,'0')}:00`);
   }
   document.getElementById('journeyXLabels').innerHTML = labels.map(l => `<span>${l}</span>`).join('');
@@ -974,8 +979,14 @@ function toggleTheme() {
   document.querySelector('.theme-btn').textContent = isDark ? '🌙' : '☀️';
 }
 
-// Seed demo data if empty
+// Seed demo data — v2: clear old data and reseed with clean 06–22h range
 function seedDemoData() {
+  if (getStorage('seed_version') !== 'v2') {
+    localStorage.removeItem('timeline');
+    localStorage.removeItem('emotion_me');
+    localStorage.removeItem('emotion_friend');
+    setStorage('seed_version', 'v2');
+  }
   if (!getStorage('emotion_friend')) {
     setStorage('emotion_friend', { emoji: '😴', text: '자는 중이에요', ts: Date.now() - 15 * 60000 });
   }
@@ -985,18 +996,18 @@ function seedDemoData() {
   if (!getStorage('timeline')) {
     const now = Date.now();
     setStorage('timeline', [
-      { user: 'me', emoji: '😴', text: '자는 중이에요', ts: now - 36000000, timeStr: '06:00' },
-      { user: 'friend', emoji: '🌙', text: '피곤해요', ts: now - 32400000, timeStr: '23:00' },
-      { user: 'me', emoji: '☀️', text: '활기차요', ts: now - 28800000, timeStr: '08:00' },
-      { user: 'friend', emoji: '😴', text: '자는 중이에요', ts: now - 25200000, timeStr: '01:00' },
-      { user: 'me', emoji: '🍜', text: '밥 먹는 중', ts: now - 21600000, timeStr: '10:00' },
-      { user: 'me', emoji: '📚', text: '공부 중이에요', ts: now - 18000000, timeStr: '12:00' },
-      { user: 'friend', emoji: '☀️', text: '활기차요', ts: now - 14400000, timeStr: '07:00' },
-      { user: 'me', emoji: '😔', text: '힘들어요', ts: now - 10800000, timeStr: '14:00' },
-      { user: 'friend', emoji: '🍜', text: '밥 먹는 중', ts: now - 7200000, timeStr: '10:00' },
-      { user: 'me', emoji: '🥰', text: '보고싶어요', ts: now - 3600000, timeStr: '16:00' },
-      { user: 'friend', emoji: '😊', text: '행복해요', ts: now - 1800000, timeStr: '11:30' },
-      { user: 'me', emoji: '😊', text: '행복해요', ts: now - 300000, timeStr: '17:55' },
+      { user: 'me',     emoji: '😴', text: '자는 중이에요',   ts: now - 43200000, timeStr: '07:00' },
+      { user: 'me',     emoji: '☀️', text: '좋은 아침!',      ts: now - 36000000, timeStr: '09:00' },
+      { user: 'friend', emoji: '☀️', text: '활기차요',        ts: now - 32400000, timeStr: '10:00' },
+      { user: 'me',     emoji: '🍜', text: '점심 먹는 중',    ts: now - 28800000, timeStr: '12:00' },
+      { user: 'friend', emoji: '🍜', text: '브런치 먹었어요', ts: now - 25200000, timeStr: '13:00' },
+      { user: 'me',     emoji: '📚', text: '공부 중이에요',   ts: now - 21600000, timeStr: '14:00' },
+      { user: 'friend', emoji: '😊', text: '날씨 좋다 산책!', ts: now - 18000000, timeStr: '15:00' },
+      { user: 'me',     emoji: '😔', text: '과제가 너무 많아', ts: now - 14400000, timeStr: '16:00' },
+      { user: 'friend', emoji: '😤', text: '발표 망했어ㅠ',   ts: now - 10800000, timeStr: '17:30' },
+      { user: 'me',     emoji: '🥰', text: '보고싶어요',      ts: now - 7200000,  timeStr: '18:00' },
+      { user: 'friend', emoji: '🥰', text: '너 생각났어',     ts: now - 3600000,  timeStr: '20:00' },
+      { user: 'me',     emoji: '😊', text: '저녁 먹고 행복',  ts: now - 900000,   timeStr: '21:00' },
     ]);
   }
 }
