@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>안녕하세요</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #6e3ad6, #a35ee0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 48px 40px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+    max-width: 360px;
+  }
+  .card h1 { font-size: 2rem; color: #2d3748; margin-bottom: 12px; }
+  .card p { font-size: 1rem; color: #718096; margin-bottom: 24px; }
+  button {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #6e3ad6, #a35ee0);
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  button:hover { opacity: 0.9; }
+  .result {
+    margin-top: 20px;
+    font-size: 1.1rem;
+    color: #2d3748;
+    font-weight: 600;
+    min-height: 1.5rem;
+  }
+  footer {
+    position: fixed;
+    bottom: 16px;
+    width: 100%;
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.75rem;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>안녕하세요 👋</h1>
+    <p>제 첫 번째 웹 페이지예요</p>
+    <button onclick="document.getElementById('result').textContent='🎉 잘 작동해요!'">눌러보기</button>
+    <div class="result" id="result"></div>
+  </div>
+  <footer>LG U+ Lifestyle Innovation Workshop</footer>
+</body>
+</html>
