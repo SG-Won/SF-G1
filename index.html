@@ -3,10 +3,157 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SF-G1</title>
+  <title>고객 피드백 보드</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      color: #2d3748;
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      text-align: center;
+      padding: 48px 24px 36px;
+    }
+    header h1 { font-size: 2rem; margin-bottom: 8px; }
+    header p { opacity: 0.85; font-size: 1rem; }
+    .container { max-width: 720px; margin: 0 auto; padding: 32px 16px; }
+    .form-card {
+      background: white;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 32px;
+    }
+    .form-card h2 { font-size: 1.1rem; margin-bottom: 20px; color: #4a5568; }
+    label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: #718096; }
+    input[type=text], textarea {
+      width: 100%;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+      transition: border 0.2s;
+      outline: none;
+    }
+    input[type=text]:focus, textarea:focus { border-color: #667eea; }
+    textarea { resize: vertical; min-height: 90px; }
+    .stars { display: flex; flex-direction: row-reverse; justify-content: flex-end; margin-bottom: 16px; }
+    .stars input { display: none; }
+    .stars label {
+      font-size: 1.8rem;
+      color: #cbd5e0;
+      cursor: pointer;
+      margin: 0 2px;
+      transition: color 0.15s;
+    }
+    .stars input:checked ~ label,
+    .stars label:hover,
+    .stars label:hover ~ label { color: #f6c90e; }
+    button[type=submit] {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button[type=submit]:hover { opacity: 0.9; }
+    .section-title { font-size: 1rem; font-weight: 700; color: #4a5568; margin-bottom: 16px; }
+    .card-list { display: flex; flex-direction: column; gap: 16px; }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .card-name { font-weight: 700; font-size: 0.95rem; }
+    .card-date { font-size: 0.75rem; color: #a0aec0; }
+    .card-stars { color: #f6c90e; font-size: 1rem; margin-bottom: 8px; }
+    .card-msg { font-size: 0.9rem; color: #4a5568; line-height: 1.6; }
+    .empty { text-align: center; color: #a0aec0; padding: 32px 0; font-size: 0.95rem; }
+  </style>
 </head>
 <body>
-  <h1>안녕하세요!</h1>
-  <p>Vercel 자동 배포 테스트 중입니다. 잘 보이면 성공!</p>
+  <header>
+    <h1>고객 피드백 보드</h1>
+    <p>소중한 의견을 남겨주세요. 더 나은 서비스로 보답하겠습니다.</p>
+  </header>
+  <div class="container">
+    <div class="form-card">
+      <h2>피드백 작성</h2>
+      <form id="feedbackForm">
+        <label for="name">이름</label>
+        <input type="text" id="name" placeholder="홍길동" required />
+        <label>별점</label>
+        <div class="stars">
+          <input type="radio" name="rating" id="s5" value="5" /><label for="s5">★</label>
+          <input type="radio" name="rating" id="s4" value="4" /><label for="s4">★</label>
+          <input type="radio" name="rating" id="s3" value="3" /><label for="s3">★</label>
+          <input type="radio" name="rating" id="s2" value="2" /><label for="s2">★</label>
+          <input type="radio" name="rating" id="s1" value="1" /><label for="s1">★</label>
+        </div>
+        <label for="message">메시지</label>
+        <textarea id="message" placeholder="경험을 공유해주세요..." required></textarea>
+        <button type="submit">피드백 제출</button>
+      </form>
+    </div>
+    <div class="section-title">피드백 목록</div>
+    <div class="card-list" id="cardList"></div>
+  </div>
+  <script>
+    const form = document.getElementById('feedbackForm');
+    const cardList = document.getElementById('cardList');
+
+    function load() {
+      const items = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+      cardList.innerHTML = '';
+      if (!items.length) {
+        cardList.innerHTML = '<div class="empty">아직 피드백이 없습니다. 첫 번째 피드백을 남겨보세요!</div>';
+        return;
+      }
+      items.slice().reverse().forEach(item => cardList.appendChild(createCard(item)));
+    }
+
+    function createCard({ name, rating, message, date }) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-header">
+          <span class="card-name">${name}</span>
+          <span class="card-date">${date}</span>
+        </div>
+        <div class="card-stars">${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}</div>
+        <div class="card-msg">${message}</div>
+      `;
+      return card;
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const rating = parseInt(document.querySelector('input[name=rating]:checked')?.value || 0);
+      const message = document.getElementById('message').value.trim();
+      if (!rating) { alert('별점을 선택해주세요.'); return; }
+      const items = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+      items.push({ name, rating, message, date: new Date().toLocaleDateString('ko-KR') });
+      localStorage.setItem('feedbacks', JSON.stringify(items));
+      form.reset();
+      load();
+    });
+
+    load();
+  </script>
 </body>
 </html>
