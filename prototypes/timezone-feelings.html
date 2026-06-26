@@ -26,6 +26,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
 .theme-btn{background:var(--card);border:1px solid var(--border);border-radius:50%;
   width:34px;height:34px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--text)}
 
+/* Lang toggle */
+.lang-toggle{display:flex;background:var(--card);border:1px solid var(--border);
+  border-radius:20px;padding:3px;gap:0}
+.lang-btn{padding:4px 10px;border-radius:16px;font-size:11px;font-weight:800;
+  font-family:inherit;border:none;cursor:pointer;background:none;color:var(--sub);transition:all .18s;line-height:1}
+.lang-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 6px rgba(79,70,229,.3)}
+
 /* Back button */
 .back-btn{background:none;border:none;color:var(--accent);font-size:14px;font-weight:700;
   cursor:pointer;font-family:inherit;padding:4px 8px 4px 0;display:flex;align-items:center;gap:4px}
@@ -281,7 +288,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
   <div style="display:flex;align-items:center;gap:8px">
     <h1 id="headerTitle">🌍 감정 시계</h1>
   </div>
-  <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+  <div class="header-right" style="display:flex;align-items:center;gap:8px">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-kor" onclick="setLang('ko')">KOR</button>
+      <button class="lang-btn" id="btn-eng" onclick="setLang('en')">ENG</button>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+  </div>
 </div>
 
 <div class="main">
@@ -367,7 +380,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
     <div class="journey-legend" id="journeyLegend"></div>
 
     <div class="journey-card">
-      <div class="journey-y-labels">
+      <div class="journey-y-labels" id="journeyYLabels">
         <span>😄 최고</span><span>😊 좋음</span><span>😌 평온</span><span>😔 힘듦</span><span>😞 최저</span>
       </div>
       <div class="journey-chart-wrap">
@@ -434,6 +447,199 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
 </div>
 
 <script>
+// ── Language ──────────────────────────────────────────────
+let lang = 'ko';
+
+const STRINGS = {
+  ko: {
+    appTitle:        '🌍 감정 시계',
+    tabHome:         '홈',
+    tabTimeline:     '타임라인',
+    tabCapsules:     '캡슐함',
+    shareLabel:      '누구한테 보낼까요?',
+    shareAll:        '전체',
+    shareBtn:        '지금 공유하기',
+    commentPH:       '한 줄 코멘트 남기기... (선택)',
+    commentHint:     '💬 한 줄 코멘트를 남겨봐요 (선택)',
+    checkinDone:     '방금 체크인했어요 ✓',
+    checkinWho:      '누구한테 보낼까요?',
+    capsuleTitle:    '⏰ 타임캡슐',
+    capsuleDesc:     '친구의 특별한 순간에 전달될 메시지를 남겨봐요',
+    capsulePH:       '짧은 메시지를 남겨봐요...',
+    capsuleSend:     '보내기',
+    capsuleEmpty:    '아직 보낸 타임캡슐이 없어요 🌙',
+    tlTitle:         '🌡️ 감정 온도 흐름',
+    tzSame:          '같은 시간대',
+    tzReal:          '시차 반영',
+    tzDescSame:      '🕰️ <strong>같은 시간대</strong> — 나는 이미 네 미래를 살고 있어',
+    tzDescReal:      '🌍 <strong>시차 반영</strong> — 내가 잠들 때 너는 아침을 시작해',
+    filterAll:       '🌐 전체',
+    checkinEmpty:    '아직 체크인 기록이 없어요 😊',
+    svgEmpty:        '아직 체크인 기록이 없어요',
+    capsuleSection:  '📦 보낸 타임캡슐',
+    overlapStrong:   '✨ 지금 둘 다 깨있어요!',
+    overlapSpan:     (s,e2) => `${String(Math.floor(s)).padStart(2,'0')}:00–${String(Math.floor(e2)).padStart(2,'0')}:00 — 연락하기 딱 좋은 시간이에요`,
+    xNote:           '<span style="font-size:10px;color:var(--accent);font-weight:600">← 서울 기준</span>',
+    relNow:          '방금 전',
+    relMin:          m => `${m}분 전`,
+    relHr:           h => `${h}시간 전`,
+    relOld:          '오래 전',
+    checkinSuffix:   '체크인',
+    presets: {
+      wake:   {label:'🌅 일어날 때',   desc:'🌅 친구가 일어날 때 전달돼요'},
+      friday: {label:'🎉 불금 밤에',   desc:'🎉 이번 주 금요일 밤 9시에 열려요'},
+      monday: {label:'😤 월요일 아침', desc:'😤 월요일 아침 8시에 열려요'},
+      lunch:  {label:'🍜 점심 때',     desc:'🍜 오늘 점심 12시에 전달돼요'},
+      sleep:  {label:'🌙 자기 전에',   desc:'🌙 오늘 밤 11시에 열려요'},
+      custom: {label:'🕐 직접 지정',   desc:'🕐 지정한 시간에 열려요'},
+    },
+    capsuleToAll:   '모두에게',
+    capsuleSealed:  '봉인중 🔒',
+    capsuleOpened:  '전달됨 ✓',
+    capsuleToast:   label => `${label} 타임캡슐 보냈어요!`,
+    capsuleSaved:   (label, ts) => `✅ ${label} — ${fmtTs(ts)}에 전달돼요`,
+    yLabels:        ['😄 최고','😊 좋음','😌 평온','😔 힘듦','😞 최저'],
+  },
+  en: {
+    appTitle:        '🌍 Emotion Clock',
+    tabHome:         'Home',
+    tabTimeline:     'Timeline',
+    tabCapsules:     'Capsules',
+    shareLabel:      'Who do you want to share with?',
+    shareAll:        'Everyone',
+    shareBtn:        'Share now',
+    commentPH:       'Add a quick note... (optional)',
+    commentHint:     '💬 Leave a short comment (optional)',
+    checkinDone:     'Just checked in ✓',
+    checkinWho:      'Who should see this?',
+    capsuleTitle:    '⏰ Time Capsule',
+    capsuleDesc:     'Leave a message for a friend\'s special moment',
+    capsulePH:       'Write a short message...',
+    capsuleSend:     'Send',
+    capsuleEmpty:    'No time capsules sent yet 🌙',
+    tlTitle:         '🌡️ Emotion Temperature Flow',
+    tzSame:          'Same time',
+    tzReal:          'Timezone diff',
+    tzDescSame:      '🕰️ <strong>Same time zone</strong> — I\'m already living your future',
+    tzDescReal:      '🌍 <strong>Timezone adjusted</strong> — When I sleep, you\'re starting your morning',
+    filterAll:       '🌐 Everyone',
+    checkinEmpty:    'No check-ins yet 😊',
+    svgEmpty:        'No check-ins recorded yet',
+    capsuleSection:  '📦 Sent Capsules',
+    overlapStrong:   '✨ You\'re both awake right now!',
+    overlapSpan:     (s,e2) => `${String(Math.floor(s)).padStart(2,'0')}:00–${String(Math.floor(e2)).padStart(2,'0')}:00 — perfect time to reach out`,
+    xNote:           '<span style="font-size:10px;color:var(--accent);font-weight:600">← Seoul time</span>',
+    relNow:          'Just now',
+    relMin:          m => `${m}m ago`,
+    relHr:           h => `${h}h ago`,
+    relOld:          'Long ago',
+    checkinSuffix:   'check-in',
+    presets: {
+      wake:   {label:'🌅 When they wake up', desc:'🌅 Delivered when your friend wakes up'},
+      friday: {label:'🎉 Friday night',       desc:'🎉 Opens this Friday night at 9pm'},
+      monday: {label:'😤 Monday morning',     desc:'😤 Opens Monday morning at 8am'},
+      lunch:  {label:'🍜 Lunchtime',          desc:'🍜 Delivered at noon today'},
+      sleep:  {label:'🌙 Before bed',         desc:'🌙 Opens tonight at 11pm'},
+      custom: {label:'🕐 Custom time',        desc:'🕐 Opens at your chosen time'},
+    },
+    capsuleToAll:   'Everyone',
+    capsuleSealed:  'Sealed 🔒',
+    capsuleOpened:  'Delivered ✓',
+    capsuleToast:   label => `${label} capsule sent!`,
+    capsuleSaved:   (label, ts) => `✅ ${label} — delivers at ${fmtTs(ts)}`,
+    yLabels:        ['😄 Best','😊 Good','😌 Calm','😔 Low','😞 Worst'],
+  },
+};
+
+// Emotion labels by language
+const EMOTION_LABELS_EN = [
+  {label:'Excited',    text:'Feeling excited!'},
+  {label:'Happy',      text:'Feeling happy'},
+  {label:'Crushing',   text:'Got butterflies'},
+  {label:'Energized',  text:'Full of energy'},
+  {label:'Chill',      text:'Feeling calm'},
+  {label:'Love it',    text:'Absolutely love it!'},
+  {label:'Motivated',  text:'Super motivated'},
+  {label:'Confident',  text:'Feeling confident'},
+  {label:'Good vibes', text:'Good vibes only'},
+  {label:'Lol',        text:'This is too funny'},
+  {label:'Eating',     text:'Having a meal'},
+  {label:'Café',       text:'At a café'},
+  {label:'Studying',   text:'Studying right now'},
+  {label:'Working',    text:'In work mode'},
+  {label:'Commuting',  text:'On the move'},
+  {label:'Workout',    text:'Working out'},
+  {label:'Resting',    text:'Taking a break'},
+  {label:'Sleeping',   text:'Sleeping 😴'},
+  {label:'Tired',      text:'Feeling tired'},
+  {label:'Rough',      text:'Rough day'},
+  {label:'Stressed',   text:'Feeling stressed'},
+  {label:'Sad',        text:'Feeling sad'},
+  {label:'Zoned out',  text:'Zoning out...'},
+  {label:'Thinking',   text:'Deep in thought'},
+  {label:'Nervous',    text:'Feeling nervous'},
+  {label:'Melting',    text:'Absolutely melting...'},
+  {label:'Frustrated', text:'Feeling frustrated'},
+  {label:'Sick',       text:'Not feeling well'},
+  {label:'Miss you',   text:'Missing you'},
+  {label:'Text me',    text:'Want to chat'},
+];
+
+function s(key) { return STRINGS[lang][key]; }
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btn-kor').classList.toggle('active', l==='ko');
+  document.getElementById('btn-eng').classList.toggle('active', l==='en');
+  applyLang();
+}
+
+function applyLang() {
+  const S = STRINGS[lang];
+  document.getElementById('headerTitle').textContent = S.appTitle;
+  // bottom tabs
+  const tabs = document.querySelectorAll('.tab-btn');
+  if(tabs[0]) tabs[0].childNodes[1].textContent = S.tabHome;
+  if(tabs[1]) tabs[1].childNodes[1].textContent = S.tabTimeline;
+  if(tabs[2]) tabs[2].childNodes[1].textContent = S.tabCapsules;
+  // share
+  const shareLbl = document.querySelector('#shareSheet > div');
+  if(shareLbl) shareLbl.textContent = S.shareLabel;
+  const shareBtn = document.querySelector('.share-send-btn');
+  if(shareBtn) shareBtn.textContent = S.shareBtn;
+  // comment
+  const ci = document.getElementById('commentInput');
+  if(ci) ci.placeholder = S.commentPH;
+  // capsule
+  document.querySelector('.capsule-title').textContent = S.capsuleTitle;
+  document.querySelector('.capsule-desc').textContent = S.capsuleDesc;
+  document.getElementById('capsuleMsg').placeholder = S.capsulePH;
+  document.querySelector('.capsule-btn').textContent = S.capsuleSend;
+  // preset buttons (update labels)
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    const preset = btn.dataset.preset;
+    if(S.presets[preset]) btn.textContent = S.presets[preset].label;
+  });
+  // TZ toggle
+  document.getElementById('btnSameTime').textContent = S.tzSame;
+  document.getElementById('btnRealTime').textContent = S.tzReal;
+  document.getElementById('tzDesc').innerHTML = tzMode==='same' ? S.tzDescSame : S.tzDescReal;
+  // timeline section
+  document.querySelector('#page-timeline .section-title:not(.tl-top-row .section-title)') &&
+    (document.querySelectorAll('#page-timeline .section-title')[0].innerHTML = S.tlTitle);
+  // capsule section
+  document.querySelector('#page-capsules .section-title').textContent = S.capsuleSection;
+  // emoji grid
+  buildEmojiGrid();
+  // re-render dynamic areas
+  renderFriendList();
+  updateMyCard();
+  renderShareTargets();
+  selectPreset(document.querySelector('.preset-btn.active'));
+  if(document.getElementById('page-timeline').classList.contains('active')) updateTimeline();
+  if(document.getElementById('page-capsules').classList.contains('active')) updateCapsuleList();
+}
+
 // ── Data ──────────────────────────────────────────────────
 const ME = { id:'me', name:'나', city:'서울', offset:9, color:'#4f46e5' };
 const FRIENDS = [
@@ -502,9 +708,12 @@ function cityTime(offset) {
 }
 function fmt(date) { return date.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false}); }
 function relTime(ts) {
+  const S = STRINGS[lang];
   const d = Math.floor((Date.now()-ts)/1000);
-  if(d<60) return '방금 전'; if(d<3600) return `${Math.floor(d/60)}분 전`;
-  if(d<86400) return `${Math.floor(d/3600)}시간 전`; return '오래 전';
+  if(d<60) return S.relNow;
+  if(d<3600) return S.relMin(Math.floor(d/60));
+  if(d<86400) return S.relHr(Math.floor(d/3600));
+  return S.relOld;
 }
 function fmtTs(ts) {
   return new Date(ts).toLocaleString('ko-KR',{month:'long',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit'});
@@ -566,17 +775,21 @@ function updateMyCard() {
   document.getElementById('myEmojiDisplay').textContent = em.emoji;
   document.getElementById('myStatusLabel').textContent = em.text;
   document.getElementById('myCity').textContent = ME.city;
-  document.getElementById('myCheckinTime').textContent = `${relTime(em.ts||Date.now())} 체크인`;
+  document.getElementById('myCheckinTime').textContent = `${relTime(em.ts||Date.now())} ${s('checkinSuffix')}`;
 }
 
 function buildEmojiGrid() {
   const grid = document.getElementById('emojiGrid');
   const saved = gs('emotion_me') || {emoji:'😊'};
-  grid.innerHTML = EMOTIONS.map(e=>`
-    <button class="emoji-btn ${e.emoji===saved.emoji?'selected':''}"
-      onclick="selectEmotion('${e.emoji}','${e.text}',this)">
-      ${e.emoji}<span class="label">${e.label}</span>
-    </button>`).join('');
+  grid.innerHTML = EMOTIONS.map((e,i)=>{
+    const enL = EMOTION_LABELS_EN[i] || {label:e.label, text:e.text};
+    const label = lang==='en' ? enL.label : e.label;
+    const text  = lang==='en' ? enL.text  : e.text;
+    return `<button class="emoji-btn ${e.emoji===saved.emoji?'selected':''}"
+      onclick="selectEmotion('${e.emoji}','${text}',this)">
+      ${e.emoji}<span class="label">${label}</span>
+    </button>`;
+  }).join('');
 }
 
 let pendingEmotion = null;
@@ -592,14 +805,15 @@ function selectEmotion(emoji, text, btn) {
   ss('emotion_me',{emoji,text,ts});
   document.getElementById('myEmojiDisplay').textContent=emoji;
   document.getElementById('myStatusLabel').textContent=text;
-  document.getElementById('myCheckinTime').textContent='누구한테 보낼까요?';
+  document.getElementById('myCheckinTime').textContent=s('checkinWho');
   const el=document.getElementById('myEmojiDisplay');
   el.style.transform='scale(1.3)'; setTimeout(()=>el.style.transform='scale(1)',300);
 
   // 코멘트 박스
   document.getElementById('commentBox').style.display='block';
   document.getElementById('commentInput').value='';
-  document.getElementById('commentHint').textContent=`💬 한 줄 코멘트를 남겨봐요 (선택)`;
+  document.getElementById('commentInput').placeholder = s('commentPH');
+  document.getElementById('commentHint').textContent = s('commentHint');
 
   // 셰어시트 열기
   document.getElementById('shareSheet').style.display='block';
@@ -613,7 +827,7 @@ function renderShareTargets() {
   const allSel = selectedTargets.has('all');
   el.innerHTML = `
     <button class="share-target-btn ${allSel?'selected':''}" onclick="toggleTarget('all',this)">
-      <span class="st-emoji">🌐</span> 전체
+      <span class="st-emoji">🌐</span> ${s('shareAll')}
     </button>
     ${FRIENDS.map(f=>{
       const em = gs(`emotion_${f.id}`) || {emoji:'😌'};
@@ -653,7 +867,7 @@ function submitComment() {
 
   document.getElementById('commentBox').style.display='none';
   document.getElementById('shareSheet').style.display='none';
-  document.getElementById('myCheckinTime').textContent='방금 체크인했어요 ✓';
+  document.getElementById('myCheckinTime').textContent=s('checkinDone');
   pendingEmotion = null;
   selectedTargets = new Set(['all']);
 
@@ -707,7 +921,7 @@ let tl = [];
 function buildFilterTabs() {
   const el = document.getElementById('filterTabs');
   const chips = [
-    `<button class="filter-chip ${tlFilter==='all'?'active':''}" onclick="setFilter('all',this)">🌐 전체</button>`,
+    `<button class="filter-chip ${tlFilter==='all'?'active':''}" onclick="setFilter('all',this)">${s('filterAll')}</button>`,
     ...FRIENDS.map(f=>`<button class="filter-chip ${tlFilter===f.id?'active':''}"
       style="${tlFilter===f.id?`border-color:${f.color};color:${f.color};background:${f.color}22`:''}"
       onclick="setFilter('${f.id}',this)">${f.name}</button>`)
@@ -724,14 +938,14 @@ function setTzMode(mode) {
   tzMode = mode;
   document.getElementById('btnSameTime').classList.toggle('active',mode==='same');
   document.getElementById('btnRealTime').classList.toggle('active',mode==='real');
-  const copy={same:'🕰️ <strong>같은 시간대</strong> — 나는 이미 네 미래를 살고 있어',
-               real:'🌍 <strong>시차 반영</strong> — 내가 잠들 때 너는 아침을 시작해'};
-  document.getElementById('tzDesc').innerHTML=copy[mode];
+  document.getElementById('tzDesc').innerHTML = mode==='same' ? s('tzDescSame') : s('tzDescReal');
   updateTimeline();
 }
 
 function updateTimeline() {
   buildFilterTabs();
+  const yEl = document.getElementById('journeyYLabels');
+  if(yEl) yEl.innerHTML = STRINGS[lang].yLabels.map(l=>`<span>${l}</span>`).join('');
   const allTl = gs('timeline')||[];
   // which friends to show
   const activeFriends = tlFilter==='all' ? FRIENDS : FRIENDS.filter(f=>f.id===tlFilter);
@@ -757,7 +971,7 @@ function updateTimeline() {
     .sort((a,b)=>b.ts-a.ts).slice(0,15);
   const listEl = document.getElementById('timelineEventList');
   if(!tl.length){
-    listEl.innerHTML=`<div style="text-align:center;padding:30px 0;color:var(--sub);font-size:13px">아직 체크인 기록이 없어요 😊</div>`;
+    listEl.innerHTML=`<div style="text-align:center;padding:30px 0;color:var(--sub);font-size:13px">${s('checkinEmpty')}</div>`;
     return;
   }
   listEl.innerHTML = tl.map((e,idx)=>{
@@ -807,7 +1021,7 @@ function drawJourneySvg(myPts, friendPtsMap, activeFriends) {
   // X labels
   const labels=[];
   for(let i=0;i<=6;i++){const h=Math.round(minH+(i/6)*rangeH)%24;labels.push(`${String(h).padStart(2,'0')}:00`);}
-  const xNote = tzMode==='real'?`<span style="font-size:10px;color:var(--accent);font-weight:600">← 서울 기준</span>`:'';
+  const xNote = tzMode==='real' ? s('xNote') : '';
   document.getElementById('journeyXLabels').innerHTML=labels.map(l=>`<span>${l}</span>`).join('')+xNote;
 
   function curve(pts, offsetH) {
@@ -849,8 +1063,8 @@ function drawJourneySvg(myPts, friendPtsMap, activeFriends) {
           <rect x="${xOf(s)}" y="${PT-4}" width="${xOf(e2)-xOf(s)}" height="5" rx="3" fill="#a78bfa" opacity="0.4"/>`;
         const banner=document.getElementById('overlapBanner');
         banner.style.display='block';
-        banner.querySelector('strong').textContent='✨ 지금 둘 다 깨있어요!';
-        banner.querySelector('span').textContent=`${String(Math.floor(s)).padStart(2,'0')}:00–${String(Math.floor(e2)).padStart(2,'0')}:00 — 연락하기 딱 좋은 시간이에요`;
+        banner.querySelector('strong').textContent=STRINGS[lang].overlapStrong;
+        banner.querySelector('span').textContent=STRINGS[lang].overlapSpan(s,e2);
       }
     } else { document.getElementById('overlapBanner').style.display='none'; }
   } else { document.getElementById('overlapBanner').style.display='none'; }
@@ -866,7 +1080,7 @@ function drawJourneySvg(myPts, friendPtsMap, activeFriends) {
   if(myCurve.d) svgContent+=`<path d="${myCurve.d}" fill="none" stroke="${ME.color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
   svgContent+=dots(myCurve.pts,ME.color);
   if(!myPts.length&&!activeFriends.some(f=>(friendPtsMap[f.id]||[]).length))
-    svgContent+=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#9ca3af" font-size="13">아직 체크인 기록이 없어요</text>`;
+    svgContent+=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#9ca3af" font-size="13">${s('svgEmpty')}</text>`;
   svg.innerHTML=svgContent;
 }
 
@@ -877,8 +1091,9 @@ function selectPreset(btn){
   currentPreset=btn.dataset.preset;
   document.getElementById('capsuleCustomTime').style.display=currentPreset==='custom'?'flex':'none';
   const p=PRESETS[currentPreset];
+  const lp=STRINGS[lang].presets[currentPreset];
   const ts=p.getTs();
-  document.getElementById('capsulePreview').textContent=currentPreset==='custom'?p.desc:`${p.desc.split('—')[0]}— ${fmtTs(ts)}`;
+  document.getElementById('capsulePreview').textContent=currentPreset==='custom'?lp.desc:`${lp.desc.split('—')[0]}— ${fmtTs(ts)}`;
 }
 function sendCapsule(){
   const msg=document.getElementById('capsuleMsg').value.trim();
@@ -891,25 +1106,27 @@ function sendCapsule(){
   ss('capsules',caps);
   document.getElementById('capsuleMsg').value='';
   const el=document.getElementById('capsuleSaved');
-  el.textContent=`✅ ${p.label} — ${fmtTs(openAt)}에 전달돼요`;
+  const lp2=STRINGS[lang].presets[currentPreset];
+  el.textContent=STRINGS[lang].capsuleSaved(lp2.label, openAt);
   setTimeout(()=>el.textContent='',4000);
-  showToast(`${p.label} 타임캡슐 보냈어요!`);
+  showToast(STRINGS[lang].capsuleToast(lp2.label));
 }
 function updateCapsuleList(){
   const caps=gs('capsules')||[];
   const list=document.getElementById('capsuleList');
-  if(!caps.length){list.innerHTML=`<div style="text-align:center;padding:40px 0;color:var(--sub);font-size:13px">아직 보낸 타임캡슐이 없어요 🌙</div>`;return;}
+  if(!caps.length){list.innerHTML=`<div style="text-align:center;padding:40px 0;color:var(--sub);font-size:13px">${s('capsuleEmpty')}</div>`;return;}
   list.innerHTML=caps.slice().reverse().map(c=>{
     const opened=Date.now()>=(c.openAt||c.ts+60000);
-    const toName=c.to&&c.to!=='all'?(FRIENDS.find(f=>f.id===c.to)||{name:c.to}).name:'모두에게';
+    const toName=c.to&&c.to!=='all'?(FRIENDS.find(f=>f.id===c.to)||{name:c.to}).name:s('capsuleToAll');
+    const lp3=STRINGS[lang].presets[c.preset]||{label:c.presetLabel||'🌅'};
     return `<div class="capsule-item">
       <span class="ci-emoji">${c.emoji}</span>
       <div class="ci-text">
-        <div style="font-weight:600;font-size:11px;color:var(--accent);margin-bottom:2px">${c.presetLabel||'🌅 일어날 때'} → ${toName}</div>
-        <div>${c.msg||'(감정만 공유)'}</div>
-        <div class="ci-when">${c.openAt?fmtTs(c.openAt):'곧'}</div>
+        <div style="font-weight:600;font-size:11px;color:var(--accent);margin-bottom:2px">${lp3.label} → ${toName}</div>
+        <div>${c.msg||(lang==='en'?'(emotion only)':'(감정만 공유)')}</div>
+        <div class="ci-when">${c.openAt?fmtTs(c.openAt):(lang==='en'?'Soon':'곧')}</div>
       </div>
-      <span class="capsule-status ${opened?'status-delivered':'status-pending'}">${opened?'전달됨 ✓':'봉인중 🔒'}</span>
+      <span class="capsule-status ${opened?'status-delivered':'status-pending'}">${opened?s('capsuleOpened'):s('capsuleSealed')}</span>
     </div>`;
   }).join('');
 }
