@@ -292,51 +292,50 @@
     display: none;
   }
 
-  /* ── Timeline ── */
-  .timeline-section { margin-bottom: 16px; }
-  .timeline-grid {
-    display: grid;
-    grid-template-columns: 1fr 40px 1fr;
-    gap: 0;
+  /* ── Journey Map ── */
+  .journey-legend {
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 10px; font-size: 12px; font-weight: 600; color: var(--sub);
   }
-  .timeline-header {
-    display: grid;
-    grid-template-columns: 1fr 40px 1fr;
-    margin-bottom: 8px;
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .legend-label { color: var(--text); }
+  .overlap-banner {
+    background: linear-gradient(135deg, var(--accent-soft), #fef3c7);
+    border: 1px solid #c4b5fd44;
+    border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; font-size: 13px;
   }
-  .tl-name {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--sub);
-    text-align: center;
+  .overlap-banner strong { display: block; margin-bottom: 2px; }
+  .overlap-banner span { font-size: 11px; color: var(--sub); }
+  .journey-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 14px 10px 8px 8px; box-shadow: var(--shadow); display: flex; gap: 6px;
+    margin-bottom: 4px; overflow: hidden;
   }
-  .tl-name:first-child { text-align: left; }
-  .tl-name:last-child { text-align: right; }
-  .timeline-item {
-    display: contents;
+  .journey-y-labels {
+    display: flex; flex-direction: column; justify-content: space-between;
+    font-size: 9px; color: var(--sub); padding: 2px 0; min-width: 38px; text-align: right; line-height: 1.3;
   }
-  .tl-left, .tl-right {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 10px 12px;
-    margin-bottom: 6px;
-    font-size: 13px;
+  .journey-chart-wrap { flex: 1; }
+  #journeySvg { display: block; width: 100%; overflow: visible; }
+  .journey-x-labels {
+    display: flex; justify-content: space-between;
+    padding: 4px 8px 0 54px; font-size: 10px; color: var(--sub); margin-bottom: 16px;
   }
-  .tl-left { border-radius: 12px 4px 4px 12px; }
-  .tl-right { border-radius: 4px 12px 12px 4px; text-align: right; }
-  .tl-center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    color: var(--sub);
-    padding: 0 4px;
-    margin-bottom: 6px;
+  .ev-item {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 12px; margin-bottom: 7px; font-size: 13px;
   }
-  .tl-emoji { font-size: 20px; display: block; margin-bottom: 2px; }
-  .tl-time { font-size: 10px; color: var(--sub); }
-  .tl-empty { opacity: 0.3; font-size: 12px; color: var(--sub); }
+  .ev-emoji { font-size: 20px; }
+  .ev-info { flex: 1; }
+  .ev-badge {
+    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 8px;
+    display: inline-block; margin-bottom: 2px;
+  }
+  .badge-me { background: var(--accent-soft); color: var(--accent); }
+  .badge-friend { background: #fef3c7; color: #b45309; }
+  .ev-text { font-size: 12px; color: var(--sub); }
+  .ev-time-label { font-size: 11px; color: var(--sub); }
 
   /* ── Bottom Tabs ── */
   .bottom-tabs {
@@ -392,6 +391,81 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
+
+  /* ── Journey Map ── */
+  .journey-legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--sub);
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .legend-label { color: var(--text); }
+  .journey-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 10px 8px 8px;
+    box-shadow: var(--shadow);
+    display: flex;
+    gap: 6px;
+    overflow: hidden;
+  }
+  .journey-y-labels {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--sub);
+    padding: 2px 0;
+    min-width: 38px;
+    text-align: right;
+    line-height: 1.2;
+  }
+  .journey-chart-wrap { flex: 1; position: relative; }
+  #journeySvg { display: block; overflow: visible; }
+  .journey-x-labels {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 8px 0 54px;
+    font-size: 10px;
+    color: var(--sub);
+    margin-bottom: 4px;
+  }
+
+  /* Event list */
+  .event-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 7px;
+    font-size: 13px;
+  }
+  .event-item .ev-emoji { font-size: 20px; }
+  .event-item .ev-info { flex: 1; }
+  .event-item .ev-who {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 8px;
+    margin-bottom: 2px;
+    display: inline-block;
+  }
+  .ev-who-me { background: #ede9fe; color: #4f46e5; }
+  .ev-who-friend { background: #fef3c7; color: #92400e; }
+  .ev-text { font-size: 12px; color: var(--sub); margin-top: 1px; }
+  .ev-time { font-size: 11px; color: var(--sub); }
 
   /* ── Sent capsules list ── */
   .capsule-list { margin-top: 12px; }
@@ -486,13 +560,41 @@
 
   <!-- ── 타임라인 탭 ── -->
   <div class="page" id="page-timeline">
-    <div class="section-title">📅 오늘 하루 감정 타임라인</div>
-    <div class="timeline-header">
-      <div class="tl-name" id="tlMyName">나 (서울)</div>
-      <div class="tl-name">시간</div>
-      <div class="tl-name" id="tlFriendName">지우 (베를린)</div>
+    <div class="section-title">🌡️ 오늘 감정 온도 흐름</div>
+
+    <!-- Legend -->
+    <div class="journey-legend">
+      <span class="legend-dot" style="background:#4f46e5"></span>
+      <span id="tlMyName" class="legend-label">나 (서울)</span>
+      <span class="legend-dot" style="background:#f59e0b;margin-left:14px;"></span>
+      <span id="tlFriendName" class="legend-label">지우 (베를린)</span>
     </div>
-    <div class="timeline-grid" id="timelineGrid"></div>
+
+    <!-- Overlap banner -->
+    <div class="overlap-banner" id="overlapBanner" style="display:none;">
+      <strong></strong><span></span>
+    </div>
+
+    <!-- SVG Journey Map -->
+    <div class="journey-card">
+      <div class="journey-y-labels">
+        <span>😄 최고</span>
+        <span>😊 좋음</span>
+        <span>😌 평온</span>
+        <span>😔 힘듦</span>
+        <span>😞 최저</span>
+      </div>
+      <div class="journey-chart-wrap">
+        <svg id="journeySvg" width="100%" height="260" viewBox="0 0 600 260" preserveAspectRatio="none"></svg>
+      </div>
+    </div>
+
+    <!-- Time axis -->
+    <div class="journey-x-labels" id="journeyXLabels"></div>
+
+    <!-- Event list -->
+    <div class="section-title" style="margin-top:16px;">📋 체크인 기록</div>
+    <div id="timelineEventList"></div>
   </div>
 
   <!-- ── 캡슐함 탭 ── -->
@@ -610,6 +712,10 @@ function selectEmotion(emoji, text, btn) {
 
   showToast(`${emoji} ${text} — 친구에게 전달됐어요!`);
   updateFriendCard();
+  // 타임라인 탭이 열려있으면 실시간 업데이트
+  if (document.getElementById('page-timeline').classList.contains('active')) {
+    updateTimeline();
+  }
 }
 
 function updateFriendCard() {
@@ -642,46 +748,155 @@ function updateMyCard() {
   document.getElementById('myCheckinTime').textContent = `${relativeTime(saved.ts || Date.now())} 체크인`;
 }
 
+const EMOTION_SCORE = {
+  '😊': 8, '☀️': 9, '😔': 3, '😴': 4, '🍜': 6,
+  '🌙': 3, '😤': 2, '🥰': 8, '📚': 5, '🎉': 10, '😌': 7, '🤒': 1,
+};
+
 function updateTimeline() {
   const timeline = getStorage('timeline') || [];
   const me = CONFIGS[currentUser];
   const other = currentUser === 'me' ? 'friend' : 'me';
   const otherConfig = CONFIGS[other];
 
-  document.getElementById('tlMyName').textContent = `${me.name} (${me.city})`;
+  document.getElementById('tlMyName').textContent = `나 (${me.city})`;
   document.getElementById('tlFriendName').textContent = `${otherConfig.name} (${otherConfig.city})`;
 
-  if (timeline.length === 0) {
-    document.getElementById('timelineGrid').innerHTML = `
-      <div style="grid-column:1/-1;text-align:center;padding:40px 0;color:var(--sub);font-size:13px;">
-        아직 체크인 기록이 없어요.<br>감정을 눌러서 시작해봐요 😊
-      </div>`;
+  const sorted = timeline.slice().sort((a, b) => a.ts - b.ts);
+  const myPts = sorted.filter(e => e.user === currentUser);
+  const friendPts = sorted.filter(e => e.user === other);
+
+  drawJourneySvg(myPts, friendPts, me, otherConfig);
+
+  // Event list
+  const events = sorted.slice().reverse().slice(0, 12);
+  const list = document.getElementById('timelineEventList');
+  if (events.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:30px 0;color:var(--sub);font-size:13px;">아직 체크인 기록이 없어요 😊</div>`;
     return;
   }
-
-  // Group by approximate hour
-  const hours = {};
-  timeline.forEach(item => {
-    const h = item.timeStr || '??:??';
-    if (!hours[h]) hours[h] = { me: null, friend: null, time: h };
-    hours[h][item.user] = item;
-  });
-
-  const sortedHours = Object.values(hours).reverse().slice(0, 8);
-  const grid = document.getElementById('timelineGrid');
-  grid.innerHTML = sortedHours.map(slot => {
-    const mySlot = slot[currentUser];
-    const friendSlot = slot[other];
+  list.innerHTML = events.map(e => {
+    const isMe = e.user === currentUser;
+    const label = isMe ? `나 (${me.city})` : `${otherConfig.name} (${otherConfig.city})`;
     return `
-      <div class="tl-left ${!mySlot ? 'tl-empty' : ''}">
-        ${mySlot ? `<span class="tl-emoji">${mySlot.emoji}</span><span class="tl-time">${mySlot.text}</span>` : '<span class="tl-time">—</span>'}
-      </div>
-      <div class="tl-center">${slot.time}</div>
-      <div class="tl-right ${!friendSlot ? 'tl-empty' : ''}">
-        ${friendSlot ? `<span class="tl-emoji">${friendSlot.emoji}</span><span class="tl-time">${friendSlot.text}</span>` : '<span class="tl-time">—</span>'}
-      </div>
-    `;
+      <div class="ev-item">
+        <span class="ev-emoji">${e.emoji}</span>
+        <div class="ev-info">
+          <span class="ev-badge ${isMe ? 'badge-me' : 'badge-friend'}">${label}</span>
+          <div class="ev-text">${e.text}</div>
+        </div>
+        <span class="ev-time-label">${e.timeStr || '??:??'}</span>
+      </div>`;
   }).join('');
+}
+
+function drawJourneySvg(myPts, friendPts, me, otherConfig) {
+  const svg = document.getElementById('journeySvg');
+  const W = 600, H = 260, PT = 24, PB = 24, PL = 4, PR = 16;
+  const cW = W - PL - PR, cH = H - PT - PB;
+
+  const nowH = new Date().getHours() + new Date().getMinutes() / 60;
+  const maxH = Math.max(nowH + 1, 12);
+
+  function timeStrToH(timeStr) {
+    if (!timeStr) return null;
+    const [h, m] = timeStr.split(':').map(Number);
+    return h + m / 60;
+  }
+  function xOf(h) { return PL + (h / maxH) * cW; }
+  function xOfStr(timeStr) {
+    const h = timeStrToH(timeStr);
+    return h === null ? null : xOf(h);
+  }
+  function yOf(emoji) {
+    const score = EMOTION_SCORE[emoji] ?? 5;
+    return PT + cH - ((score - 1) / 9) * cH;
+  }
+
+  // X labels
+  const labelCount = 6;
+  const labels = [];
+  for (let i = 0; i <= labelCount; i++) {
+    const h = Math.round((i / labelCount) * maxH);
+    labels.push(`${String(h).padStart(2,'0')}:00`);
+  }
+  document.getElementById('journeyXLabels').innerHTML = labels.map(l => `<span>${l}</span>`).join('');
+
+  function buildCurve(pts) {
+    const valid = pts.map(p => ({ x: xOfStr(p.timeStr), y: yOf(p.emoji), emoji: p.emoji })).filter(p => p.x !== null);
+    if (valid.length === 0) return { d: null, pts: [] };
+    let d = `M ${valid[0].x} ${valid[0].y}`;
+    for (let i = 1; i < valid.length; i++) {
+      const cx = (valid[i-1].x + valid[i].x) / 2;
+      d += ` C ${cx} ${valid[i-1].y} ${cx} ${valid[i].y} ${valid[i].x} ${valid[i].y}`;
+    }
+    return { d, pts: valid };
+  }
+
+  function areaFill(pts, color) {
+    if (pts.length < 1) return '';
+    const bot = PT + cH;
+    let d = `M ${pts[0].x} ${bot} L ${pts[0].x} ${pts[0].y}`;
+    for (let i = 1; i < pts.length; i++) {
+      const cx = (pts[i-1].x + pts[i].x) / 2;
+      d += ` C ${cx} ${pts[i-1].y} ${cx} ${pts[i].y} ${pts[i].x} ${pts[i].y}`;
+    }
+    d += ` L ${pts[pts.length-1].x} ${bot} Z`;
+    return `<path d="${d}" fill="${color}" opacity="0.1"/>`;
+  }
+
+  function dotsAndLabels(pts, color) {
+    return pts.map(p => `
+      <circle cx="${p.x}" cy="${p.y}" r="5.5" fill="${color}" stroke="white" stroke-width="2.5"/>
+      <text x="${p.x}" y="${p.y - 11}" text-anchor="middle" font-size="16" style="user-select:none">${p.emoji}</text>
+    `).join('');
+  }
+
+  // Find overlap window (both have data today)
+  const myHs = myPts.map(p => timeStrToH(p.timeStr)).filter(Boolean);
+  const frHs = friendPts.map(p => timeStrToH(p.timeStr)).filter(Boolean);
+  let overlapRect = '';
+  if (myHs.length && frHs.length) {
+    const start = Math.max(Math.min(...myHs), Math.min(...frHs));
+    const end = Math.min(Math.max(...myHs), Math.max(...frHs));
+    if (end > start) {
+      overlapRect = `<rect x="${xOf(start)}" y="${PT}" width="${xOf(end)-xOf(start)}" height="${cH}" fill="#a78bfa" opacity="0.08" rx="4"/>
+        <rect x="${xOf(start)}" y="${PT-4}" width="${xOf(end)-xOf(start)}" height="6" rx="3" fill="#a78bfa" opacity="0.4"/>`;
+
+      // Show overlap banner
+      const banner = document.getElementById('overlapBanner');
+      if (banner) {
+        const s = `${String(Math.floor(start)).padStart(2,'0')}:${String(Math.round((start%1)*60)).padStart(2,'0')}`;
+        const e2 = `${String(Math.floor(end)).padStart(2,'0')}:${String(Math.round((end%1)*60)).padStart(2,'0')}`;
+        banner.style.display = 'block';
+        banner.querySelector('strong').textContent = `✨ 지금 둘 다 깨있어요!`;
+        banner.querySelector('span').textContent = `${s}–${e2} 사이 — 연락하기 딱 좋은 시간이에요`;
+      }
+    }
+  }
+
+  // Grid
+  let grid = '';
+  for (let i = 1; i <= 4; i++) {
+    const y = PT + (i / 5) * cH;
+    grid += `<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,4"/>`;
+  }
+
+  const my = buildCurve(myPts);
+  const fr = buildCurve(friendPts);
+  const empty = myPts.length === 0 && friendPts.length === 0;
+
+  svg.innerHTML = `
+    ${grid}
+    ${overlapRect}
+    ${areaFill(my.pts, '#4f46e5')}
+    ${areaFill(fr.pts, '#f59e0b')}
+    ${my.d ? `<path d="${my.d}" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
+    ${fr.d ? `<path d="${fr.d}" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7,3"/>` : ''}
+    ${dotsAndLabels(my.pts, '#4f46e5')}
+    ${dotsAndLabels(fr.pts, '#f59e0b')}
+    ${empty ? `<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#9ca3af" font-size="13">아직 체크인 기록이 없어요</text>` : ''}
+  `;
 }
 
 function updateCapsuleList() {
@@ -770,10 +985,18 @@ function seedDemoData() {
   if (!getStorage('timeline')) {
     const now = Date.now();
     setStorage('timeline', [
-      { user: 'me', emoji: '☀️', text: '활기차요', ts: now - 18000000, timeStr: '07:30' },
-      { user: 'friend', emoji: '🌙', text: '피곤해요', ts: now - 14400000, timeStr: '00:30' },
-      { user: 'me', emoji: '📚', text: '공부 중이에요', ts: now - 7200000, timeStr: '13:00' },
-      { user: 'me', emoji: '😊', text: '행복해요', ts: now - 180000, timeStr: '14:57' },
+      { user: 'me', emoji: '😴', text: '자는 중이에요', ts: now - 36000000, timeStr: '06:00' },
+      { user: 'friend', emoji: '🌙', text: '피곤해요', ts: now - 32400000, timeStr: '23:00' },
+      { user: 'me', emoji: '☀️', text: '활기차요', ts: now - 28800000, timeStr: '08:00' },
+      { user: 'friend', emoji: '😴', text: '자는 중이에요', ts: now - 25200000, timeStr: '01:00' },
+      { user: 'me', emoji: '🍜', text: '밥 먹는 중', ts: now - 21600000, timeStr: '10:00' },
+      { user: 'me', emoji: '📚', text: '공부 중이에요', ts: now - 18000000, timeStr: '12:00' },
+      { user: 'friend', emoji: '☀️', text: '활기차요', ts: now - 14400000, timeStr: '07:00' },
+      { user: 'me', emoji: '😔', text: '힘들어요', ts: now - 10800000, timeStr: '14:00' },
+      { user: 'friend', emoji: '🍜', text: '밥 먹는 중', ts: now - 7200000, timeStr: '10:00' },
+      { user: 'me', emoji: '🥰', text: '보고싶어요', ts: now - 3600000, timeStr: '16:00' },
+      { user: 'friend', emoji: '😊', text: '행복해요', ts: now - 1800000, timeStr: '11:30' },
+      { user: 'me', emoji: '😊', text: '행복해요', ts: now - 300000, timeStr: '17:55' },
     ]);
   }
 }

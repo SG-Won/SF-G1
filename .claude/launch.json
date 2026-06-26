@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "감정 시계 프로토타입",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", ".", "-p", "3001", "--no-clipboard"],
+      "port": 3001
+    }
+  ]
+}
