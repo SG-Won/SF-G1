@@ -246,6 +246,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
           <span class="my-city" id="myCity">서울</span>
         </div>
         <div class="emoji-grid" id="emojiGrid"></div>
+
+        <!-- 코멘트 입력 (감정 선택 후 표시) -->
+        <div id="commentBox" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <div style="display:flex;gap:8px;align-items:center">
+            <input class="capsule-input" id="commentInput" placeholder="한 줄 코멘트 남기기... (선택)"
+              maxlength="60" onkeydown="if(event.key==='Enter')submitComment()">
+            <button class="capsule-btn" onclick="submitComment()">공유</button>
+          </div>
+          <div style="font-size:11px;color:var(--sub);margin-top:5px" id="commentHint"></div>
+        </div>
       </div>
 
       <div class="capsule-card">
@@ -327,14 +337,47 @@ const FRIENDS = [
 ];
 const ALL_USERS = [ME, ...FRIENDS];
 const EMOTIONS = [
-  {emoji:'😊',label:'행복',text:'행복해요'},{emoji:'☀️',label:'활기',text:'활기차요'},
-  {emoji:'😔',label:'힘듦',text:'힘들어요'},{emoji:'😴',label:'자는중',text:'자는 중이에요'},
-  {emoji:'🍜',label:'밥먹는중',text:'밥 먹는 중'},{emoji:'🌙',label:'피곤',text:'피곤해요'},
-  {emoji:'😤',label:'스트레스',text:'스트레스 받아요'},{emoji:'🥰',label:'그리워',text:'보고싶어요'},
-  {emoji:'📚',label:'공부중',text:'공부 중이에요'},{emoji:'🎉',label:'신나',text:'신나요!'},
-  {emoji:'😌',label:'평온',text:'평온해요'},{emoji:'🤒',label:'아파',text:'몸이 안 좋아요'},
+  // 긍정
+  {emoji:'🎉',label:'신나',    text:'신나요!'},
+  {emoji:'😊',label:'행복',    text:'행복해요'},
+  {emoji:'🥰',label:'설레',    text:'설레요'},
+  {emoji:'☀️',label:'활기',    text:'활기차요'},
+  {emoji:'😌',label:'평온',    text:'평온해요'},
+  {emoji:'🤩',label:'짱좋아',  text:'너무 좋아요!'},
+  {emoji:'💪',label:'의욕',    text:'의욕 넘쳐요'},
+  {emoji:'😎',label:'자신감',  text:'자신 있어요'},
+  {emoji:'🌸',label:'기분좋아',text:'기분 좋아요'},
+  {emoji:'😂',label:'웃김',    text:'너무 웃겨요'},
+  // 일상
+  {emoji:'🍜',label:'밥먹는중',text:'밥 먹는 중'},
+  {emoji:'☕',label:'카페',    text:'카페에 있어요'},
+  {emoji:'📚',label:'공부중',  text:'공부 중이에요'},
+  {emoji:'💻',label:'작업중',  text:'작업 중이에요'},
+  {emoji:'🚶',label:'이동중',  text:'이동 중이에요'},
+  {emoji:'🏃',label:'운동중',  text:'운동 중이에요'},
+  {emoji:'🛁',label:'쉬는중',  text:'쉬는 중이에요'},
+  {emoji:'😴',label:'자는중',  text:'자는 중이에요'},
+  // 부정/복잡
+  {emoji:'🌙',label:'피곤',    text:'피곤해요'},
+  {emoji:'😔',label:'힘듦',    text:'힘들어요'},
+  {emoji:'😤',label:'스트레스',text:'스트레스 받아요'},
+  {emoji:'😢',label:'슬퍼',    text:'슬퍼요'},
+  {emoji:'😶',label:'멍함',    text:'멍해요'},
+  {emoji:'🤔',label:'고민중',  text:'고민 중이에요'},
+  {emoji:'😬',label:'긴장',    text:'긴장돼요'},
+  {emoji:'🫠',label:'녹아내림',text:'녹아내리는 중...'},
+  {emoji:'😤',label:'억울',    text:'억울해요'},
+  {emoji:'🤒',label:'아파',    text:'몸이 안 좋아요'},
+  // 연결
+  {emoji:'🥺',label:'보고파',  text:'보고싶어요'},
+  {emoji:'💌',label:'연락해',  text:'연락하고 싶어요'},
 ];
-const EMOTION_SCORE = {'😊':8,'☀️':9,'😔':3,'😴':4,'🍜':6,'🌙':3,'😤':2,'🥰':8,'📚':5,'🎉':10,'😌':7,'🤒':1};
+const EMOTION_SCORE = {
+  '🎉':10,'😊':8,'🥰':9,'☀️':8,'😌':7,'🤩':10,'💪':8,'😎':8,'🌸':7,'😂':8,
+  '🍜':6,'☕':6,'📚':5,'💻':5,'🚶':5,'🏃':6,'🛁':6,'😴':4,
+  '🌙':3,'😔':3,'😤':2,'😢':2,'😶':4,'🤔':5,'😬':3,'🫠':2,'🤒':1,
+  '🥺':6,'💌':7,
+};
 const REACT_EMOJIS = ['❤️','😂','😢','🔥','🥰','👏'];
 
 // ── State ─────────────────────────────────────────────────
@@ -462,23 +505,43 @@ function buildEmojiGrid() {
     </button>`).join('');
 }
 
+let pendingEmotion = null; // {emoji, text, ts, timeStr}
+
 function selectEmotion(emoji, text, btn) {
   document.querySelectorAll('.emoji-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
   const ts = Date.now();
-  ss('emotion_me',{emoji,text,ts});
-  const tl = gs('timeline')||[];
   const timeStr = fmt(cityTime(ME.offset));
-  tl.push({user:'me',friendContext:currentRoom||'all',emoji,text,ts,timeStr});
-  if(tl.length>50) tl.splice(0,tl.length-50);
-  ss('timeline',tl);
+  pendingEmotion = {emoji, text, ts, timeStr};
+
+  ss('emotion_me',{emoji,text,ts});
   document.getElementById('myEmojiDisplay').textContent=emoji;
   document.getElementById('myStatusLabel').textContent=text;
-  document.getElementById('myCheckinTime').textContent='방금 체크인했어요 ✓';
+  document.getElementById('myCheckinTime').textContent='코멘트를 남겨보세요 ✍️';
   const el=document.getElementById('myEmojiDisplay');
   el.style.transform='scale(1.3)'; setTimeout(()=>el.style.transform='scale(1)',300);
+
+  // 코멘트 박스 열기
+  const box = document.getElementById('commentBox');
+  box.style.display='block';
+  document.getElementById('commentInput').value='';
+  document.getElementById('commentHint').textContent=`${emoji} ${text} — 코멘트 없이 공유하려면 그냥 "공유" 눌러요`;
+  setTimeout(()=>document.getElementById('commentInput').focus(), 100);
+}
+
+function submitComment() {
+  if(!pendingEmotion) return;
+  const comment = document.getElementById('commentInput').value.trim();
+  const {emoji, text, ts, timeStr} = pendingEmotion;
+  const tl = gs('timeline')||[];
+  tl.push({user:'me', friendContext:currentRoom||'all', emoji, text, comment, ts, timeStr});
+  if(tl.length>50) tl.splice(0,tl.length-50);
+  ss('timeline',tl);
+  document.getElementById('commentBox').style.display='none';
+  document.getElementById('myCheckinTime').textContent='방금 체크인했어요 ✓';
+  pendingEmotion = null;
   updateRoomView();
-  showToast(`${emoji} ${text} — 전달됐어요!`);
+  showToast(`${emoji} ${comment ? `"${comment}"` : text} — 전달됐어요!`);
   if(document.getElementById('page-timeline').classList.contains('active')) updateTimeline();
 }
 
@@ -589,7 +652,7 @@ function updateTimeline() {
         <span class="ev-emoji">${e.emoji}</span>
         <div class="ev-info">
           <span class="ev-badge" style="background:${color}22;color:${color}">${user.name} (${(isMe?ME:FRIENDS.find(f=>f.id===e.user)||{city:'?'}).city})</span>
-          <div class="ev-text">${e.text}</div>
+          <div class="ev-text">${e.comment ? `"${e.comment}"` : e.text}</div>
         </div>
         <span class="ev-time-label">${e.timeStr||'??:??'}</span>
       </div>
