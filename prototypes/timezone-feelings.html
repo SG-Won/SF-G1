@@ -1154,11 +1154,21 @@ setInterval(() => {
   updateFriendCard();
 }, 30000);
 
-// Init
+// Init — 테마는 상대방 도시 시간 기준으로 설정
+function applyFriendTheme() {
+  const other = currentUser === 'me' ? 'friend' : 'me';
+  const friendTime = getCityTime(CONFIGS[other].offset);
+  const h = friendTime.getHours();
+  const isNight = h >= 21 || h < 6;
+  document.documentElement.setAttribute('data-theme', isNight ? 'dark' : '');
+  document.querySelector('.theme-btn').textContent = isNight ? '☀️' : '🌙';
+}
+
 seedDemoData();
 buildEmojiGrid();
 updateMyCard();
 updateFriendCard();
+applyFriendTheme();
 </script>
 </body>
 </html>
