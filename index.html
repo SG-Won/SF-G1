@@ -61,18 +61,18 @@
     }
 
     .emotion-group-label {
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       font-weight: 800;
       color: #c4b5fd;
       text-transform: uppercase;
       letter-spacing: 1px;
-      padding: 10px 2px 6px;
+      padding: 6px 2px 4px;
     }
     .emotion-scroll {
       display: flex;
-      gap: 10px;
+      gap: 7px;
       overflow-x: auto;
-      padding-bottom: 6px;
+      padding-bottom: 4px;
       scrollbar-width: none;
     }
     .emotion-scroll::-webkit-scrollbar { display: none; }
@@ -83,27 +83,27 @@
       flex-direction: column;
       align-items: center;
       background: #fff;
-      border: 2.5px solid transparent;
-      border-radius: 20px;
-      padding: 14px 16px 10px;
+      border: 2px solid transparent;
+      border-radius: 14px;
+      padding: 8px 10px 6px;
       cursor: pointer;
       transition: all 0.18s;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-      min-width: 76px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      min-width: 58px;
     }
-    .emotion-btn:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.1); }
+    .emotion-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     .emotion-btn.active {
       border-color: var(--clr);
       background: color-mix(in srgb, var(--clr) 10%, #fff);
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px color-mix(in srgb, var(--clr) 35%, transparent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px color-mix(in srgb, var(--clr) 35%, transparent);
     }
-    .emotion-btn .e-emoji { font-size: 2rem; }
+    .emotion-btn .e-emoji { font-size: 1.45rem; }
     .emotion-btn .e-label {
-      font-size: 0.68rem;
+      font-size: 0.6rem;
       font-weight: 800;
       color: #555;
-      margin-top: 6px;
+      margin-top: 4px;
     }
     .emotion-btn.active .e-label { color: var(--clr); }
 
@@ -386,9 +386,9 @@
 </header>
 
 <!-- 감정 피커 -->
-<div class="section" style="margin-top:16px">
+<div class="section" style="margin-top:12px">
   <div class="section-label">지금 기분이 어때요?</div>
-  <div id="emotionGrid"></div>
+  <div id="emotionGrid" style="max-height:calc(100dvh * 0.42);overflow-y:auto;scrollbar-width:none;padding-right:2px"></div>
 </div>
 
 <!-- 메모 박스 -->
