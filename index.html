@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>감정 타임라인</title>
+  <title>FeeLog</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -534,8 +534,31 @@
 <!-- 헤더 -->
 <header>
   <div class="header-left">
-    <h1>감정 타임라인 💜</h1>
-    <p>지금 이 순간을 기록해요</p>
+    <!-- FeeLog 로고 -->
+    <svg width="110" height="36" viewBox="0 0 110 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="FeeLog">
+      <!-- 아이콘: 하트 + 그래프 라인 -->
+      <defs>
+        <linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#a78bfa"/>
+          <stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+        <linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#7c3aed"/>
+          <stop offset="100%" stop-color="#a78bfa"/>
+        </linearGradient>
+      </defs>
+      <!-- 아이콘 배경 원 -->
+      <rect x="0" y="2" width="32" height="32" rx="10" fill="url(#lg1)"/>
+      <!-- 하트 -->
+      <path d="M16 24s-7-5.2-7-9.5C9 12 10.8 10.5 13 10.5c1.2 0 2.3.6 3 1.5.7-.9 1.8-1.5 3-1.5 2.2 0 4 1.5 4 4C23 18.8 16 24 16 24z" fill="white" opacity="0.95"/>
+      <!-- 그래프 라인 (하트 위에 겹쳐) -->
+      <polyline points="8,21 11,17 14,19 17,14 20,16 24,11" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.55" fill="none"/>
+      <!-- FeeLog 텍스트 -->
+      <text x="38" y="16" font-family="Nunito, Arial, sans-serif" font-weight="900" font-size="15" fill="url(#lg2)" letter-spacing="-0.3">Fee</text>
+      <text x="65" y="16" font-family="Nunito, Arial, sans-serif" font-weight="900" font-size="15" fill="#1a1a2e" letter-spacing="-0.3">Log</text>
+      <!-- 서브타이틀 -->
+      <text x="38" y="28" font-family="Nunito, Arial, sans-serif" font-weight="700" font-size="8.5" fill="#9b8ec4" letter-spacing="0.2">지금 이 순간을 기록해요</text>
+    </svg>
   </div>
   <div class="header-avatar">🙋</div>
 </header>
@@ -861,7 +884,7 @@ function renderChart() {
   page.innerHTML = `
     <!-- 요약 카드 -->
     <div class="chart-header-card">
-      <h2>📊 나의 감정 리포트</h2>
+      <h2>📊 FeeLog 감정 리포트</h2>
       <p>기록을 분석해 감정 패턴을 보여드려요</p>
       <div class="chart-stats">
         <div class="chart-stat">
