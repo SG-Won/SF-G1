@@ -1172,10 +1172,8 @@ function toggleTheme(){
 function applyFriendTheme(){
   const f=FRIENDS[0];
   if(!f) return;
-  const h=cityTime(f.offset).getHours();
-  const isNight=h>=21||h<6;
-  document.documentElement.setAttribute('data-theme',isNight?'dark':'');
-  document.querySelector('.theme-btn').textContent=isNight?'☀️':'🌙';
+  document.documentElement.setAttribute('data-theme','');
+  document.querySelector('.theme-btn').textContent='🌙';
 }
 
 // ── Toast ─────────────────────────────────────────────────
