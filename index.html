@@ -627,6 +627,44 @@ const FRIEND_KEY = 'emo_friend_posts';
 function getPosts(key) { return JSON.parse(localStorage.getItem(key) || '[]'); }
 function savePosts(key, posts) { localStorage.setItem(key, JSON.stringify(posts)); }
 
+function seedMyPosts() {
+  const e = k => EMOTIONS.find(x => x.key === k);
+  const t = (hrsAgo) => new Date(Date.now() - hrsAgo * 3600000).toISOString();
+  const posts = [
+    { id:1, user:'나', avatar:'🙋', emotion:e('sleepy'),    memo:'알람 5번 껐다... 오늘도 지각할 것 같은 예감 😴',       time:t(0.3),  reactions:[], comments:[] },
+    { id:2, user:'나', avatar:'🙋', emotion:e('coffee'),    memo:'출근길 아아 한 잔으로 겨우 살아남는 중 ☕',            time:t(1.5),  reactions:[], comments:[] },
+    { id:3, user:'나', avatar:'🙋', emotion:e('monday'),    memo:'왜 월요일은 이렇게 길지... 시간이 멈춘 것 같아',       time:t(4),    reactions:[], comments:[] },
+    { id:4, user:'나', avatar:'🙋', emotion:e('stress'),    memo:'보고서 마감이 오늘인데 아직 절반도 못 했음 🤯',        time:t(6),    reactions:[], comments:[] },
+    { id:5, user:'나', avatar:'🙋', emotion:e('hungry'),    memo:'점심 뭐 먹지... 혼자 먹기 싫은 날 🍔',              time:t(7.5),  reactions:[], comments:[] },
+    { id:6, user:'나', avatar:'🙋', emotion:e('proud'),     memo:'보고서 드디어 완성!! 내가 진짜 대단하다 🤩',          time:t(10),   reactions:[], comments:[] },
+    { id:7, user:'나', avatar:'🙋', emotion:e('calm'),      memo:'퇴근 후 공원 산책... 이 시간만큼은 평화로워 🌿',       time:t(14),   reactions:[], comments:[] },
+    { id:8, user:'나', avatar:'🙋', emotion:e('happy'),     memo:'친구한테 갑자기 연락 와서 치킨 먹었다 😊 행복',       time:t(24),   reactions:[], comments:[] },
+    { id:9, user:'나', avatar:'🙋', emotion:e('tired'),     memo:'내일도 출근이라는 현실... 침대에서 못 일어나겠다',     time:t(30),   reactions:[], comments:[] },
+    { id:10, user:'나', avatar:'🙋', emotion:e('excited'),  memo:'주말 여행 계획 짰다!! 설레서 잠이 안 온다 🔥',        time:t(48),   reactions:[], comments:[] },
+  ];
+  savePosts(MY_KEY, posts);
+}
+
+function seedFriendPosts() {
+  const e = k => EMOTIONS.find(x => x.key === k);
+  const t = (hrsAgo) => new Date(Date.now() - hrsAgo * 3600000).toISOString();
+  const posts = [
+    { id:101, user:'지수', avatar:'🐱', emotion:e('love'),      memo:'드디어 고백했어!! 결과는... 🥹 두근두근',            time:t(0.2),  reactions:[{user:'민준',key:'wow',emoji:'😲'},{user:'하은',key:'love',emoji:'❤️'}], comments:[{user:'하은',emoji:'❤️',text:'대박 결과 알려줘!!'}] },
+    { id:102, user:'민준', avatar:'🐶', emotion:e('stress'),     memo:'오늘 발표 완전 망함... 팀장님한테 혼났어 😤',        time:t(1),    reactions:[{user:'지수',key:'hug',emoji:'🤗'},{user:'태양',key:'same',emoji:'🤝'}], comments:[{user:'지수',emoji:'🤗',text:'수고했어 민준아 ㅠㅠ'}] },
+    { id:103, user:'하은', avatar:'🐰', emotion:e('excited'),    memo:'드디어 연차 승인났다!!!! 3박4일 제주도 간다 🔥🔥',  time:t(2),    reactions:[{user:'지수',key:'wow',emoji:'😲'},{user:'민준',key:'cheer',emoji:'💪'},{user:'태양',key:'love',emoji:'❤️'}], comments:[{user:'민준',emoji:'💪',text:'나도 데려가라 ㅠㅠ'}] },
+    { id:104, user:'태양', avatar:'🦊', emotion:e('hungry'),     memo:'야식 혼자 시켜먹는 중... 같이 먹을 사람 구함',      time:t(3),    reactions:[{user:'하은',key:'lol',emoji:'😂'}], comments:[] },
+    { id:105, user:'수아', avatar:'🐻', emotion:e('sad'),        memo:'강아지가 아파서 동물병원 다녀왔어 😢 빨리 나아라', time:t(5),    reactions:[{user:'지수',key:'hug',emoji:'🤗'},{user:'민준',key:'hug',emoji:'🤗'},{user:'하은',key:'hug',emoji:'🤗'}], comments:[{user:'지수',emoji:'🤗',text:'얼른 나아야 할 텐데ㅠ'}] },
+    { id:106, user:'민준', avatar:'🐶', emotion:e('coffee'),     memo:'아메리카노 4샷... 이게 맞나 싶지만 일단 삶',        time:t(8),    reactions:[{user:'태양',key:'lol',emoji:'😂'},{user:'수아',key:'same',emoji:'🤝'}], comments:[] },
+    { id:107, user:'지수', avatar:'🐱', emotion:e('proud'),      memo:'다이어트 3주째 -3kg 달성!! 나 진짜 잘하지 않냐 🤩', time:t(12),   reactions:[{user:'하은',key:'wow',emoji:'😲'},{user:'민준',key:'cheer',emoji:'💪'},{user:'태양',key:'love',emoji:'❤️'},{user:'수아',key:'wow',emoji:'😲'}], comments:[{user:'태양',emoji:'💪',text:'대단하다 진짜!!'}] },
+    { id:108, user:'수아', avatar:'🐻', emotion:e('calm'),       memo:'비 오는 날 집에서 책 읽기... 이게 행복이지 🌧️',    time:t(18),   reactions:[{user:'지수',key:'love',emoji:'❤️'}], comments:[] },
+    { id:109, user:'태양', avatar:'🦊', emotion:e('wtf'),        memo:'지하철에서 내 발 밟은 사람 그냥 가버림 진짜?!',     time:t(22),   reactions:[{user:'민준',key:'same',emoji:'🤝'},{user:'하은',key:'lol',emoji:'😂'}], comments:[{user:'민준',emoji:'🤝',text:'ㅋㅋㅋㅋ 나도 오늘 당했음'}] },
+    { id:110, user:'하은', avatar:'🐰', emotion:e('sleepy'),     memo:'점심 먹고 나서 이 졸음을 어떻게 이기냐고 😴',      time:t(26),   reactions:[{user:'태양',key:'same',emoji:'🤝'},{user:'수아',key:'same',emoji:'🤝'}], comments:[] },
+    { id:111, user:'수아', avatar:'🐻', emotion:e('grateful'),   memo:'오늘 친구들한테 생일 서프라이즈 받았어 🎂 감동이야 🙏', time:t(36), reactions:[{user:'지수',key:'love',emoji:'❤️'},{user:'민준',key:'love',emoji:'❤️'},{user:'하은',key:'love',emoji:'❤️'},{user:'태양',key:'love',emoji:'❤️'}], comments:[{user:'하은',emoji:'❤️',text:'생일 축하해 수아야!!🎉'}] },
+    { id:112, user:'민준', avatar:'🐶', emotion:e('exhausted'),  memo:'이번 주 야근 5일... 나죽었어 💀 주말에 12시간 잘 거임', time:t(48), reactions:[{user:'지수',key:'hug',emoji:'🤗'},{user:'태양',key:'same',emoji:'🤝'}], comments:[{user:'지수',emoji:'🤗',text:'제발 쉬어 민준아 ㅠㅠ'}] },
+  ];
+  savePosts(FRIEND_KEY, posts);
+}
+
 const EMOTION_GROUPS = [
   { label: '✨ 좋아좋아', keys: ['happy','excited','calm','proud','love','grateful','motivated','relaxed'] },
   { label: '😑 일상템',   keys: ['hungry','sleepy','bored','monday','coffee','paycheck'] },
@@ -678,7 +716,7 @@ function switchTab(tab) {
   document.querySelectorAll('.tab').forEach((t,i) => {
     t.classList.toggle('active', (i===0&&tab==='my')||(i===1&&tab==='friends'));
   });
-  if (tab === 'friends' && getPosts(FRIEND_KEY).length === 0) seedFriendPosts();
+  if (tab === 'friends' && getPosts(FRIEND_KEY).length === 0) seedFriendPosts(); // already seeded on init
   renderFeed();
 }
 
@@ -894,6 +932,10 @@ function fmtTime(iso) {
   if (d.toDateString() === now.toDateString()) return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
   return `${d.getMonth()+1}/${d.getDate()}`;
 }
+
+// 최초 1회 데모 데이터 삽입
+if (!getPosts(MY_KEY).length)     seedMyPosts();
+if (!getPosts(FRIEND_KEY).length) seedFriendPosts();
 
 renderEmotionGrid();
 renderFeed();
