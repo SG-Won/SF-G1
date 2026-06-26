@@ -1,91 +1,512 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>안녕하세요</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>감정 타임라인</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Segoe UI', sans-serif;
+      background: linear-gradient(160deg, #1a0533 0%, #3b0764 50%, #6b21a8 100%);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #6a0dad, #9b59b6, #c39bd3);
-      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      color: #fff;
     }
 
-    .card {
-      background: white;
-      border-radius: 20px;
-      padding: 60px 50px;
+    /* ── 헤더 ── */
+    header {
       text-align: center;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-      max-width: 420px;
-      width: 90%;
+      padding: 36px 20px 20px;
     }
+    header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; }
+    header p  { font-size: 0.85rem; opacity: 0.6; margin-top: 4px; }
 
-    h1 {
-      font-size: 2.4rem;
-      color: #3d006e;
-      margin-bottom: 16px;
+    /* ── 감정 피커 카드 ── */
+    .picker-card {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 24px;
+      margin: 0 16px 20px;
+      padding: 20px;
     }
-
-    p {
-      font-size: 1.1rem;
-      color: #555;
-      margin-bottom: 32px;
+    .picker-title {
+      font-size: 0.8rem;
+      opacity: 0.6;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-
-    button {
-      background: linear-gradient(135deg, #6a0dad, #9b59b6);
-      color: white;
-      border: none;
-      padding: 14px 36px;
-      font-size: 1rem;
-      border-radius: 50px;
+    .emotion-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .emotion-btn {
+      background: rgba(255,255,255,0.07);
+      border: 2px solid transparent;
+      border-radius: 16px;
+      padding: 14px 8px;
       cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s;
+      text-align: center;
+      transition: all 0.18s;
+      color: #fff;
     }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(106, 13, 173, 0.4);
+    .emotion-btn:hover { background: rgba(255,255,255,0.14); }
+    .emotion-btn.active {
+      border-color: var(--clr);
+      background: color-mix(in srgb, var(--clr) 25%, transparent);
     }
+    .emotion-btn .e-emoji { font-size: 2rem; display: block; }
+    .emotion-btn .e-label { font-size: 0.72rem; margin-top: 4px; opacity: 0.85; }
 
-    button:active { transform: translateY(0); }
+    .memo-wrap { display: none; margin-top: 4px; }
+    .memo-wrap.show { display: block; }
+    .memo-input {
+      width: 100%;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      padding: 10px 14px;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+      margin-bottom: 10px;
+    }
+    .memo-input::placeholder { color: rgba(255,255,255,0.4); }
+    .post-btn {
+      width: 100%;
+      padding: 13px;
+      border: none;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(135deg, #a855f7, #7c3aed);
+      color: #fff;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    .post-btn:hover { opacity: 0.88; transform: translateY(-1px); }
 
-    .message {
-      display: none;
-      margin-top: 24px;
-      font-size: 1.2rem;
-      color: #6a0dad;
+    /* ── 탭 ── */
+    .tabs {
+      display: flex;
+      margin: 0 16px 16px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 4px;
+    }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 9px;
+      border-radius: 11px;
+      font-size: 0.85rem;
       font-weight: 600;
+      cursor: pointer;
+      opacity: 0.5;
+      transition: all 0.2s;
+      border: none;
+      background: none;
+      color: #fff;
+    }
+    .tab.active {
+      background: rgba(255,255,255,0.18);
+      opacity: 1;
+    }
+
+    /* ── 타임라인 ── */
+    .feed { padding: 0 16px 100px; }
+    .post-card {
+      background: rgba(255,255,255,0.09);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 20px;
+      padding: 18px;
+      margin-bottom: 14px;
+      animation: fadeUp 0.3s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .post-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .post-meta { flex: 1; }
+    .post-user { font-size: 0.88rem; font-weight: 700; }
+    .post-time { font-size: 0.72rem; opacity: 0.5; margin-top: 2px; }
+    .post-emotion-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: color-mix(in srgb, var(--clr) 30%, transparent);
+      border: 1px solid color-mix(in srgb, var(--clr) 60%, transparent);
+    }
+    .post-memo {
+      font-size: 0.88rem;
+      opacity: 0.85;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    /* ── 리액션 바 ── */
+    .reaction-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .reaction-chip {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      color: #fff;
+    }
+    .reaction-chip:hover { background: rgba(255,255,255,0.2); }
+    .reaction-chip.mine {
+      background: rgba(168,85,247,0.35);
+      border-color: #a855f7;
+    }
+    .react-toggle-btn {
+      background: none;
+      border: 1px dashed rgba(255,255,255,0.3);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+    }
+    .react-toggle-btn:hover { border-color: rgba(255,255,255,0.6); color: #fff; }
+
+    /* ── 리액션 피커 팝업 ── */
+    .reaction-picker {
+      display: none;
+      margin-top: 10px;
+      background: rgba(30,10,50,0.95);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .reaction-picker.show { display: block; }
+    .reaction-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .rpick-btn {
+      background: rgba(255,255,255,0.07);
+      border: none;
+      border-radius: 10px;
+      padding: 8px 4px;
+      text-align: center;
+      cursor: pointer;
+      color: #fff;
+      transition: background 0.15s;
+    }
+    .rpick-btn:hover { background: rgba(255,255,255,0.18); }
+    .rpick-btn span { display: block; }
+    .rpick-btn .r-emoji { font-size: 1.4rem; }
+    .rpick-btn .r-label { font-size: 0.65rem; opacity: 0.7; margin-top: 2px; }
+    .comment-input {
+      width: 100%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: #fff;
+      font-size: 0.82rem;
+      outline: none;
+    }
+    .comment-input::placeholder { color: rgba(255,255,255,0.35); }
+
+    /* ── 댓글 ── */
+    .comments { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .comment-item {
+      background: rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 7px 11px;
+      font-size: 0.8rem;
+      opacity: 0.85;
+    }
+    .comment-item strong { opacity: 1; font-weight: 700; }
+
+    .empty-state {
+      text-align: center;
+      opacity: 0.35;
+      padding: 40px 0;
+      font-size: 0.9rem;
     }
 
     footer {
-      margin-top: 36px;
-      font-size: 0.78rem;
-      color: rgba(255, 255, 255, 0.75);
-      letter-spacing: 0.03em;
+      text-align: center;
+      font-size: 0.7rem;
+      opacity: 0.3;
+      padding: 20px;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>안녕하세요 👋</h1>
-    <p>제 첫 번째 웹 페이지예요</p>
-    <button onclick="showMessage()">눌러보기</button>
-    <div class="message" id="msg">🎉 잘 작동해요!</div>
-  </div>
-  <footer>LG U+ Lifestyle Innovation Workshop</footer>
 
-  <script>
-    function showMessage() {
-      document.getElementById('msg').style.display = 'block';
-    }
-  </script>
+<header>
+  <h1>💜 감정 타임라인</h1>
+  <p>지금 이 순간의 감정을 친구들과 나눠요</p>
+</header>
+
+<!-- 감정 피커 -->
+<div class="picker-card">
+  <div class="picker-title">지금 기분이 어때요?</div>
+  <div class="emotion-grid" id="emotionGrid"></div>
+  <div class="memo-wrap" id="memoWrap">
+    <input class="memo-input" id="memoInput" placeholder="한 줄 메모 (선택)" maxlength="80" />
+    <button class="post-btn" id="postBtn" onclick="submitPost()">공유하기</button>
+  </div>
+</div>
+
+<!-- 탭 -->
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('my')">내 타임라인</button>
+  <button class="tab" onclick="switchTab('friends')">친구 피드</button>
+</div>
+
+<!-- 피드 -->
+<div class="feed" id="feed"></div>
+
+<footer>LG U+ Lifestyle Innovation Workshop</footer>
+
+<script>
+const EMOTIONS = [
+  { key:'happy',   emoji:'😊', label:'기뻐요',   color:'#FFD93D' },
+  { key:'excited', emoji:'🔥', label:'신나요',   color:'#FF6B6B' },
+  { key:'calm',    emoji:'😌', label:'평온해요', color:'#6BCB77' },
+  { key:'tired',   emoji:'😫', label:'지쳐요',   color:'#8B8B8B' },
+  { key:'sad',     emoji:'😢', label:'슬퍼요',   color:'#4D96FF' },
+  { key:'anxious', emoji:'😰', label:'불안해요', color:'#C77DFF' },
+];
+const REACTIONS = [
+  { key:'hug',   emoji:'🤗', label:'안아줄게' },
+  { key:'cheer', emoji:'💪', label:'힘내!' },
+  { key:'same',  emoji:'🤝', label:'나도그래' },
+  { key:'wow',   emoji:'😲', label:'대박' },
+  { key:'love',  emoji:'❤️', label:'사랑해' },
+  { key:'lol',   emoji:'😂', label:'웃겨' },
+];
+
+const DEMO_USERS = [
+  { name:'지수', avatar:'🐱' },
+  { name:'민준', avatar:'🐶' },
+  { name:'하은', avatar:'🐰' },
+];
+
+let selectedEmotion = null;
+let currentTab = 'my';
+
+// localStorage 키
+const MY_KEY      = 'emo_my_posts';
+const FRIEND_KEY  = 'emo_friend_posts';
+
+function getPosts(key) {
+  return JSON.parse(localStorage.getItem(key) || '[]');
+}
+function savePosts(key, posts) {
+  localStorage.setItem(key, JSON.stringify(posts));
+}
+
+// 감정 버튼 렌더
+function renderEmotionGrid() {
+  const grid = document.getElementById('emotionGrid');
+  grid.innerHTML = EMOTIONS.map(e => `
+    <button class="emotion-btn" id="eb_${e.key}"
+      style="--clr:${e.color}"
+      onclick="selectEmotion('${e.key}')">
+      <span class="e-emoji">${e.emoji}</span>
+      <span class="e-label">${e.label}</span>
+    </button>
+  `).join('');
+}
+
+function selectEmotion(key) {
+  selectedEmotion = EMOTIONS.find(e => e.key === key);
+  document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('eb_' + key).classList.add('active');
+  document.getElementById('memoWrap').classList.add('show');
+  document.getElementById('postBtn').textContent =
+    `${selectedEmotion.emoji} 지금 기분 공유하기`;
+}
+
+function submitPost() {
+  if (!selectedEmotion) return;
+  const memo = document.getElementById('memoInput').value.trim();
+  const posts = getPosts(MY_KEY);
+  posts.unshift({
+    id: Date.now(),
+    user: '나',
+    avatar: '🙋',
+    emotion: selectedEmotion,
+    memo,
+    time: new Date().toISOString(),
+    reactions: [],
+    comments: [],
+  });
+  savePosts(MY_KEY, posts);
+
+  // 리셋
+  selectedEmotion = null;
+  document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('memoInput').value = '';
+  document.getElementById('memoWrap').classList.remove('show');
+
+  if (currentTab === 'my') renderFeed();
+}
+
+// 탭 전환
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', (i===0 && tab==='my') || (i===1 && tab==='friends'));
+  });
+  // 친구 피드 첫 진입 시 데모 데이터 생성
+  if (tab === 'friends' && getPosts(FRIEND_KEY).length === 0) seedFriendPosts();
+  renderFeed();
+}
+
+function seedFriendPosts() {
+  const demos = [
+    { user:'지수', avatar:'🐱', emotion: EMOTIONS[0], memo:'오늘 커피가 너무 맛있었어!', minsAgo: 5 },
+    { user:'민준', avatar:'🐶', emotion: EMOTIONS[3], memo:'야근 3일째... 살려줘', minsAgo: 23 },
+    { user:'하은', avatar:'🐰', emotion: EMOTIONS[1], memo:'드디어 주말이다!!🎉', minsAgo: 61 },
+    { user:'지수', avatar:'🐱', emotion: EMOTIONS[4], memo:'', minsAgo: 180 },
+  ];
+  const posts = demos.map((d,i) => ({
+    id: Date.now() - i*1000,
+    user: d.user, avatar: d.avatar,
+    emotion: d.emotion, memo: d.memo,
+    time: new Date(Date.now() - d.minsAgo*60000).toISOString(),
+    reactions: [], comments: [],
+  }));
+  savePosts(FRIEND_KEY, posts);
+}
+
+// 피드 렌더
+function renderFeed() {
+  const key = currentTab === 'my' ? MY_KEY : FRIEND_KEY;
+  const posts = getPosts(key);
+  const feed = document.getElementById('feed');
+
+  if (!posts.length) {
+    feed.innerHTML = '<div class="empty-state">아직 기록이 없어요.<br>첫 감정을 공유해보세요! 💜</div>';
+    return;
+  }
+  feed.innerHTML = posts.map(p => postHTML(p, key)).join('');
+}
+
+function timeAgo(iso) {
+  const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
+  if (diff < 60)  return `${diff}초 전`;
+  if (diff < 3600) return `${Math.floor(diff/60)}분 전`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
+  return `${Math.floor(diff/86400)}일 전`;
+}
+
+function postHTML(p, storeKey) {
+  const reactionSummary = {};
+  p.reactions.forEach(r => {
+    reactionSummary[r.emoji] = (reactionSummary[r.emoji] || 0) + 1;
+  });
+  const chips = Object.entries(reactionSummary).map(([emoji, cnt]) =>
+    `<button class="reaction-chip" onclick="quickReact('${p.id}','${storeKey}')">${emoji} ${cnt}</button>`
+  ).join('');
+
+  const commentsHTML = p.comments.map(c =>
+    `<div class="comment-item"><strong>${c.user}</strong> ${c.emoji} ${c.text}</div>`
+  ).join('');
+
+  const reactionBtns = REACTIONS.map(r =>
+    `<button class="rpick-btn" onclick="addReaction('${p.id}','${storeKey}','${r.key}','${r.emoji}','${r.label}')">
+      <span class="r-emoji">${r.emoji}</span>
+      <span class="r-label">${r.label}</span>
+    </button>`
+  ).join('');
+
+  return `
+  <div class="post-card" id="card_${p.id}">
+    <div class="post-top">
+      <div class="avatar" style="background:color-mix(in srgb, ${p.emotion.color} 30%, #2a0050)">${p.avatar}</div>
+      <div class="post-meta">
+        <div class="post-user">${p.user}</div>
+        <div class="post-time">${timeAgo(p.time)}</div>
+      </div>
+      <div class="post-emotion-badge" style="--clr:${p.emotion.color}">
+        ${p.emotion.emoji} ${p.emotion.label}
+      </div>
+    </div>
+    ${p.memo ? `<div class="post-memo">${p.memo}</div>` : ''}
+    <div class="reaction-bar">
+      ${chips}
+      <button class="react-toggle-btn" onclick="toggleReactionPicker('${p.id}')">+ 공감</button>
+    </div>
+    <div class="reaction-picker" id="rp_${p.id}">
+      <div class="reaction-picker-grid">${reactionBtns}</div>
+      <input class="comment-input" id="ci_${p.id}" placeholder="한마디 남기기... (선택 후 입력)" />
+    </div>
+    ${p.comments.length ? `<div class="comments">${commentsHTML}</div>` : ''}
+  </div>`;
+}
+
+function toggleReactionPicker(id) {
+  const el = document.getElementById('rp_' + id);
+  el.classList.toggle('show');
+}
+
+function addReaction(postId, storeKey, key, emoji, label) {
+  const posts = getPosts(storeKey);
+  const post = posts.find(p => String(p.id) === String(postId));
+  if (!post) return;
+
+  // 리액션 추가 (중복 제거)
+  post.reactions = post.reactions.filter(r => r.user !== '나');
+  post.reactions.push({ user:'나', key, emoji });
+
+  // 댓글 추가
+  const commentInput = document.getElementById('ci_' + postId);
+  const text = commentInput ? commentInput.value.trim() : '';
+  if (text) post.comments.push({ user:'나', emoji, text });
+
+  savePosts(storeKey, posts);
+  renderFeed();
+}
+
+function quickReact(postId, storeKey) {
+  toggleReactionPicker(postId);
+}
+
+// 초기화
+renderEmotionGrid();
+renderFeed();
+</script>
 </body>
 </html>
