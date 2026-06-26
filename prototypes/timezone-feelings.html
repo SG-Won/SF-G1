@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>같은 하루, 다른 시간 — 감정 연결</title>
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --accent: #4f46e5;
+    --accent-soft: #ede9fe;
+    --text: #1f2433;
+    --sub: #6b7280;
+    --border: #e5e7eb;
+    --warm1: #fef3c7;
+    --warm2: #fde68a;
+    --radius: 16px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.07);
+  }
+  [data-theme="dark"] {
+    --bg: #111827;
+    --card: #1f2937;
+    --text: #f9fafb;
+    --sub: #9ca3af;
+    --border: #374151;
+    --accent-soft: #312e81;
+    --warm1: #292524;
+    --warm2: #44403c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 14px;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
+  }
+  .header h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+  .header-right { display: flex; gap: 10px; align-items: center; }
+  .theme-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 34px; height: 34px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text);
+  }
+  .view-toggle {
+    display: flex;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    font-size: 12px;
+  }
+  .view-toggle button {
+    padding: 5px 12px;
+    border: none;
+    background: transparent;
+    color: var(--sub);
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .view-toggle button.active {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* ── Main ── */
+  .main { padding: 16px 16px 100px; max-width: 430px; margin: 0 auto; }
+
+  /* ── Friend Card ── */
+  .friend-card {
+    background: linear-gradient(135deg, #667eea22, #764ba222);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .friend-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle, #4f46e520, transparent 70%);
+  }
+  .friend-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sub);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+  }
+  .friend-main {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .friend-emoji-big {
+    font-size: 44px;
+    line-height: 1;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .friend-info { flex: 1; }
+  .friend-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .friend-status { font-size: 13px; color: var(--sub); margin-bottom: 6px; }
+  .friend-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--sub);
+  }
+  .city-badge {
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .dot-live {
+    width: 7px; height: 7px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+  .friend-when { font-size: 11px; color: var(--sub); margin-top: 8px; }
+
+  /* ── Check-in ── */
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--sub);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .checkin-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .my-current {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .my-emoji-display {
+    font-size: 36px;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .my-status-text { flex: 1; }
+  .my-status-text strong { font-size: 14px; display: block; margin-bottom: 2px; }
+  .my-status-text span { font-size: 12px; color: var(--sub); }
+  .my-city {
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 600;
+    background: var(--accent-soft);
+    padding: 3px 9px;
+    border-radius: 10px;
+  }
+
+  .emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+  }
+  .emoji-btn {
+    aspect-ratio: 1;
+    background: var(--bg);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    position: relative;
+    padding: 6px 2px 4px;
+  }
+  .emoji-btn span.label {
+    font-size: 8px;
+    color: var(--sub);
+    margin-top: 2px;
+    display: block;
+    text-align: center;
+    line-height: 1.2;
+  }
+  .emoji-btn:hover { transform: scale(1.1); background: var(--accent-soft); }
+  .emoji-btn.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .emoji-btn.selected::after {
+    content: '✓';
+    position: absolute;
+    top: -4px; right: -4px;
+    background: var(--accent);
+    color: white;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    font-size: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Capsule ── */
+  .capsule-card {
+    background: linear-gradient(135deg, var(--warm1), var(--warm2));
+    border: 1px solid #fcd34d44;
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .capsule-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .capsule-desc { font-size: 12px; color: var(--sub); margin-bottom: 12px; }
+  .capsule-row { display: flex; gap: 8px; align-items: center; }
+  .capsule-input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 12px;
+    font-size: 13px;
+    background: var(--card);
+    color: var(--text);
+    outline: none;
+    font-family: inherit;
+  }
+  .capsule-input:focus { border-color: var(--accent); }
+  .capsule-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: opacity 0.2s;
+  }
+  .capsule-btn:hover { opacity: 0.85; }
+  .capsule-saved {
+    font-size: 12px;
+    color: #059669;
+    margin-top: 8px;
+    display: none;
+  }
+
+  /* ── Timeline ── */
+  .timeline-section { margin-bottom: 16px; }
+  .timeline-grid {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr;
+    gap: 0;
+  }
+  .timeline-header {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr;
+    margin-bottom: 8px;
+  }
+  .tl-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sub);
+    text-align: center;
+  }
+  .tl-name:first-child { text-align: left; }
+  .tl-name:last-child { text-align: right; }
+  .timeline-item {
+    display: contents;
+  }
+  .tl-left, .tl-right {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .tl-left { border-radius: 12px 4px 4px 12px; }
+  .tl-right { border-radius: 4px 12px 12px 4px; text-align: right; }
+  .tl-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--sub);
+    padding: 0 4px;
+    margin-bottom: 6px;
+  }
+  .tl-emoji { font-size: 20px; display: block; margin-bottom: 2px; }
+  .tl-time { font-size: 10px; color: var(--sub); }
+  .tl-empty { opacity: 0.3; font-size: 12px; color: var(--sub); }
+
+  /* ── Bottom Tabs ── */
+  .bottom-tabs {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 20px;
+    z-index: 20;
+  }
+  .tab-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--sub);
+    font-size: 10px;
+    font-family: inherit;
+    padding: 6px 0;
+    transition: color 0.2s;
+  }
+  .tab-btn .tab-icon { font-size: 20px; }
+  .tab-btn.active { color: var(--accent); }
+
+  /* ── Sections ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--text);
+    color: var(--bg);
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s;
+    z-index: 100;
+    white-space: nowrap;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── Sent capsules list ── */
+  .capsule-list { margin-top: 12px; }
+  .capsule-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+  }
+  .capsule-item .ci-emoji { font-size: 20px; }
+  .capsule-item .ci-text { flex: 1; }
+  .capsule-item .ci-when { font-size: 11px; color: var(--sub); }
+  .capsule-status {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+  .status-pending { background: var(--warm1); color: #92400e; }
+  .status-delivered { background: #d1fae5; color: #065f46; }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div class="header">
+  <h1>🌍 감정 시계</h1>
+  <div class="header-right">
+    <div class="view-toggle">
+      <button id="btnMe" class="active" onclick="switchUser('me')">나 (서울)</button>
+      <button id="btnFriend" onclick="switchUser('friend')">지우 (베를린)</button>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ── 홈 탭 ── -->
+  <div class="page active" id="page-home">
+
+    <!-- 상대방 현재 상태 -->
+    <div class="friend-card" id="friendCard">
+      <div class="friend-label">지금 친구 상태</div>
+      <div class="friend-main">
+        <div class="friend-emoji-big" id="friendEmoji">😴</div>
+        <div class="friend-info">
+          <div class="friend-name" id="friendName">지우</div>
+          <div class="friend-status" id="friendStatusText">자는 중이에요</div>
+          <div class="friend-time">
+            <span class="city-badge" id="friendCity">베를린</span>
+            <span id="friendLocalTime">--:--</span>
+            <span class="dot-live"></span>
+          </div>
+        </div>
+      </div>
+      <div class="friend-when" id="friendWhen">15분 전에 업데이트했어요</div>
+    </div>
+
+    <!-- 내 체크인 -->
+    <div class="section-title">✨ 지금 내 상태 공유</div>
+    <div class="checkin-card">
+      <div class="my-current">
+        <div class="my-emoji-display" id="myEmojiDisplay">😊</div>
+        <div class="my-status-text">
+          <strong id="myStatusLabel">행복해요</strong>
+          <span id="myCheckinTime">방금 전 체크인</span>
+        </div>
+        <span class="my-city" id="myCity">서울</span>
+      </div>
+      <div class="emoji-grid" id="emojiGrid"></div>
+    </div>
+
+    <!-- 타임캡슐 -->
+    <div class="capsule-card">
+      <div class="capsule-title">⏰ 타임캡슐</div>
+      <div class="capsule-desc">지금 감정을 남겨두면 친구가 일어날 때 받아봐요</div>
+      <div class="capsule-row">
+        <input class="capsule-input" id="capsuleMsg" placeholder="짧은 메시지를 남겨봐요..." maxlength="50">
+        <button class="capsule-btn" onclick="sendCapsule()">보내기</button>
+      </div>
+      <div class="capsule-saved" id="capsuleSaved">✅ 타임캡슐이 저장됐어요! 친구가 일어나면 전달돼요.</div>
+    </div>
+
+  </div>
+
+  <!-- ── 타임라인 탭 ── -->
+  <div class="page" id="page-timeline">
+    <div class="section-title">📅 오늘 하루 감정 타임라인</div>
+    <div class="timeline-header">
+      <div class="tl-name" id="tlMyName">나 (서울)</div>
+      <div class="tl-name">시간</div>
+      <div class="tl-name" id="tlFriendName">지우 (베를린)</div>
+    </div>
+    <div class="timeline-grid" id="timelineGrid"></div>
+  </div>
+
+  <!-- ── 캡슐함 탭 ── -->
+  <div class="page" id="page-capsules">
+    <div class="section-title">📦 보낸 타임캡슐</div>
+    <div class="capsule-list" id="capsuleList">
+      <div style="text-align:center;padding:40px 0;color:var(--sub);font-size:13px;">
+        아직 보낸 타임캡슐이 없어요.<br>친구가 자고 있을 때 메시지를 남겨봐요 🌙
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Bottom Tabs -->
+<div class="bottom-tabs">
+  <button class="tab-btn active" onclick="showPage('home', this)">
+    <span class="tab-icon">🏠</span>홈
+  </button>
+  <button class="tab-btn" onclick="showPage('timeline', this)">
+    <span class="tab-icon">📅</span>타임라인
+  </button>
+  <button class="tab-btn" onclick="showPage('capsules', this)">
+    <span class="tab-icon">📦</span>캡슐함
+  </button>
+</div>
+
+<script>
+const EMOTIONS = [
+  { emoji: '😊', label: '행복', text: '행복해요' },
+  { emoji: '☀️', label: '활기', text: '활기차요' },
+  { emoji: '😔', label: '힘듦', text: '힘들어요' },
+  { emoji: '😴', label: '자는중', text: '자는 중이에요' },
+  { emoji: '🍜', label: '밥먹는중', text: '밥 먹는 중' },
+  { emoji: '🌙', label: '피곤', text: '피곤해요' },
+  { emoji: '😤', label: '스트레스', text: '스트레스 받아요' },
+  { emoji: '🥰', label: '그리워', text: '보고싶어요' },
+  { emoji: '📚', label: '공부중', text: '공부 중이에요' },
+  { emoji: '🎉', label: '신나', text: '신나요!' },
+  { emoji: '😌', label: '평온', text: '평온해요' },
+  { emoji: '🤒', label: '아파', text: '몸이 안 좋아요' },
+];
+
+// State
+let currentUser = 'me'; // 'me' or 'friend'
+const CONFIGS = {
+  me: { name: '나', city: '서울', offset: 9 },
+  friend: { name: '지우', city: '베를린', offset: 2 },
+};
+
+function getStorage(key) {
+  try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
+}
+function setStorage(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+}
+
+function getCityTime(offsetHours) {
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  const cityTime = new Date(utc + offsetHours * 3600000);
+  return cityTime;
+}
+
+function formatTime(date) {
+  return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+}
+
+function relativeTime(ts) {
+  const diff = Math.floor((Date.now() - ts) / 1000);
+  if (diff < 60) return '방금 전';
+  if (diff < 3600) return `${Math.floor(diff/60)}분 전`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
+  return '오래 전';
+}
+
+// Build emoji grid
+function buildEmojiGrid() {
+  const grid = document.getElementById('emojiGrid');
+  const saved = getStorage(`emotion_${currentUser}`) || { emoji: '😊', text: '행복해요' };
+  grid.innerHTML = EMOTIONS.map(e => `
+    <button class="emoji-btn ${e.emoji === saved.emoji ? 'selected' : ''}"
+      onclick="selectEmotion('${e.emoji}', '${e.text}', this)">
+      ${e.emoji}
+      <span class="label">${e.label}</span>
+    </button>
+  `).join('');
+}
+
+function selectEmotion(emoji, text, btn) {
+  const me = CONFIGS[currentUser];
+  // deselect all
+  document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+
+  const ts = Date.now();
+  setStorage(`emotion_${currentUser}`, { emoji, text, ts });
+
+  // Add to timeline
+  const timeline = getStorage('timeline') || [];
+  const cityTime = getCityTime(me.offset);
+  timeline.push({ user: currentUser, emoji, text, ts, timeStr: formatTime(cityTime) });
+  if (timeline.length > 20) timeline.splice(0, timeline.length - 20);
+  setStorage('timeline', timeline);
+
+  // Update my display
+  document.getElementById('myEmojiDisplay').textContent = emoji;
+  document.getElementById('myStatusLabel').textContent = text;
+  document.getElementById('myCheckinTime').textContent = '방금 체크인했어요 ✓';
+
+  // Animate
+  const el = document.getElementById('myEmojiDisplay');
+  el.style.transform = 'scale(1.3)';
+  setTimeout(() => el.style.transform = 'scale(1)', 300);
+
+  showToast(`${emoji} ${text} — 친구에게 전달됐어요!`);
+  updateFriendCard();
+}
+
+function updateFriendCard() {
+  const other = currentUser === 'me' ? 'friend' : 'me';
+  const otherConfig = CONFIGS[other];
+  const saved = getStorage(`emotion_${other}`) || { emoji: '😴', text: '자는 중이에요', ts: Date.now() - 900000 };
+
+  document.getElementById('friendEmoji').textContent = saved.emoji;
+  document.getElementById('friendStatusText').textContent = saved.text;
+  document.getElementById('friendName').textContent = otherConfig.name;
+  document.getElementById('friendCity').textContent = otherConfig.city;
+  document.getElementById('friendWhen').textContent = `${relativeTime(saved.ts || Date.now())}에 업데이트했어요`;
+
+  const cityTime = getCityTime(otherConfig.offset);
+  document.getElementById('friendLocalTime').textContent = formatTime(cityTime);
+
+  // Animate friend emoji
+  const el = document.getElementById('friendEmoji');
+  el.style.transform = 'scale(1.2)';
+  setTimeout(() => el.style.transform = 'scale(1)', 400);
+}
+
+function updateMyCard() {
+  const me = CONFIGS[currentUser];
+  const saved = getStorage(`emotion_${currentUser}`) || { emoji: '😊', text: '행복해요', ts: Date.now() };
+
+  document.getElementById('myEmojiDisplay').textContent = saved.emoji;
+  document.getElementById('myStatusLabel').textContent = saved.text;
+  document.getElementById('myCity').textContent = me.city;
+  document.getElementById('myCheckinTime').textContent = `${relativeTime(saved.ts || Date.now())} 체크인`;
+}
+
+function updateTimeline() {
+  const timeline = getStorage('timeline') || [];
+  const me = CONFIGS[currentUser];
+  const other = currentUser === 'me' ? 'friend' : 'me';
+  const otherConfig = CONFIGS[other];
+
+  document.getElementById('tlMyName').textContent = `${me.name} (${me.city})`;
+  document.getElementById('tlFriendName').textContent = `${otherConfig.name} (${otherConfig.city})`;
+
+  if (timeline.length === 0) {
+    document.getElementById('timelineGrid').innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:40px 0;color:var(--sub);font-size:13px;">
+        아직 체크인 기록이 없어요.<br>감정을 눌러서 시작해봐요 😊
+      </div>`;
+    return;
+  }
+
+  // Group by approximate hour
+  const hours = {};
+  timeline.forEach(item => {
+    const h = item.timeStr || '??:??';
+    if (!hours[h]) hours[h] = { me: null, friend: null, time: h };
+    hours[h][item.user] = item;
+  });
+
+  const sortedHours = Object.values(hours).reverse().slice(0, 8);
+  const grid = document.getElementById('timelineGrid');
+  grid.innerHTML = sortedHours.map(slot => {
+    const mySlot = slot[currentUser];
+    const friendSlot = slot[other];
+    return `
+      <div class="tl-left ${!mySlot ? 'tl-empty' : ''}">
+        ${mySlot ? `<span class="tl-emoji">${mySlot.emoji}</span><span class="tl-time">${mySlot.text}</span>` : '<span class="tl-time">—</span>'}
+      </div>
+      <div class="tl-center">${slot.time}</div>
+      <div class="tl-right ${!friendSlot ? 'tl-empty' : ''}">
+        ${friendSlot ? `<span class="tl-emoji">${friendSlot.emoji}</span><span class="tl-time">${friendSlot.text}</span>` : '<span class="tl-time">—</span>'}
+      </div>
+    `;
+  }).join('');
+}
+
+function updateCapsuleList() {
+  const capsules = getStorage('capsules') || [];
+  const list = document.getElementById('capsuleList');
+  if (capsules.length === 0) {
+    list.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--sub);font-size:13px;">
+      아직 보낸 타임캡슐이 없어요.<br>친구가 자고 있을 때 메시지를 남겨봐요 🌙
+    </div>`;
+    return;
+  }
+  list.innerHTML = capsules.slice().reverse().map(c => {
+    const isDelivered = (Date.now() - c.ts) > 60000; // demo: 1min = "delivered"
+    return `
+      <div class="capsule-item">
+        <span class="ci-emoji">${c.emoji}</span>
+        <div class="ci-text">
+          <div>${c.msg || '(감정만 공유)'}</div>
+          <div class="ci-when">${relativeTime(c.ts)}</div>
+        </div>
+        <span class="capsule-status ${isDelivered ? 'status-delivered' : 'status-pending'}">
+          ${isDelivered ? '전달됨 ✓' : '대기 중 ⏳'}
+        </span>
+      </div>`;
+  }).join('');
+}
+
+function sendCapsule() {
+  const msg = document.getElementById('capsuleMsg').value.trim();
+  const saved = getStorage(`emotion_${currentUser}`) || { emoji: '😊' };
+  const capsules = getStorage('capsules') || [];
+  capsules.push({ emoji: saved.emoji, msg, ts: Date.now(), from: currentUser });
+  setStorage('capsules', capsules);
+  document.getElementById('capsuleMsg').value = '';
+  document.getElementById('capsuleSaved').style.display = 'block';
+  setTimeout(() => document.getElementById('capsuleSaved').style.display = 'none', 3000);
+  showToast('⏰ 타임캡슐을 보냈어요!');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'timeline') updateTimeline();
+  if (name === 'capsules') updateCapsuleList();
+}
+
+function switchUser(user) {
+  currentUser = user;
+  document.getElementById('btnMe').classList.toggle('active', user === 'me');
+  document.getElementById('btnFriend').classList.toggle('active', user === 'friend');
+  const me = CONFIGS[currentUser];
+  const other = currentUser === 'me' ? 'friend' : 'me';
+  const otherCfg = CONFIGS[other];
+
+  // Update friend card header
+  document.querySelector('.friend-label').textContent = `지금 ${otherCfg.name === '나' ? '상대방' : otherCfg.name} 상태`;
+
+  buildEmojiGrid();
+  updateMyCard();
+  updateFriendCard();
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
+  document.querySelector('.theme-btn').textContent = isDark ? '🌙' : '☀️';
+}
+
+// Seed demo data if empty
+function seedDemoData() {
+  if (!getStorage('emotion_friend')) {
+    setStorage('emotion_friend', { emoji: '😴', text: '자는 중이에요', ts: Date.now() - 15 * 60000 });
+  }
+  if (!getStorage('emotion_me')) {
+    setStorage('emotion_me', { emoji: '😊', text: '행복해요', ts: Date.now() - 3 * 60000 });
+  }
+  if (!getStorage('timeline')) {
+    const now = Date.now();
+    setStorage('timeline', [
+      { user: 'me', emoji: '☀️', text: '활기차요', ts: now - 18000000, timeStr: '07:30' },
+      { user: 'friend', emoji: '🌙', text: '피곤해요', ts: now - 14400000, timeStr: '00:30' },
+      { user: 'me', emoji: '📚', text: '공부 중이에요', ts: now - 7200000, timeStr: '13:00' },
+      { user: 'me', emoji: '😊', text: '행복해요', ts: now - 180000, timeStr: '14:57' },
+    ]);
+  }
+}
+
+// Clock tick
+setInterval(() => {
+  updateFriendCard();
+}, 30000);
+
+// Init
+seedDemoData();
+buildEmojiGrid();
+updateMyCard();
+updateFriendCard();
+</script>
+</body>
+</html>
