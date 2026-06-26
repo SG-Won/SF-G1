@@ -2,8 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>같은 하루, 다른 시간</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FeeLog</title>
 <style>
 :root {
   --bg:#f6f7fb;--card:#fff;--accent:#4f46e5;--accent-soft:#ede9fe;
@@ -15,8 +15,10 @@
   --border:#374151;--accent-soft:#312e81;--warm1:#292524;--warm2:#44403c;
 }
 *{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden;width:100%;touch-action:pan-y}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
-  background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+  background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;
+  max-width:430px;margin:0 auto}
 
 /* Header */
 .header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 12px;
@@ -286,7 +288,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
 
 <div class="header">
   <div style="display:flex;align-items:center;gap:8px">
-    <h1 id="headerTitle">🌍 감정 시계</h1>
+    <svg width="108" height="34" viewBox="0 0 108 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="FeeLog">
+      <defs>
+        <linearGradient id="fl1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#6366f1"/>
+          <stop offset="100%" stop-color="#a78bfa"/>
+        </linearGradient>
+        <linearGradient id="fl2" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#4f46e5"/>
+          <stop offset="100%" stop-color="#7c3aed"/>
+        </linearGradient>
+      </defs>
+      <!-- 아이콘 배경 -->
+      <rect x="0" y="1" width="32" height="32" rx="10" fill="url(#fl1)"/>
+      <!-- 지구 원 -->
+      <circle cx="16" cy="17" r="8" fill="none" stroke="white" stroke-width="1.5" opacity="0.9"/>
+      <!-- 지구 세로선 -->
+      <ellipse cx="16" cy="17" rx="3.5" ry="8" fill="none" stroke="white" stroke-width="1.2" opacity="0.7"/>
+      <!-- 지구 가로선 -->
+      <line x1="8" y1="17" x2="24" y2="17" stroke="white" stroke-width="1.2" opacity="0.7"/>
+      <line x1="9" y1="13" x2="23" y2="13" stroke="white" stroke-width="1" opacity="0.5"/>
+      <line x1="9" y1="21" x2="23" y2="21" stroke="white" stroke-width="1" opacity="0.5"/>
+      <!-- 하트 핀 -->
+      <path d="M16 10c-1.1 0-2 .9-2 2 0 1.5 2 3.5 2 3.5s2-2 2-3.5c0-1.1-.9-2-2-2z" fill="#fbbf24"/>
+      <!-- Fee 텍스트 -->
+      <text x="37" y="15" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-weight="800" font-size="14" fill="url(#fl2)" letter-spacing="-0.3">Fee</text>
+      <!-- Log 텍스트 -->
+      <text x="62" y="15" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-weight="800" font-size="14" fill="var(--text)" letter-spacing="-0.3">Log</text>
+      <!-- 서브 태그라인 -->
+      <text x="37" y="27" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-weight="600" font-size="8" fill="var(--sub)" id="logoTagline">감정을 시간으로 잇다</text>
+    </svg>
   </div>
   <div class="header-right" style="display:flex;align-items:center;gap:8px">
     <div class="lang-toggle">
@@ -596,7 +627,8 @@ function setLang(l) {
 
 function applyLang() {
   const S = STRINGS[lang];
-  document.getElementById('headerTitle').textContent = S.appTitle;
+  const logoTagline = document.getElementById('logoTagline');
+  if (logoTagline) logoTagline.textContent = lang === 'ko' ? '감정을 시간으로 잇다' : 'Connect feelings across time';
   // bottom tabs
   const tabs = document.querySelectorAll('.tab-btn');
   if(tabs[0]) tabs[0].childNodes[1].textContent = S.tabHome;
