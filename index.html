@@ -15,9 +15,9 @@
   --border:#374151;--accent-soft:#312e81;--warm1:#292524;--warm2:#44403c;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{overflow:hidden;width:100%;touch-action:pan-y;height:100%}
+html{height:100%;overflow:hidden}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
-  background:var(--bg);color:var(--text);height:100%;transition:background .3s,color .3s;
+  background:var(--bg);color:var(--text);height:100%;overflow:hidden;touch-action:pan-y;
   max-width:430px;margin:0 auto;display:flex;flex-direction:column}
 
 /* Header */
@@ -40,7 +40,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
   cursor:pointer;font-family:inherit;padding:4px 8px 4px 0;display:flex;align-items:center;gap:4px}
 
 /* Main */
-.main{padding:14px 16px 100px;max-width:480px;margin:0 auto;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.main{padding:14px 16px 90px;max-width:480px;margin:0 auto;flex:1 1 0;min-height:0;overflow-y:scroll;overflow-x:hidden;-webkit-overflow-scrolling:touch}
 .section-title{font-size:13px;font-weight:600;color:var(--sub);margin-bottom:10px;
   display:flex;align-items:center;gap:6px}
 
@@ -214,8 +214,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
 .status-delivered{background:#d1fae5;color:#065f46}
 
 /* Bottom tabs */
-.bottom-tabs{position:sticky;bottom:0;background:var(--card);
-  border-top:1px solid var(--border);display:flex;padding:8px 0 20px;z-index:20;flex-shrink:0}
+.bottom-tabs{flex-shrink:0;background:var(--card);
+  border-top:1px solid var(--border);display:flex;padding:8px 0 20px;z-index:20}
 .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
   background:none;border:none;cursor:pointer;color:var(--sub);font-size:10px;
   font-family:inherit;padding:6px 0;transition:color .2s}
