@@ -527,6 +527,39 @@
     }
     .nav-item.active { color: #7c3aed; }
     .nav-icon { font-size: 1.4rem; }
+
+    /* ── 언어 토글 ── */
+    .lang-toggle {
+      display: flex;
+      align-items: center;
+      background: #f0edf8;
+      border-radius: 20px;
+      padding: 3px;
+      gap: 0;
+      margin-right: 10px;
+    }
+    .lang-btn {
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      font-family: inherit;
+      border: none;
+      cursor: pointer;
+      background: none;
+      color: #b0a3d4;
+      transition: all 0.18s;
+      line-height: 1;
+    }
+    .lang-btn.active {
+      background: linear-gradient(135deg, #7c3aed, #a78bfa);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(124,58,237,0.3);
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+    }
   </style>
 </head>
 <body>
@@ -560,12 +593,18 @@
       <text x="38" y="28" font-family="Nunito, Arial, sans-serif" font-weight="700" font-size="8.5" fill="#9b8ec4" letter-spacing="0.2">지금 이 순간을 기록해요</text>
     </svg>
   </div>
-  <div class="header-avatar">🙋</div>
+  <div class="header-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-kor" onclick="setLang('ko')">KOR</button>
+      <button class="lang-btn" id="btn-eng" onclick="setLang('en')">ENG</button>
+    </div>
+    <div class="header-avatar">🙋</div>
+  </div>
 </header>
 
 <!-- 감정 피커 -->
 <div class="section" style="margin-top:12px">
-  <div class="section-label">지금 기분이 어때요?</div>
+  <div class="section-label" id="lbl-picker">지금 기분이 어때요?</div>
   <div id="emotionGrid" style="max-height:calc(100dvh * 0.42);overflow-y:auto;scrollbar-width:none;padding-right:2px"></div>
 </div>
 
@@ -577,8 +616,8 @@
 
 <!-- 탭 -->
 <div class="tabs">
-  <button class="tab active" onclick="switchTab('my')">✨ 내 타임라인</button>
-  <button class="tab" onclick="switchTab('friends')">👥 친구 피드</button>
+  <button class="tab active" id="tab-my" onclick="switchTab('my')">✨ 내 타임라인</button>
+  <button class="tab" id="tab-friends" onclick="switchTab('friends')">👥 친구 피드</button>
 </div>
 
 <!-- 피드 -->
@@ -589,10 +628,10 @@
 
 <!-- 하단 네비 -->
 <nav class="bottom-nav">
-  <div class="nav-item active" id="nav-home" onclick="showPage('home')"><span class="nav-icon">🏠</span>홈</div>
-  <div class="nav-item" id="nav-chart" onclick="showPage('chart')"><span class="nav-icon">📊</span>감정그래프</div>
-  <div class="nav-item" id="nav-msg"><span class="nav-icon">💬</span>메시지</div>
-  <div class="nav-item" id="nav-profile"><span class="nav-icon">👤</span>프로필</div>
+  <div class="nav-item active" id="nav-home" onclick="showPage('home')"><span class="nav-icon">🏠</span><span id="nav-lbl-home">홈</span></div>
+  <div class="nav-item" id="nav-chart" onclick="showPage('chart')"><span class="nav-icon">📊</span><span id="nav-lbl-chart">감정그래프</span></div>
+  <div class="nav-item" id="nav-msg"><span class="nav-icon">💬</span><span id="nav-lbl-msg">메시지</span></div>
+  <div class="nav-item" id="nav-profile"><span class="nav-icon">👤</span><span id="nav-lbl-profile">프로필</span></div>
 </nav>
 
 <script>
@@ -644,8 +683,116 @@ const REACTIONS = [
 
 let selectedEmotion = null;
 let currentTab = 'my';
+let lang = 'ko';
 const MY_KEY = 'emo_my_posts';
 const FRIEND_KEY = 'emo_friend_posts';
+
+// ── 번역 사전 ──
+const T = {
+  ko: {
+    subtitle:      '지금 이 순간을 기록해요',
+    pickerLabel:   '지금 기분이 어때요?',
+    memoPlaceholder: '✏️ 한 줄 메모 (선택)',
+    postBtn:       '공유하기 🚀',
+    postBtnActive: (e) => `${e.emoji} 지금 기분 공유하기 🚀`,
+    tabMy:         '✨ 내 타임라인',
+    tabFriends:    '👥 친구 피드',
+    navHome:       '홈',
+    navChart:      '감정그래프',
+    navMsg:        '메시지',
+    navProfile:    '프로필',
+    emptyMy:       '아직 기록이 없어요.<br>첫 감정을 공유해보세요!',
+    addReact:      '+ 공감',
+    commentPH:     '한마디 남기기... (선택)',
+    chartTitle:    'FeeLog 감정 리포트',
+    chartSub:      '기록을 분석해 감정 패턴을 보여드려요',
+    statTotal:     '총 기록',
+    statDays:      '기록 일수',
+    statTop:       '최다 감정',
+    sectionFlow:   '⏱ 최근 감정 흐름',
+    sectionTop:    (n) => `🏆 자주 느낀 감정 TOP ${n}`,
+    sectionHour:   '🕐 시간대별 감정',
+    emptyChart:    '아직 감정 기록이 없어요.<br>홈에서 첫 감정을 기록해보세요!',
+    groupLabels:   ['✨ 좋아좋아', '😑 일상템', '😤 힘들어', '🫠 현실공감', '💀 찐공감'],
+    reactLabels:   ['안아줄게','힘내!','나도그래','대박','사랑해','웃겨'],
+  },
+  en: {
+    subtitle:      'Log your feelings, one moment at a time',
+    pickerLabel:   'How are you feeling right now?',
+    memoPlaceholder: '✏️ Add a quick note (optional)',
+    postBtn:       'Share 🚀',
+    postBtnActive: (e) => `${e.emoji} Share this feeling 🚀`,
+    tabMy:         '✨ My Timeline',
+    tabFriends:    '👥 Friend Feed',
+    navHome:       'Home',
+    navChart:      'Mood Graph',
+    navMsg:        'Messages',
+    navProfile:    'Profile',
+    emptyMy:       'No logs yet.<br>Share your first feeling!',
+    addReact:      '+ React',
+    commentPH:     'Leave a message... (optional)',
+    chartTitle:    'FeeLog Emotion Report',
+    chartSub:      'Analyzing your logs to reveal mood patterns',
+    statTotal:     'Total Logs',
+    statDays:      'Days Active',
+    statTop:       'Top Mood',
+    sectionFlow:   '⏱ Recent Mood Flow',
+    sectionTop:    (n) => `🏆 Most Felt Emotions TOP ${n}`,
+    sectionHour:   '🕐 Mood by Time of Day',
+    emptyChart:    'No logs yet.<br>Record your first mood on the Home tab!',
+    groupLabels:   ['✨ Feels Good', '😑 Daily Life', '😤 Struggling', '🫠 Real Talk', '💀 Big Mood'],
+    reactLabels:   ['Hug it out','You got this!','Same here','No way!','Love you','Lmao'],
+  },
+};
+
+// 감정 영문 라벨
+const EMOTION_EN = {
+  happy:'Happy', excited:'Excited', calm:'Chill', proud:'Proud',
+  love:'Crushing', grateful:'Grateful', motivated:'Pumped', relaxed:'Lazy mode',
+  hungry:'Starving', sleepy:'So sleepy', bored:'Bored', monday:'Mon blues',
+  coffee:'Need coffee', paycheck:'Broke', tired:'Drained', sad:'Sad',
+  anxious:'Anxious', angry:'Annoyed', stress:'Stressed', wtf:'Seriously??',
+  awkward:'Awkward', lonely:'Lonely', confused:'Confused', crying:'Crying',
+  facepalm:'Oh come on', whatever:'Whatever', damn:'Losing it',
+  ugh:'Ugh', cringe:'Cringe', exhausted:'Dead inside',
+};
+
+function t(key, ...args) {
+  const val = T[lang][key];
+  return typeof val === 'function' ? val(...args) : val;
+}
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btn-kor').classList.toggle('active', l==='ko');
+  document.getElementById('btn-eng').classList.toggle('active', l==='en');
+  applyLang();
+}
+
+function applyLang() {
+  // SVG 서브타이틀
+  const svgSub = document.querySelector('svg text:last-child');
+  if (svgSub) svgSub.textContent = t('subtitle');
+  // 피커 라벨
+  document.getElementById('lbl-picker').textContent = t('pickerLabel');
+  // 메모 placeholder
+  document.getElementById('memoInput').placeholder = t('memoPlaceholder');
+  // 공유 버튼 (선택 없을 때)
+  if (!selectedEmotion) document.getElementById('postBtn').textContent = t('postBtn');
+  else document.getElementById('postBtn').textContent = t('postBtnActive', selectedEmotion);
+  // 탭
+  document.getElementById('tab-my').textContent      = t('tabMy');
+  document.getElementById('tab-friends').textContent = t('tabFriends');
+  // 네비
+  document.getElementById('nav-lbl-home').textContent    = t('navHome');
+  document.getElementById('nav-lbl-chart').textContent   = t('navChart');
+  document.getElementById('nav-lbl-msg').textContent     = t('navMsg');
+  document.getElementById('nav-lbl-profile').textContent = t('navProfile');
+  // 감정 그리드 & 피드 재렌더
+  renderEmotionGrid();
+  if (document.getElementById('chartPage').classList.contains('show')) renderChart();
+  else renderFeed();
+}
 
 function getPosts(key) { return JSON.parse(localStorage.getItem(key) || '[]'); }
 function savePosts(key, posts) { localStorage.setItem(key, JSON.stringify(posts)); }
@@ -688,25 +835,29 @@ function seedFriendPosts() {
   savePosts(FRIEND_KEY, posts);
 }
 
-const EMOTION_GROUPS = [
-  { label: '✨ 좋아좋아', keys: ['happy','excited','calm','proud','love','grateful','motivated','relaxed'] },
-  { label: '😑 일상템',   keys: ['hungry','sleepy','bored','monday','coffee','paycheck'] },
-  { label: '😤 힘들어',   keys: ['tired','sad','anxious','angry','stress','wtf'] },
-  { label: '🫠 현실공감', keys: ['awkward','lonely','confused','crying','facepalm','whatever'] },
-  { label: '💀 찐공감',   keys: ['damn','ugh','cringe','exhausted'] },
+const EMOTION_GROUP_KEYS = [
+  ['happy','excited','calm','proud','love','grateful','motivated','relaxed'],
+  ['hungry','sleepy','bored','monday','coffee','paycheck'],
+  ['tired','sad','anxious','angry','stress','wtf'],
+  ['awkward','lonely','confused','crying','facepalm','whatever'],
+  ['damn','ugh','cringe','exhausted'],
 ];
+
+function emotionLabel(e) {
+  return lang === 'en' ? (EMOTION_EN[e.key] || e.label) : e.label;
+}
 
 function renderEmotionGrid() {
   const grid = document.getElementById('emotionGrid');
-  grid.innerHTML = EMOTION_GROUPS.map(g => `
-    <div class="emotion-group-label">${g.label}</div>
+  grid.innerHTML = EMOTION_GROUP_KEYS.map((keys, gi) => `
+    <div class="emotion-group-label">${t('groupLabels')[gi]}</div>
     <div class="emotion-scroll">
-      ${g.keys.map(k => {
+      ${keys.map(k => {
         const e = EMOTIONS.find(x => x.key === k);
         if (!e) return '';
         return `<button class="emotion-btn" id="eb_${e.key}" style="--clr:${e.color}" onclick="selectEmotion('${e.key}')">
           <span class="e-emoji">${e.emoji}</span>
-          <span class="e-label">${e.label}</span>
+          <span class="e-label">${emotionLabel(e)}</span>
         </button>`;
       }).join('')}
     </div>
@@ -718,7 +869,7 @@ function selectEmotion(key) {
   document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('eb_' + key).classList.add('active');
   document.getElementById('memoBox').classList.add('show');
-  document.getElementById('postBtn').textContent = `${selectedEmotion.emoji} 지금 기분 공유하기 🚀`;
+  document.getElementById('postBtn').textContent = t('postBtnActive', selectedEmotion);
 }
 
 function submitPost() {
@@ -770,7 +921,7 @@ function renderFeed() {
   const posts = getPosts(key);
   const feed = document.getElementById('feed');
   if (!posts.length) {
-    feed.innerHTML = `<div class="empty-state"><span class="big">💜</span>아직 기록이 없어요.<br>첫 감정을 공유해보세요!</div>`;
+    feed.innerHTML = `<div class="empty-state"><span class="big">💜</span>${t('emptyMy')}</div>`;
     return;
   }
   feed.innerHTML = posts.map(p => cardHTML(p, key)).join('');
@@ -784,9 +935,10 @@ function cardHTML(p, sk) {
       onclick="toggleReactionPicker('${p.id}')">${em} ${cnt}</button>`).join('');
   const comments = p.comments.map(c=>
     `<div class="comment-item"><span class="c-user">${c.user}</span><span>${c.emoji} ${c.text}</span></div>`).join('');
-  const rpBtns = REACTIONS.map(r=>
+  const reactLabels = t('reactLabels');
+  const rpBtns = REACTIONS.map((r,ri)=>
     `<button class="rp-btn" onclick="addReaction('${p.id}','${sk}','${r.key}','${r.emoji}','${r.label}')">
-      <span class="rp-emoji">${r.emoji}</span><span class="rp-label">${r.label}</span>
+      <span class="rp-emoji">${r.emoji}</span><span class="rp-label">${reactLabels[ri]}</span>
     </button>`).join('');
 
   return `
@@ -800,16 +952,16 @@ function cardHTML(p, sk) {
         <div class="post-user">${p.user}</div>
         <div class="post-time">${timeAgo(p.time)}</div>
       </div>
-      <div class="emotion-badge" style="--clr:${p.emotion.color}">${p.emotion.emoji} ${p.emotion.label}</div>
+      <div class="emotion-badge" style="--clr:${p.emotion.color}">${p.emotion.emoji} ${emotionLabel(p.emotion)}</div>
     </div>
     ${p.memo ? `<div class="post-memo">${p.memo}</div>` : ''}
     <div class="reaction-row">
       ${chips}
-      <button class="add-react-btn" onclick="toggleReactionPicker('${p.id}')">+ 공감</button>
+      <button class="add-react-btn" onclick="toggleReactionPicker('${p.id}')">${t('addReact')}</button>
     </div>
     <div class="reaction-picker" id="rp_${p.id}">
       <div class="rp-grid">${rpBtns}</div>
-      <input class="comment-input" id="ci_${p.id}" placeholder="한마디 남기기... (선택)" />
+      <input class="comment-input" id="ci_${p.id}" placeholder="${t('commentPH')}" />
     </div>
     ${p.comments.length ? `<div class="comments">${comments}</div>` : ''}
   </div>`;
@@ -854,7 +1006,7 @@ function renderChart() {
   const page  = document.getElementById('chartPage');
 
   if (!posts.length) {
-    page.innerHTML = `<div class="empty-state" style="padding-top:80px"><span class="big">📊</span>아직 감정 기록이 없어요.<br>홈에서 첫 감정을 기록해보세요!</div>`;
+    page.innerHTML = `<div class="empty-state" style="padding-top:80px"><span class="big">📊</span>${t('emptyChart')}</div>`;
     return;
   }
 
@@ -884,27 +1036,27 @@ function renderChart() {
   page.innerHTML = `
     <!-- 요약 카드 -->
     <div class="chart-header-card">
-      <h2>📊 FeeLog 감정 리포트</h2>
-      <p>기록을 분석해 감정 패턴을 보여드려요</p>
+      <h2>📊 ${t('chartTitle')}</h2>
+      <p>${t('chartSub')}</p>
       <div class="chart-stats">
         <div class="chart-stat">
           <div class="sv">${total}</div>
-          <div class="sl">총 기록</div>
+          <div class="sl">${t('statTotal')}</div>
         </div>
         <div class="chart-stat">
           <div class="sv">${days}</div>
-          <div class="sl">기록 일수</div>
+          <div class="sl">${t('statDays')}</div>
         </div>
         <div class="chart-stat">
           <div class="sv">${topEmotion.e.emoji}</div>
-          <div class="sl">최다 감정</div>
+          <div class="sl">${t('statTop')}</div>
         </div>
       </div>
     </div>
 
     <!-- 감정 타임라인 흐름 -->
     <div class="timeline-chart-card">
-      <div class="chart-card-title">⏱ 최근 감정 흐름</div>
+      <div class="chart-card-title">${t('sectionFlow')}</div>
       <div class="timeline-dots">
         <div class="tl-line"><div class="tl-progress" style="width:100%"></div></div>
         <div class="tl-dots-row">
@@ -921,11 +1073,11 @@ function renderChart() {
 
     <!-- 감정 빈도 바 차트 -->
     <div class="timeline-chart-card">
-      <div class="chart-card-title">🏆 자주 느낀 감정 TOP ${sorted.length}</div>
+      <div class="chart-card-title">${t('sectionTop', sorted.length)}</div>
       ${sorted.map(({e, cnt}) => `
         <div class="bar-row">
           <div class="bar-emoji">${e.emoji}</div>
-          <div class="bar-label">${e.label}</div>
+          <div class="bar-label">${emotionLabel(e)}</div>
           <div class="bar-track">
             <div class="bar-fill" style="width:${Math.round(cnt/maxCnt*100)}%;background:${e.color}"></div>
           </div>
@@ -936,7 +1088,7 @@ function renderChart() {
 
     <!-- 시간대별 히트맵 -->
     <div class="timeline-chart-card">
-      <div class="chart-card-title">🕐 시간대별 감정</div>
+      <div class="chart-card-title">${t('sectionHour')}</div>
       <div class="heatmap-grid">
         ${hourBuckets.map(b => `
           <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
