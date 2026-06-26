@@ -3,542 +3,206 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>같은 하루, 다른 시간 — 감정 연결</title>
+<title>같은 하루, 다른 시간</title>
 <style>
-  :root {
-    --bg: #f6f7fb;
-    --card: #ffffff;
-    --accent: #4f46e5;
-    --accent-soft: #ede9fe;
-    --text: #1f2433;
-    --sub: #6b7280;
-    --border: #e5e7eb;
-    --warm1: #fef3c7;
-    --warm2: #fde68a;
-    --radius: 16px;
-    --shadow: 0 2px 16px rgba(0,0,0,0.07);
-  }
-  [data-theme="dark"] {
-    --bg: #111827;
-    --card: #1f2937;
-    --text: #f9fafb;
-    --sub: #9ca3af;
-    --border: #374151;
-    --accent-soft: #312e81;
-    --warm1: #292524;
-    --warm2: #44403c;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    transition: background 0.3s, color 0.3s;
-  }
+:root {
+  --bg:#f6f7fb;--card:#fff;--accent:#4f46e5;--accent-soft:#ede9fe;
+  --text:#1f2433;--sub:#6b7280;--border:#e5e7eb;
+  --warm1:#fef3c7;--warm2:#fde68a;--radius:16px;--shadow:0 2px 16px rgba(0,0,0,.07);
+}
+[data-theme="dark"]{
+  --bg:#111827;--card:#1f2937;--text:#f9fafb;--sub:#9ca3af;
+  --border:#374151;--accent-soft:#312e81;--warm1:#292524;--warm2:#44403c;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
 
-  /* ── Header ── */
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 20px 14px;
-    position: sticky;
-    top: 0;
-    background: var(--bg);
-    z-index: 10;
-    border-bottom: 1px solid var(--border);
-  }
-  .header h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
-  .header-right { display: flex; gap: 10px; align-items: center; }
-  .theme-btn {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    width: 34px; height: 34px;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--text);
-  }
-  .view-toggle {
-    display: flex;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    overflow: hidden;
-    font-size: 12px;
-  }
-  .view-toggle button {
-    padding: 5px 12px;
-    border: none;
-    background: transparent;
-    color: var(--sub);
-    cursor: pointer;
-    font-size: 12px;
-    transition: background 0.2s, color 0.2s;
-  }
-  .view-toggle button.active {
-    background: var(--accent);
-    color: #fff;
-  }
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 12px;
+  position:sticky;top:0;background:var(--bg);z-index:10;border-bottom:1px solid var(--border)}
+.header h1{font-size:17px;font-weight:700}
+.header-right{display:flex;gap:8px;align-items:center}
+.theme-btn{background:var(--card);border:1px solid var(--border);border-radius:50%;
+  width:34px;height:34px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:var(--text)}
 
-  /* ── Main ── */
-  .main { padding: 16px 16px 100px; max-width: 430px; margin: 0 auto; }
+/* Back button */
+.back-btn{background:none;border:none;color:var(--accent);font-size:14px;font-weight:700;
+  cursor:pointer;font-family:inherit;padding:4px 8px 4px 0;display:flex;align-items:center;gap:4px}
 
-  /* ── Friend Card ── */
-  .friend-card {
-    background: linear-gradient(135deg, #667eea22, #764ba222);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px;
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-  .friend-card::before {
-    content: '';
-    position: absolute;
-    top: -30px; right: -30px;
-    width: 100px; height: 100px;
-    background: radial-gradient(circle, #4f46e520, transparent 70%);
-  }
-  .friend-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--sub);
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 10px;
-  }
-  .friend-main {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .friend-emoji-big {
-    font-size: 44px;
-    line-height: 1;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  .friend-info { flex: 1; }
-  .friend-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-  .friend-status { font-size: 13px; color: var(--sub); margin-bottom: 6px; }
-  .friend-time {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--sub);
-  }
-  .city-badge {
-    background: var(--accent-soft);
-    color: var(--accent);
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-  .dot-live {
-    width: 7px; height: 7px;
-    background: #22c55e;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
-  }
-  .friend-when { font-size: 11px; color: var(--sub); margin-top: 8px; }
+/* Main */
+.main{padding:14px 16px 100px;max-width:480px;margin:0 auto}
+.section-title{font-size:13px;font-weight:600;color:var(--sub);margin-bottom:10px;
+  display:flex;align-items:center;gap:6px}
 
-  /* ── Check-in ── */
-  .section-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--sub);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .checkin-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px;
-    margin-bottom: 16px;
-    box-shadow: var(--shadow);
-  }
-  .my-current {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--border);
-  }
-  .my-emoji-display {
-    font-size: 36px;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-  .my-status-text { flex: 1; }
-  .my-status-text strong { font-size: 14px; display: block; margin-bottom: 2px; }
-  .my-status-text span { font-size: 12px; color: var(--sub); }
-  .my-city {
-    font-size: 11px;
-    color: var(--accent);
-    font-weight: 600;
-    background: var(--accent-soft);
-    padding: 3px 9px;
-    border-radius: 10px;
-  }
+/* ── Friend list (home) ── */
+.friend-list-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;
+  cursor:pointer;box-shadow:var(--shadow);transition:transform .15s}
+.friend-list-card:hover{transform:translateY(-1px)}
+.fcard-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:26px;flex-shrink:0}
+.fcard-info{flex:1;min-width:0}
+.fcard-name{font-size:15px;font-weight:700;margin-bottom:2px}
+.fcard-sub{font-size:12px;color:var(--sub);display:flex;align-items:center;gap:6px}
+.fcard-time{font-size:12px;font-weight:600}
+.dot-live{width:6px;height:6px;background:#22c55e;border-radius:50%;
+  animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.city-badge{background:var(--accent-soft);color:var(--accent);
+  padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.fcard-emotion{font-size:28px}
 
-  .emoji-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 8px;
-  }
-  .emoji-btn {
-    aspect-ratio: 1;
-    background: var(--bg);
-    border: 2px solid transparent;
-    border-radius: 12px;
-    font-size: 22px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s;
-    position: relative;
-    padding: 6px 2px 4px;
-  }
-  .emoji-btn span.label {
-    font-size: 8px;
-    color: var(--sub);
-    margin-top: 2px;
-    display: block;
-    text-align: center;
-    line-height: 1.2;
-  }
-  .emoji-btn:hover { transform: scale(1.1); background: var(--accent-soft); }
-  .emoji-btn.selected {
-    border-color: var(--accent);
-    background: var(--accent-soft);
-  }
-  .emoji-btn.selected::after {
-    content: '✓';
-    position: absolute;
-    top: -4px; right: -4px;
-    background: var(--accent);
-    color: white;
-    width: 14px; height: 14px;
-    border-radius: 50%;
-    font-size: 9px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+/* ── Room view ── */
+.room-friend-card{background:linear-gradient(135deg,#667eea22,#764ba222);
+  border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.friend-label{font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;
+  letter-spacing:.8px;margin-bottom:8px}
+.friend-main{display:flex;align-items:center;gap:12px}
+.friend-emoji-big{font-size:42px;line-height:1;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.friend-info{flex:1}
+.friend-name{font-size:16px;font-weight:700;margin-bottom:3px}
+.friend-status{font-size:13px;color:var(--sub);margin-bottom:5px}
+.friend-time{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub)}
+.friend-when{font-size:11px;color:var(--sub);margin-top:7px}
 
-  /* ── Capsule ── */
-  .capsule-card {
-    background: linear-gradient(135deg, var(--warm1), var(--warm2));
-    border: 1px solid #fcd34d44;
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 16px;
-  }
-  .capsule-title {
-    font-size: 13px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .capsule-desc { font-size: 12px; color: var(--sub); margin-bottom: 12px; }
-  .capsule-row { display: flex; gap: 8px; align-items: center; }
-  .capsule-input {
-    flex: 1;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 9px 12px;
-    font-size: 13px;
-    background: var(--card);
-    color: var(--text);
-    outline: none;
-    font-family: inherit;
-  }
-  .capsule-input:focus { border-color: var(--accent); }
-  .capsule-btn {
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 9px 14px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    font-family: inherit;
-    transition: opacity 0.2s;
-  }
-  .capsule-btn:hover { opacity: 0.85; }
-  .capsule-presets {
-    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px;
-  }
-  .preset-btn {
-    padding: 5px 11px; border-radius: 20px; border: 1.5px solid var(--border);
-    background: var(--card); color: var(--sub); font-size: 12px; font-weight: 600;
-    cursor: pointer; font-family: inherit; transition: all 0.15s;
-  }
-  .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .preset-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .capsule-custom-time { margin-top: 6px; display: flex; }
-  .capsule-preview {
-    font-size: 11px; color: var(--accent); font-weight: 600;
-    margin-top: 8px; padding: 4px 0 0;
-  }
-  .capsule-saved {
-    font-size: 12px; color: #059669; margin-top: 8px;
-  }
+/* Check-in */
+.checkin-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.my-current{display:flex;align-items:center;gap:12px;margin-bottom:14px;
+  padding-bottom:12px;border-bottom:1px solid var(--border)}
+.my-emoji-display{font-size:34px;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.my-status-text{flex:1}
+.my-status-text strong{font-size:14px;display:block;margin-bottom:2px}
+.my-status-text span{font-size:12px;color:var(--sub)}
+.my-city{font-size:11px;color:var(--accent);font-weight:600;background:var(--accent-soft);
+  padding:3px 9px;border-radius:10px}
+.emoji-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.emoji-btn{aspect-ratio:1;background:var(--bg);border:2px solid transparent;
+  border-radius:12px;font-size:21px;cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;transition:all .15s;position:relative;padding:5px 2px 3px}
+.emoji-btn span.label{font-size:8px;color:var(--sub);margin-top:2px;text-align:center;line-height:1.1}
+.emoji-btn:hover{transform:scale(1.1);background:var(--accent-soft)}
+.emoji-btn.selected{border-color:var(--accent);background:var(--accent-soft)}
+.emoji-btn.selected::after{content:'✓';position:absolute;top:-4px;right:-4px;background:var(--accent);
+  color:#fff;width:14px;height:14px;border-radius:50%;font-size:9px;
+  display:flex;align-items:center;justify-content:center}
 
-  /* ── TZ Toggle ── */
-  .tz-toggle {
-    display: flex;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    overflow: hidden;
-  }
-  .tz-btn {
-    padding: 5px 11px; border: none; background: transparent;
-    color: var(--sub); cursor: pointer; font-size: 11px;
-    font-family: inherit; font-weight: 600; transition: all 0.2s; white-space: nowrap;
-  }
-  .tz-btn.active { background: var(--accent); color: #fff; }
-  .tz-desc {
-    font-size: 12px; color: var(--sub); margin-bottom: 10px;
-    padding: 8px 12px; background: var(--card);
-    border: 1px solid var(--border); border-radius: 10px; line-height: 1.5;
-  }
-  .tz-desc strong { color: var(--text); }
+/* Capsule */
+.capsule-card{background:linear-gradient(135deg,var(--warm1),var(--warm2));
+  border:1px solid #fcd34d44;border-radius:var(--radius);padding:14px;margin-bottom:14px}
+.capsule-title{font-size:13px;font-weight:700;margin-bottom:3px}
+.capsule-desc{font-size:12px;color:var(--sub);margin-bottom:10px}
+.capsule-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}
+.preset-btn{padding:5px 10px;border-radius:20px;border:1.5px solid var(--border);
+  background:var(--card);color:var(--sub);font-size:11px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:all .15s}
+.preset-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.capsule-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.capsule-input{flex:1;border:1px solid var(--border);border-radius:10px;padding:8px 12px;
+  font-size:13px;background:var(--card);color:var(--text);outline:none;font-family:inherit}
+.capsule-input:focus{border-color:var(--accent)}
+.capsule-btn{background:var(--accent);color:#fff;border:none;border-radius:10px;
+  padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit}
+.capsule-preview{font-size:11px;color:var(--accent);font-weight:600;margin-top:6px}
+.capsule-saved{font-size:12px;color:#059669;margin-top:6px;min-height:18px}
+.capsule-custom-time{margin-top:6px;display:none}
 
-  /* ── Journey Map ── */
-  .journey-legend {
-    display: flex; align-items: center; gap: 6px;
-    margin-bottom: 10px; font-size: 12px; font-weight: 600; color: var(--sub);
-  }
-  .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
-  .legend-label { color: var(--text); }
-  .overlap-banner {
-    background: linear-gradient(135deg, var(--accent-soft), #fef3c7);
-    border: 1px solid #c4b5fd44;
-    border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; font-size: 13px;
-  }
-  .overlap-banner strong { display: block; margin-bottom: 2px; }
-  .overlap-banner span { font-size: 11px; color: var(--sub); }
-  .journey-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 14px 10px 8px 8px; box-shadow: var(--shadow); display: flex; gap: 6px;
-    margin-bottom: 4px; overflow: hidden;
-  }
-  .journey-y-labels {
-    display: flex; flex-direction: column; justify-content: space-between;
-    font-size: 9px; color: var(--sub); padding: 2px 0; min-width: 38px; text-align: right; line-height: 1.3;
-  }
-  .journey-chart-wrap { flex: 1; }
-  #journeySvg { display: block; width: 100%; overflow: visible; }
-  .journey-x-labels {
-    display: flex; justify-content: space-between;
-    padding: 4px 8px 0 54px; font-size: 10px; color: var(--sub); margin-bottom: 16px;
-  }
-  .ev-item {
-    display: flex; align-items: center; gap: 10px;
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 12px; padding: 10px 12px; margin-bottom: 7px; font-size: 13px;
-  }
-  .ev-emoji { font-size: 20px; }
-  .ev-info { flex: 1; }
-  .ev-badge {
-    font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 8px;
-    display: inline-block; margin-bottom: 2px;
-  }
-  .badge-me { background: var(--accent-soft); color: var(--accent); }
-  .badge-friend { background: #fef3c7; color: #b45309; }
-  .ev-text { font-size: 12px; color: var(--sub); }
-  .ev-time-label { font-size: 11px; color: var(--sub); }
+/* ── Timeline ── */
+.tl-top-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.tz-toggle{display:flex;background:var(--card);border:1px solid var(--border);
+  border-radius:20px;overflow:hidden}
+.tz-btn{padding:5px 10px;border:none;background:transparent;color:var(--sub);cursor:pointer;
+  font-size:11px;font-family:inherit;font-weight:600;transition:all .2s;white-space:nowrap}
+.tz-btn.active{background:var(--accent);color:#fff}
+.friend-filter-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filter-chip{padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);
+  background:var(--card);color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.filter-chip.active{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.tz-desc{font-size:12px;color:var(--sub);margin-bottom:10px;padding:7px 12px;
+  background:var(--card);border:1px solid var(--border);border-radius:10px;line-height:1.5}
+.tz-desc strong{color:var(--text)}
+.journey-legend{display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  margin-bottom:10px;font-size:12px;font-weight:600;color:var(--sub)}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.legend-label{color:var(--text)}
+.overlap-banner{background:linear-gradient(135deg,var(--accent-soft),#fef3c7);
+  border:1px solid #c4b5fd44;border-radius:12px;padding:10px 14px;margin-bottom:10px;font-size:13px}
+.overlap-banner strong{display:block;margin-bottom:2px}
+.overlap-banner span{font-size:11px;color:var(--sub)}
+.journey-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:12px 10px 6px 6px;box-shadow:var(--shadow);display:flex;gap:6px;margin-bottom:4px}
+.journey-y-labels{display:flex;flex-direction:column;justify-content:space-between;
+  font-size:9px;color:var(--sub);padding:2px 0;min-width:38px;text-align:right;line-height:1.3}
+.journey-chart-wrap{flex:1}
+#journeySvg{display:block;width:100%;overflow:visible}
+.journey-x-labels{display:flex;justify-content:space-between;padding:4px 8px 0 52px;
+  font-size:10px;color:var(--sub);margin-bottom:14px}
 
-  /* ── Bottom Tabs ── */
-  .bottom-tabs {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: var(--card);
-    border-top: 1px solid var(--border);
-    display: flex;
-    padding: 8px 0 20px;
-    z-index: 20;
-  }
-  .tab-btn {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--sub);
-    font-size: 10px;
-    font-family: inherit;
-    padding: 6px 0;
-    transition: color 0.2s;
-  }
-  .tab-btn .tab-icon { font-size: 20px; }
-  .tab-btn.active { color: var(--accent); }
+/* Event list + reactions */
+.ev-item{background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:10px 12px;margin-bottom:8px}
+.ev-top{display:flex;align-items:center;gap:10px}
+.ev-emoji{font-size:20px}
+.ev-info{flex:1}
+.ev-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;
+  display:inline-block;margin-bottom:2px}
+.ev-text{font-size:12px;color:var(--sub)}
+.ev-time-label{font-size:11px;color:var(--sub)}
+.reaction-row{display:flex;align-items:center;gap:4px;margin-top:8px;flex-wrap:wrap}
+.react-btn{background:var(--bg);border:1px solid var(--border);border-radius:20px;
+  padding:3px 8px;font-size:12px;cursor:pointer;font-family:inherit;transition:all .15s;
+  display:flex;align-items:center;gap:3px;color:var(--sub)}
+.react-btn:hover{border-color:var(--accent);background:var(--accent-soft)}
+.react-btn.mine{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.react-count{font-size:11px}
+.add-react{background:var(--bg);border:1px dashed var(--border);border-radius:20px;
+  padding:3px 8px;font-size:13px;cursor:pointer;color:var(--sub);transition:all .15s}
+.add-react:hover{border-color:var(--accent)}
+.react-picker{display:none;gap:4px;flex-wrap:wrap}
+.react-picker.open{display:flex}
+.react-option{font-size:18px;cursor:pointer;padding:2px;border-radius:8px;transition:transform .15s}
+.react-option:hover{transform:scale(1.3)}
 
-  /* ── Sections ── */
-  .page { display: none; }
-  .page.active { display: block; }
+/* Capsule list */
+.capsule-item{display:flex;align-items:center;gap:10px;background:var(--card);
+  border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.ci-emoji{font-size:20px}
+.ci-text{flex:1}
+.ci-when{font-size:11px;color:var(--sub)}
+.capsule-status{font-size:11px;padding:2px 8px;border-radius:8px;font-weight:600}
+.status-pending{background:var(--warm1);color:#92400e}
+.status-delivered{background:#d1fae5;color:#065f46}
 
-  /* ── Toast ── */
-  .toast {
-    position: fixed;
-    top: 80px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-20px);
-    background: var(--text);
-    color: var(--bg);
-    padding: 10px 18px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s;
-    z-index: 100;
-    white-space: nowrap;
-  }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+/* Bottom tabs */
+.bottom-tabs{position:fixed;bottom:0;left:0;right:0;background:var(--card);
+  border-top:1px solid var(--border);display:flex;padding:8px 0 20px;z-index:20}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  background:none;border:none;cursor:pointer;color:var(--sub);font-size:10px;
+  font-family:inherit;padding:6px 0;transition:color .2s}
+.tab-btn .tab-icon{font-size:20px}
+.tab-btn.active{color:var(--accent)}
 
-  /* ── Journey Map ── */
-  .journey-legend {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--sub);
-  }
-  .legend-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-  .legend-label { color: var(--text); }
-  .journey-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 10px 8px 8px;
-    box-shadow: var(--shadow);
-    display: flex;
-    gap: 6px;
-    overflow: hidden;
-  }
-  .journey-y-labels {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    font-size: 9px;
-    color: var(--sub);
-    padding: 2px 0;
-    min-width: 38px;
-    text-align: right;
-    line-height: 1.2;
-  }
-  .journey-chart-wrap { flex: 1; position: relative; }
-  #journeySvg { display: block; overflow: visible; }
-  .journey-x-labels {
-    display: flex;
-    justify-content: space-between;
-    padding: 4px 8px 0 54px;
-    font-size: 10px;
-    color: var(--sub);
-    margin-bottom: 4px;
-  }
+/* Toast */
+.toast{position:fixed;top:76px;left:50%;transform:translateX(-50%) translateY(-20px);
+  background:var(--text);color:var(--bg);padding:10px 18px;border-radius:20px;
+  font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .3s;
+  z-index:100;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-  /* Event list */
-  .event-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    margin-bottom: 7px;
-    font-size: 13px;
-  }
-  .event-item .ev-emoji { font-size: 20px; }
-  .event-item .ev-info { flex: 1; }
-  .event-item .ev-who {
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 7px;
-    border-radius: 8px;
-    margin-bottom: 2px;
-    display: inline-block;
-  }
-  .ev-who-me { background: #ede9fe; color: #4f46e5; }
-  .ev-who-friend { background: #fef3c7; color: #92400e; }
-  .ev-text { font-size: 12px; color: var(--sub); margin-top: 1px; }
-  .ev-time { font-size: 11px; color: var(--sub); }
-
-  /* ── Sent capsules list ── */
-  .capsule-list { margin-top: 12px; }
-  .capsule-item {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 14px;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-  }
-  .capsule-item .ci-emoji { font-size: 20px; }
-  .capsule-item .ci-text { flex: 1; }
-  .capsule-item .ci-when { font-size: 11px; color: var(--sub); }
-  .capsule-status {
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 8px;
-    font-weight: 600;
-  }
-  .status-pending { background: var(--warm1); color: #92400e; }
-  .status-delivered { background: #d1fae5; color: #065f46; }
+.page{display:none}
+.page.active{display:block}
 </style>
 </head>
 <body>
-
 <div class="toast" id="toast"></div>
 
 <div class="header">
-  <h1>🌍 감정 시계</h1>
-  <div class="header-right">
-    <div class="view-toggle">
-      <button id="btnMe" class="active" onclick="switchUser('me')">나 (서울)</button>
-      <button id="btnFriend" onclick="switchUser('friend')">지우 (베를린)</button>
-    </div>
-    <button class="theme-btn" onclick="toggleTheme()">🌙</button>
+  <div style="display:flex;align-items:center;gap:8px">
+    <button class="back-btn" id="backBtn" onclick="exitRoom()" style="display:none">← 뒤로</button>
+    <h1 id="headerTitle">🌍 감정 시계</h1>
   </div>
+  <button class="theme-btn" onclick="toggleTheme()">🌙</button>
 </div>
 
 <div class="main">
@@ -546,629 +210,585 @@
   <!-- ── 홈 탭 ── -->
   <div class="page active" id="page-home">
 
-    <!-- 상대방 현재 상태 -->
-    <div class="friend-card" id="friendCard">
-      <div class="friend-label">지금 친구 상태</div>
-      <div class="friend-main">
-        <div class="friend-emoji-big" id="friendEmoji">😴</div>
-        <div class="friend-info">
-          <div class="friend-name" id="friendName">지우</div>
-          <div class="friend-status" id="friendStatusText">자는 중이에요</div>
-          <div class="friend-time">
-            <span class="city-badge" id="friendCity">베를린</span>
-            <span id="friendLocalTime">--:--</span>
-            <span class="dot-live"></span>
+    <!-- Friend list (default) -->
+    <div id="homeList">
+      <div class="section-title">👥 연결된 친구들</div>
+      <div id="friendCards"></div>
+    </div>
+
+    <!-- Room view (per friend) -->
+    <div id="roomView" style="display:none">
+      <div class="room-friend-card">
+        <div class="friend-label" id="roomLabel">지금 친구 상태</div>
+        <div class="friend-main">
+          <div class="friend-emoji-big" id="roomEmoji">😴</div>
+          <div class="friend-info">
+            <div class="friend-name" id="roomName">지우</div>
+            <div class="friend-status" id="roomStatus">자는 중이에요</div>
+            <div class="friend-time">
+              <span class="city-badge" id="roomCity">베를린</span>
+              <span id="roomLocalTime">--:--</span>
+              <span class="dot-live"></span>
+            </div>
           </div>
         </div>
+        <div class="friend-when" id="roomWhen">15분 전에 업데이트했어요</div>
       </div>
-      <div class="friend-when" id="friendWhen">15분 전에 업데이트했어요</div>
-    </div>
 
-    <!-- 내 체크인 -->
-    <div class="section-title">✨ 지금 내 상태 공유</div>
-    <div class="checkin-card">
-      <div class="my-current">
-        <div class="my-emoji-display" id="myEmojiDisplay">😊</div>
-        <div class="my-status-text">
-          <strong id="myStatusLabel">행복해요</strong>
-          <span id="myCheckinTime">방금 전 체크인</span>
+      <div class="section-title">✨ 지금 내 상태 공유</div>
+      <div class="checkin-card">
+        <div class="my-current">
+          <div class="my-emoji-display" id="myEmojiDisplay">😊</div>
+          <div class="my-status-text">
+            <strong id="myStatusLabel">행복해요</strong>
+            <span id="myCheckinTime">방금 전 체크인</span>
+          </div>
+          <span class="my-city" id="myCity">서울</span>
         </div>
-        <span class="my-city" id="myCity">서울</span>
+        <div class="emoji-grid" id="emojiGrid"></div>
       </div>
-      <div class="emoji-grid" id="emojiGrid"></div>
+
+      <div class="capsule-card">
+        <div class="capsule-title">⏰ 타임캡슐</div>
+        <div class="capsule-desc">친구의 특별한 순간에 전달될 메시지를 남겨봐요</div>
+        <div class="capsule-presets">
+          <button class="preset-btn active" data-preset="wake"   onclick="selectPreset(this)">🌅 일어날 때</button>
+          <button class="preset-btn"        data-preset="friday" onclick="selectPreset(this)">🎉 불금 밤에</button>
+          <button class="preset-btn"        data-preset="monday" onclick="selectPreset(this)">😤 월요일 아침</button>
+          <button class="preset-btn"        data-preset="lunch"  onclick="selectPreset(this)">🍜 점심 때</button>
+          <button class="preset-btn"        data-preset="sleep"  onclick="selectPreset(this)">🌙 자기 전에</button>
+          <button class="preset-btn"        data-preset="custom" onclick="selectPreset(this)">🕐 직접 지정</button>
+        </div>
+        <div class="capsule-custom-time" id="capsuleCustomTime">
+          <input type="datetime-local" class="capsule-input" id="capsuleCustomDt" style="flex:1">
+        </div>
+        <div class="capsule-row">
+          <input class="capsule-input" id="capsuleMsg" placeholder="짧은 메시지를 남겨봐요..." maxlength="60">
+          <button class="capsule-btn" onclick="sendCapsule()">보내기</button>
+        </div>
+        <div class="capsule-preview" id="capsulePreview">🌅 친구가 일어날 때 전달돼요</div>
+        <div class="capsule-saved" id="capsuleSaved"></div>
+      </div>
     </div>
-
-    <!-- 타임캡슐 -->
-    <div class="capsule-card">
-      <div class="capsule-title">⏰ 타임캡슐</div>
-      <div class="capsule-desc">친구의 특별한 순간에 전달될 메시지를 남겨봐요</div>
-
-      <!-- 프리셋 -->
-      <div class="capsule-presets" id="capsulePresets">
-        <button class="preset-btn active" data-preset="wake"    onclick="selectPreset(this)">🌅 일어날 때</button>
-        <button class="preset-btn"        data-preset="friday"  onclick="selectPreset(this)">🎉 불금 밤에</button>
-        <button class="preset-btn"        data-preset="monday"  onclick="selectPreset(this)">😤 월요일 아침</button>
-        <button class="preset-btn"        data-preset="lunch"   onclick="selectPreset(this)">🍜 점심 때</button>
-        <button class="preset-btn"        data-preset="sleep"   onclick="selectPreset(this)">🌙 자기 전에</button>
-        <button class="preset-btn"        data-preset="custom"  onclick="selectPreset(this)">🕐 직접 지정</button>
-      </div>
-
-      <!-- 직접 지정 (숨김) -->
-      <div class="capsule-custom-time" id="capsuleCustomTime" style="display:none;">
-        <input type="datetime-local" class="capsule-input" id="capsuleCustomDt" style="flex:1;">
-      </div>
-
-      <!-- 메시지 -->
-      <div class="capsule-row" style="margin-top:10px;">
-        <input class="capsule-input" id="capsuleMsg" placeholder="짧은 메시지를 남겨봐요..." maxlength="60">
-        <button class="capsule-btn" onclick="sendCapsule()">보내기</button>
-      </div>
-      <div class="capsule-preview" id="capsulePreview">🌅 친구가 일어날 때 전달돼요</div>
-      <div class="capsule-saved" id="capsuleSaved"></div>
-    </div>
-
   </div>
 
   <!-- ── 타임라인 탭 ── -->
   <div class="page" id="page-timeline">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <div class="section-title" style="margin-bottom:0;">🌡️ 오늘 감정 온도 흐름</div>
+    <div class="tl-top-row">
+      <div class="section-title" style="margin-bottom:0">🌡️ 감정 온도 흐름</div>
       <div class="tz-toggle">
         <button id="btnSameTime" class="tz-btn active" onclick="setTzMode('same')">같은 시간대</button>
         <button id="btnRealTime" class="tz-btn" onclick="setTzMode('real')">시차 반영</button>
       </div>
     </div>
 
-    <!-- Legend -->
-    <div class="journey-legend">
-      <span class="legend-dot" style="background:#4f46e5"></span>
-      <span id="tlMyName" class="legend-label">나 (서울)</span>
-      <span class="legend-dot" style="background:#f59e0b;margin-left:14px;"></span>
-      <span id="tlFriendName" class="legend-label">지우 (베를린)</span>
-    </div>
+    <div class="friend-filter-tabs" id="filterTabs"></div>
 
-    <!-- Mode description -->
-    <div class="tz-desc" id="tzDesc">
-      🕰️ <strong>같은 시간대</strong> — 나는 이미 네 미래를 살고 있어
-    </div>
+    <div class="tz-desc" id="tzDesc">🕰️ <strong>같은 시간대</strong> — 나는 이미 네 미래를 살고 있어</div>
+    <div class="overlap-banner" id="overlapBanner" style="display:none"><strong></strong><span></span></div>
 
-    <!-- Overlap banner -->
-    <div class="overlap-banner" id="overlapBanner" style="display:none;">
-      <strong></strong><span></span>
-    </div>
+    <div class="journey-legend" id="journeyLegend"></div>
 
-    <!-- SVG Journey Map -->
     <div class="journey-card">
       <div class="journey-y-labels">
-        <span>😄 최고</span>
-        <span>😊 좋음</span>
-        <span>😌 평온</span>
-        <span>😔 힘듦</span>
-        <span>😞 최저</span>
+        <span>😄 최고</span><span>😊 좋음</span><span>😌 평온</span><span>😔 힘듦</span><span>😞 최저</span>
       </div>
       <div class="journey-chart-wrap">
-        <svg id="journeySvg" width="100%" height="260" viewBox="0 0 600 260" preserveAspectRatio="none"></svg>
+        <svg id="journeySvg" width="100%" height="240" viewBox="0 0 600 240" preserveAspectRatio="none"></svg>
       </div>
     </div>
-
-    <!-- Time axis -->
     <div class="journey-x-labels" id="journeyXLabels"></div>
 
-    <!-- Event list -->
-    <div class="section-title" style="margin-top:16px;">📋 체크인 기록</div>
+    <div class="section-title">📋 체크인 기록</div>
     <div id="timelineEventList"></div>
   </div>
 
   <!-- ── 캡슐함 탭 ── -->
   <div class="page" id="page-capsules">
     <div class="section-title">📦 보낸 타임캡슐</div>
-    <div class="capsule-list" id="capsuleList">
-      <div style="text-align:center;padding:40px 0;color:var(--sub);font-size:13px;">
-        아직 보낸 타임캡슐이 없어요.<br>친구가 자고 있을 때 메시지를 남겨봐요 🌙
-      </div>
-    </div>
+    <div id="capsuleList"><div style="text-align:center;padding:40px 0;color:var(--sub);font-size:13px">아직 보낸 타임캡슐이 없어요 🌙</div></div>
   </div>
 
 </div>
 
-<!-- Bottom Tabs -->
 <div class="bottom-tabs">
-  <button class="tab-btn active" onclick="showPage('home', this)">
-    <span class="tab-icon">🏠</span>홈
-  </button>
-  <button class="tab-btn" onclick="showPage('timeline', this)">
-    <span class="tab-icon">📅</span>타임라인
-  </button>
-  <button class="tab-btn" onclick="showPage('capsules', this)">
-    <span class="tab-icon">📦</span>캡슐함
-  </button>
+  <button class="tab-btn active" onclick="showPage('home',this)"><span class="tab-icon">🏠</span>홈</button>
+  <button class="tab-btn" onclick="showPage('timeline',this)"><span class="tab-icon">📅</span>타임라인</button>
+  <button class="tab-btn" onclick="showPage('capsules',this)"><span class="tab-icon">📦</span>캡슐함</button>
 </div>
 
 <script>
-const EMOTIONS = [
-  { emoji: '😊', label: '행복', text: '행복해요' },
-  { emoji: '☀️', label: '활기', text: '활기차요' },
-  { emoji: '😔', label: '힘듦', text: '힘들어요' },
-  { emoji: '😴', label: '자는중', text: '자는 중이에요' },
-  { emoji: '🍜', label: '밥먹는중', text: '밥 먹는 중' },
-  { emoji: '🌙', label: '피곤', text: '피곤해요' },
-  { emoji: '😤', label: '스트레스', text: '스트레스 받아요' },
-  { emoji: '🥰', label: '그리워', text: '보고싶어요' },
-  { emoji: '📚', label: '공부중', text: '공부 중이에요' },
-  { emoji: '🎉', label: '신나', text: '신나요!' },
-  { emoji: '😌', label: '평온', text: '평온해요' },
-  { emoji: '🤒', label: '아파', text: '몸이 안 좋아요' },
+// ── Data ──────────────────────────────────────────────────
+const ME = { id:'me', name:'나', city:'서울', offset:9, color:'#4f46e5' };
+const FRIENDS = [
+  { id:'jiwoo',  name:'지우',  city:'베를린', offset:2,  color:'#f59e0b' },
+  { id:'minjun', name:'민준',  city:'뉴욕',   offset:-4, color:'#10b981' },
+  { id:'soyeon', name:'소연',  city:'런던',   offset:1,  color:'#ec4899' },
 ];
+const ALL_USERS = [ME, ...FRIENDS];
+const EMOTIONS = [
+  {emoji:'😊',label:'행복',text:'행복해요'},{emoji:'☀️',label:'활기',text:'활기차요'},
+  {emoji:'😔',label:'힘듦',text:'힘들어요'},{emoji:'😴',label:'자는중',text:'자는 중이에요'},
+  {emoji:'🍜',label:'밥먹는중',text:'밥 먹는 중'},{emoji:'🌙',label:'피곤',text:'피곤해요'},
+  {emoji:'😤',label:'스트레스',text:'스트레스 받아요'},{emoji:'🥰',label:'그리워',text:'보고싶어요'},
+  {emoji:'📚',label:'공부중',text:'공부 중이에요'},{emoji:'🎉',label:'신나',text:'신나요!'},
+  {emoji:'😌',label:'평온',text:'평온해요'},{emoji:'🤒',label:'아파',text:'몸이 안 좋아요'},
+];
+const EMOTION_SCORE = {'😊':8,'☀️':9,'😔':3,'😴':4,'🍜':6,'🌙':3,'😤':2,'🥰':8,'📚':5,'🎉':10,'😌':7,'🤒':1};
+const REACT_EMOJIS = ['❤️','😂','😢','🔥','🥰','👏'];
 
-// State
-let currentUser = 'me'; // 'me' or 'friend'
-let tzMode = 'same'; // 'same' | 'real'
-const CONFIGS = {
-  me: { name: '나', city: '서울', offset: 9 },
-  friend: { name: '지우', city: '베를린', offset: 2 },
-};
+// ── State ─────────────────────────────────────────────────
+let currentRoom = null; // null = list, else friendId
+let tzMode = 'same';
+let tlFilter = 'all'; // 'all' | friendId
+let currentPreset = 'wake';
 
-const TZ_COPY = {
-  same: { label: '같은 시간대', desc: '🕰️ <strong>같은 시간대</strong> — 나는 이미 네 미래를 살고 있어' },
-  real: { label: '시차 반영',   desc: '🌍 <strong>시차 반영</strong> — 내가 잠들 때 너는 아침을 시작해' },
-};
+// ── Storage ───────────────────────────────────────────────
+const gs = k => { try { return JSON.parse(localStorage.getItem(k)||'null'); } catch { return null; } };
+const ss = (k,v) => { try { localStorage.setItem(k,JSON.stringify(v)); } catch {} };
 
-function setTzMode(mode) {
-  tzMode = mode;
-  document.getElementById('btnSameTime').classList.toggle('active', mode === 'same');
-  document.getElementById('btnRealTime').classList.toggle('active', mode === 'real');
-  document.getElementById('tzDesc').innerHTML = TZ_COPY[mode].desc;
-  updateTimeline();
-}
-
-function getStorage(key) {
-  try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
-}
-function setStorage(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
-}
-
-function getCityTime(offsetHours) {
+// ── Time helpers ──────────────────────────────────────────
+function cityTime(offset) {
   const now = new Date();
-  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
-  const cityTime = new Date(utc + offsetHours * 3600000);
-  return cityTime;
+  return new Date(now.getTime() + now.getTimezoneOffset()*60000 + offset*3600000);
+}
+function fmt(date) { return date.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false}); }
+function relTime(ts) {
+  const d = Math.floor((Date.now()-ts)/1000);
+  if(d<60) return '방금 전'; if(d<3600) return `${Math.floor(d/60)}분 전`;
+  if(d<86400) return `${Math.floor(d/3600)}시간 전`; return '오래 전';
+}
+function fmtTs(ts) {
+  return new Date(ts).toLocaleString('ko-KR',{month:'long',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit'});
+}
+function nextOccurrence(h,m){const d=new Date();d.setSeconds(0,0);d.setHours(h,m);if(d<=Date.now())d.setDate(d.getDate()+1);return d.getTime();}
+function nextWeekday(dow,h,m){const d=new Date();d.setSeconds(0,0);d.setHours(h,m);const diff=(dow-d.getDay()+7)%7||7;d.setDate(d.getDate()+diff);return d.getTime();}
+
+// ── Capsule presets ───────────────────────────────────────
+const PRESETS = {
+  wake:  {label:'🌅 일어날 때',  desc:'🌅 친구가 일어날 때 전달돼요',       getTs:()=>nextOccurrence(7,0)},
+  friday:{label:'🎉 불금 밤에',  desc:'🎉 이번 주 금요일 밤 9시에 열려요',  getTs:()=>nextWeekday(5,21,0)},
+  monday:{label:'😤 월요일 아침',desc:'😤 월요일 아침 8시에 열려요',         getTs:()=>nextWeekday(1,8,0)},
+  lunch: {label:'🍜 점심 때',    desc:'🍜 오늘 점심 12시에 전달돼요',        getTs:()=>nextOccurrence(12,0)},
+  sleep: {label:'🌙 자기 전에',  desc:'🌙 오늘 밤 11시에 열려요',            getTs:()=>nextOccurrence(23,0)},
+  custom:{label:'🕐 직접 지정',  desc:'🕐 지정한 시간에 열려요',             getTs:()=>{
+    const v=document.getElementById('capsuleCustomDt').value;
+    return v?new Date(v).getTime():Date.now()+3600000;
+  }},
+};
+
+// ── Navigation ────────────────────────────────────────────
+function enterRoom(friendId) {
+  currentRoom = friendId;
+  document.getElementById('homeList').style.display = 'none';
+  document.getElementById('roomView').style.display = 'block';
+  document.getElementById('backBtn').style.display = 'flex';
+  const f = FRIENDS.find(f=>f.id===friendId);
+  document.getElementById('headerTitle').textContent = f.name;
+  updateRoomView();
+  buildEmojiGrid();
+  updateMyCard();
+}
+function exitRoom() {
+  currentRoom = null;
+  document.getElementById('homeList').style.display = 'block';
+  document.getElementById('roomView').style.display = 'none';
+  document.getElementById('backBtn').style.display = 'none';
+  document.getElementById('headerTitle').textContent = '🌍 감정 시계';
+  renderFriendList();
+}
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`page-${name}`).classList.add('active');
+  btn.classList.add('active');
+  if(name==='timeline') updateTimeline();
+  if(name==='capsules') updateCapsuleList();
 }
 
-function formatTime(date) {
-  return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+// ── Friend list ───────────────────────────────────────────
+function renderFriendList() {
+  const el = document.getElementById('friendCards');
+  el.innerHTML = FRIENDS.map(f => {
+    const em = gs(`emotion_${f.id}`) || {emoji:'😌',text:'평온해요',ts:Date.now()-3600000};
+    const ct = cityTime(f.offset);
+    const h = ct.getHours();
+    const isNight = h>=21||h<6;
+    return `<div class="friend-list-card" onclick="enterRoom('${f.id}')">
+      <div class="fcard-avatar" style="background:${f.color}22">${em.emoji}</div>
+      <div class="fcard-info">
+        <div class="fcard-name">${f.name}</div>
+        <div class="fcard-sub">
+          <span class="city-badge" style="background:${f.color}22;color:${f.color}">${f.city}</span>
+          <span class="fcard-time">${fmt(ct)}</span>
+          ${isNight?'🌙':'☀️'}
+          <span class="dot-live"></span>
+        </div>
+        <div style="font-size:12px;color:var(--sub);margin-top:3px">${em.text} · ${relTime(em.ts)}</div>
+      </div>
+      <div class="fcard-emotion" style="font-size:28px">›</div>
+    </div>`;
+  }).join('');
 }
 
-function relativeTime(ts) {
-  const diff = Math.floor((Date.now() - ts) / 1000);
-  if (diff < 60) return '방금 전';
-  if (diff < 3600) return `${Math.floor(diff/60)}분 전`;
-  if (diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
-  return '오래 전';
+// ── Room view ─────────────────────────────────────────────
+function updateRoomView() {
+  if(!currentRoom) return;
+  const f = FRIENDS.find(f=>f.id===currentRoom);
+  const em = gs(`emotion_${f.id}`) || {emoji:'😌',text:'평온해요',ts:Date.now()-900000};
+  document.getElementById('roomEmoji').textContent = em.emoji;
+  document.getElementById('roomName').textContent = f.name;
+  document.getElementById('roomStatus').textContent = em.text;
+  document.getElementById('roomCity').textContent = f.city;
+  document.getElementById('roomLocalTime').textContent = fmt(cityTime(f.offset));
+  document.getElementById('roomWhen').textContent = `${relTime(em.ts||Date.now())}에 업데이트했어요`;
+  document.getElementById('roomLabel').textContent = `지금 ${f.name} 상태`;
+}
+function updateMyCard() {
+  const em = gs('emotion_me') || {emoji:'😊',text:'행복해요',ts:Date.now()};
+  document.getElementById('myEmojiDisplay').textContent = em.emoji;
+  document.getElementById('myStatusLabel').textContent = em.text;
+  document.getElementById('myCity').textContent = ME.city;
+  document.getElementById('myCheckinTime').textContent = `${relTime(em.ts||Date.now())} 체크인`;
 }
 
-// Build emoji grid
 function buildEmojiGrid() {
   const grid = document.getElementById('emojiGrid');
-  const saved = getStorage(`emotion_${currentUser}`) || { emoji: '😊', text: '행복해요' };
-  grid.innerHTML = EMOTIONS.map(e => `
-    <button class="emoji-btn ${e.emoji === saved.emoji ? 'selected' : ''}"
-      onclick="selectEmotion('${e.emoji}', '${e.text}', this)">
-      ${e.emoji}
-      <span class="label">${e.label}</span>
-    </button>
-  `).join('');
+  const saved = gs('emotion_me') || {emoji:'😊'};
+  grid.innerHTML = EMOTIONS.map(e=>`
+    <button class="emoji-btn ${e.emoji===saved.emoji?'selected':''}"
+      onclick="selectEmotion('${e.emoji}','${e.text}',this)">
+      ${e.emoji}<span class="label">${e.label}</span>
+    </button>`).join('');
 }
 
 function selectEmotion(emoji, text, btn) {
-  const me = CONFIGS[currentUser];
-  // deselect all
-  document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.emoji-btn').forEach(b=>b.classList.remove('selected'));
   btn.classList.add('selected');
-
   const ts = Date.now();
-  setStorage(`emotion_${currentUser}`, { emoji, text, ts });
-
-  // Add to timeline
-  const timeline = getStorage('timeline') || [];
-  const cityTime = getCityTime(me.offset);
-  timeline.push({ user: currentUser, emoji, text, ts, timeStr: formatTime(cityTime) });
-  if (timeline.length > 20) timeline.splice(0, timeline.length - 20);
-  setStorage('timeline', timeline);
-
-  // Update my display
-  document.getElementById('myEmojiDisplay').textContent = emoji;
-  document.getElementById('myStatusLabel').textContent = text;
-  document.getElementById('myCheckinTime').textContent = '방금 체크인했어요 ✓';
-
-  // Animate
-  const el = document.getElementById('myEmojiDisplay');
-  el.style.transform = 'scale(1.3)';
-  setTimeout(() => el.style.transform = 'scale(1)', 300);
-
-  showToast(`${emoji} ${text} — 친구에게 전달됐어요!`);
-  updateFriendCard();
-  // 타임라인 탭이 열려있으면 실시간 업데이트
-  if (document.getElementById('page-timeline').classList.contains('active')) {
-    updateTimeline();
-  }
+  ss('emotion_me',{emoji,text,ts});
+  const tl = gs('timeline')||[];
+  const timeStr = fmt(cityTime(ME.offset));
+  tl.push({user:'me',friendContext:currentRoom||'all',emoji,text,ts,timeStr});
+  if(tl.length>50) tl.splice(0,tl.length-50);
+  ss('timeline',tl);
+  document.getElementById('myEmojiDisplay').textContent=emoji;
+  document.getElementById('myStatusLabel').textContent=text;
+  document.getElementById('myCheckinTime').textContent='방금 체크인했어요 ✓';
+  const el=document.getElementById('myEmojiDisplay');
+  el.style.transform='scale(1.3)'; setTimeout(()=>el.style.transform='scale(1)',300);
+  updateRoomView();
+  showToast(`${emoji} ${text} — 전달됐어요!`);
+  if(document.getElementById('page-timeline').classList.contains('active')) updateTimeline();
 }
 
-function updateFriendCard() {
-  const other = currentUser === 'me' ? 'friend' : 'me';
-  const otherConfig = CONFIGS[other];
-  const saved = getStorage(`emotion_${other}`) || { emoji: '😴', text: '자는 중이에요', ts: Date.now() - 900000 };
-
-  document.getElementById('friendEmoji').textContent = saved.emoji;
-  document.getElementById('friendStatusText').textContent = saved.text;
-  document.getElementById('friendName').textContent = otherConfig.name;
-  document.getElementById('friendCity').textContent = otherConfig.city;
-  document.getElementById('friendWhen').textContent = `${relativeTime(saved.ts || Date.now())}에 업데이트했어요`;
-
-  const cityTime = getCityTime(otherConfig.offset);
-  document.getElementById('friendLocalTime').textContent = formatTime(cityTime);
-
-  // Animate friend emoji
-  const el = document.getElementById('friendEmoji');
-  el.style.transform = 'scale(1.2)';
-  setTimeout(() => el.style.transform = 'scale(1)', 400);
+// ── Reactions ─────────────────────────────────────────────
+function reactionKey(item) { return `react_${item.user}_${item.ts}`; }
+function getReactions(item) { return gs(reactionKey(item)) || {}; }
+function addReaction(item, emoji) {
+  const rk = reactionKey(item);
+  const reactions = gs(rk) || {};
+  const key = `me_${emoji}`;
+  if(reactions[key]) { delete reactions[key]; }
+  else { reactions[key] = {emoji, from:'me', ts:Date.now()}; }
+  ss(rk, reactions);
+  updateTimeline();
+}
+function togglePicker(id) {
+  const p = document.getElementById(id);
+  p.classList.toggle('open');
+}
+function renderReactions(item, idx) {
+  const reactions = getReactions(item);
+  const counts = {};
+  Object.values(reactions).forEach(r => {
+    if(!counts[r.emoji]) counts[r.emoji]={count:0,mine:false};
+    counts[r.emoji].count++;
+    if(r.from==='me') counts[r.emoji].mine=true;
+  });
+  const pickerId = `picker_${idx}`;
+  const existing = Object.entries(counts).map(([em,info])=>`
+    <button class="react-btn ${info.mine?'mine':''}" onclick="addReaction(tl[${idx}],'${em}')">
+      ${em} <span class="react-count">${info.count}</span>
+    </button>`).join('');
+  const picker = REACT_EMOJIS.map(em=>`
+    <span class="react-option" onclick="addReaction(tl[${idx}],'${em}');togglePicker('${pickerId}')">${em}</span>`).join('');
+  return `<div class="reaction-row">
+    ${existing}
+    <button class="add-react" onclick="togglePicker('${pickerId}')">＋</button>
+    <div class="react-picker" id="${pickerId}">${picker}</div>
+  </div>`;
 }
 
-function updateMyCard() {
-  const me = CONFIGS[currentUser];
-  const saved = getStorage(`emotion_${currentUser}`) || { emoji: '😊', text: '행복해요', ts: Date.now() };
+// expose tl for inline onclick
+let tl = [];
 
-  document.getElementById('myEmojiDisplay').textContent = saved.emoji;
-  document.getElementById('myStatusLabel').textContent = saved.text;
-  document.getElementById('myCity').textContent = me.city;
-  document.getElementById('myCheckinTime').textContent = `${relativeTime(saved.ts || Date.now())} 체크인`;
+// ── Timeline ──────────────────────────────────────────────
+function buildFilterTabs() {
+  const el = document.getElementById('filterTabs');
+  const chips = [
+    `<button class="filter-chip ${tlFilter==='all'?'active':''}" onclick="setFilter('all',this)">🌐 전체</button>`,
+    ...FRIENDS.map(f=>`<button class="filter-chip ${tlFilter===f.id?'active':''}"
+      style="${tlFilter===f.id?`border-color:${f.color};color:${f.color};background:${f.color}22`:''}"
+      onclick="setFilter('${f.id}',this)">${f.name}</button>`)
+  ];
+  el.innerHTML = chips.join('');
 }
-
-const EMOTION_SCORE = {
-  '😊': 8, '☀️': 9, '😔': 3, '😴': 4, '🍜': 6,
-  '🌙': 3, '😤': 2, '🥰': 8, '📚': 5, '🎉': 10, '😌': 7, '🤒': 1,
-};
+function setFilter(id, btn) {
+  tlFilter = id;
+  document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  updateTimeline();
+}
+function setTzMode(mode) {
+  tzMode = mode;
+  document.getElementById('btnSameTime').classList.toggle('active',mode==='same');
+  document.getElementById('btnRealTime').classList.toggle('active',mode==='real');
+  const copy={same:'🕰️ <strong>같은 시간대</strong> — 나는 이미 네 미래를 살고 있어',
+               real:'🌍 <strong>시차 반영</strong> — 내가 잠들 때 너는 아침을 시작해'};
+  document.getElementById('tzDesc').innerHTML=copy[mode];
+  updateTimeline();
+}
 
 function updateTimeline() {
-  const timeline = getStorage('timeline') || [];
-  const me = CONFIGS[currentUser];
-  const other = currentUser === 'me' ? 'friend' : 'me';
-  const otherConfig = CONFIGS[other];
+  buildFilterTabs();
+  const allTl = gs('timeline')||[];
+  // which friends to show
+  const activeFriends = tlFilter==='all' ? FRIENDS : FRIENDS.filter(f=>f.id===tlFilter);
 
-  document.getElementById('tlMyName').textContent = `나 (${me.city})`;
-  document.getElementById('tlFriendName').textContent = `${otherConfig.name} (${otherConfig.city})`;
+  // Legend
+  const legend = document.getElementById('journeyLegend');
+  legend.innerHTML = [
+    `<span class="legend-dot" style="background:${ME.color}"></span><span class="legend-label">나 (${ME.city})</span>`,
+    ...activeFriends.map(f=>`<span class="legend-dot" style="background:${f.color};margin-left:10px"></span><span class="legend-label">${f.name} (${f.city})</span>`)
+  ].join('');
 
-  const sorted = timeline.slice().sort((a, b) => a.ts - b.ts);
-  const myPts = sorted.filter(e => e.user === currentUser);
-  const friendPts = sorted.filter(e => e.user === other);
+  // Collect points per user
+  const myPts = allTl.filter(e=>e.user==='me').sort((a,b)=>a.ts-b.ts);
+  const friendPtsMap = {};
+  activeFriends.forEach(f=>{
+    friendPtsMap[f.id] = allTl.filter(e=>e.user===f.id).sort((a,b)=>a.ts-b.ts);
+  });
 
-  drawJourneySvg(myPts, friendPts, me, otherConfig);
+  drawJourneySvg(myPts, friendPtsMap, activeFriends);
 
-  // Event list
-  const events = sorted.slice().reverse().slice(0, 12);
-  const list = document.getElementById('timelineEventList');
-  if (events.length === 0) {
-    list.innerHTML = `<div style="text-align:center;padding:30px 0;color:var(--sub);font-size:13px;">아직 체크인 기록이 없어요 😊</div>`;
+  // Event list — all relevant events
+  tl = [...allTl].filter(e=> e.user==='me' || activeFriends.some(f=>f.id===e.user))
+    .sort((a,b)=>b.ts-a.ts).slice(0,15);
+  const listEl = document.getElementById('timelineEventList');
+  if(!tl.length){
+    listEl.innerHTML=`<div style="text-align:center;padding:30px 0;color:var(--sub);font-size:13px">아직 체크인 기록이 없어요 😊</div>`;
     return;
   }
-  list.innerHTML = events.map(e => {
-    const isMe = e.user === currentUser;
-    const label = isMe ? `나 (${me.city})` : `${otherConfig.name} (${otherConfig.city})`;
-    return `
-      <div class="ev-item">
+  listEl.innerHTML = tl.map((e,idx)=>{
+    const isMe = e.user==='me';
+    const user = isMe ? ME : (FRIENDS.find(f=>f.id===e.user)||{name:e.user,color:'#888'});
+    const color = user.color;
+    return `<div class="ev-item">
+      <div class="ev-top">
         <span class="ev-emoji">${e.emoji}</span>
         <div class="ev-info">
-          <span class="ev-badge ${isMe ? 'badge-me' : 'badge-friend'}">${label}</span>
+          <span class="ev-badge" style="background:${color}22;color:${color}">${user.name} (${(isMe?ME:FRIENDS.find(f=>f.id===e.user)||{city:'?'}).city})</span>
           <div class="ev-text">${e.text}</div>
         </div>
-        <span class="ev-time-label">${e.timeStr || '??:??'}</span>
-      </div>`;
+        <span class="ev-time-label">${e.timeStr||'??:??'}</span>
+      </div>
+      ${renderReactions(e,idx)}
+    </div>`;
   }).join('');
 }
 
-function drawJourneySvg(myPts, friendPts, me, otherConfig) {
+// ── Journey SVG ───────────────────────────────────────────
+function drawJourneySvg(myPts, friendPtsMap, activeFriends) {
   const svg = document.getElementById('journeySvg');
-  const W = 600, H = 260, PT = 24, PB = 24, PL = 4, PR = 16;
-  const cW = W - PL - PR, cH = H - PT - PB;
+  const W=600,H=240,PT=22,PB=22,PL=4,PR=16,cW=W-PL-PR,cH=H-PT-PB;
 
-  // 시차 offset: 'real' 모드일 때 친구 시간에 시차를 더함 (서울 UTC+9, 베를린 UTC+2 → +7h)
-  const tzDiff = (CONFIGS[currentUser === 'me' ? 'me' : 'friend'].offset)
-               - (CONFIGS[currentUser === 'me' ? 'friend' : 'me'].offset);
-  function applyTz(timeStr, isFriend) {
-    if (!timeStr) return null;
-    const [h, m] = timeStr.split(':').map(Number);
-    const totalH = isFriend && tzMode === 'real' ? h + tzDiff : h;
-    return totalH + m / 60;
+  const tzDiff = (f) => tzMode==='real' ? (ME.offset - f.offset) : 0;
+  function toH(timeStr, friendOffset) {
+    if(!timeStr) return null;
+    const [h,m]=timeStr.split(':').map(Number);
+    return h + m/60 + (friendOffset||0);
   }
 
-  // X축 범위: 데이터 최솟값~최댓값 ±1시간, 최소 8시간 폭
-  const allHours = [
-    ...myPts.map(p => applyTz(p.timeStr, false)),
-    ...friendPts.map(p => applyTz(p.timeStr, true)),
-  ].filter(h => h !== null);
-  const minH = allHours.length ? Math.max(0, Math.min(...allHours) - 1) : 0;
-  const maxH = allHours.length ? Math.min(30, Math.max(...allHours) + 1) : 24;
-  const rangeH = Math.max(maxH - minH, 8);
+  const allH = [
+    ...myPts.map(p=>toH(p.timeStr,0)),
+    ...activeFriends.flatMap(f=>(friendPtsMap[f.id]||[]).map(p=>toH(p.timeStr, tzDiff(f)))),
+  ].filter(h=>h!==null);
+  const minH = allH.length ? Math.max(0,Math.min(...allH)-1) : 6;
+  const maxH2 = allH.length ? Math.min(30,Math.max(...allH)+1) : 22;
+  const rangeH = Math.max(maxH2-minH,8);
 
-  function xOf(h) { return PL + ((h - minH) / rangeH) * cW; }
-  function xOfStr(timeStr, isFriend) {
-    const h = applyTz(timeStr, isFriend);
-    return h === null ? null : xOf(h);
-  }
-  function yOf(emoji) {
-    const score = EMOTION_SCORE[emoji] ?? 5;
-    return PT + cH - ((score - 1) / 9) * cH;
-  }
+  function xOf(h){return PL+((h-minH)/rangeH)*cW;}
+  function yOf(emoji){const s=EMOTION_SCORE[emoji]??5;return PT+cH-((s-1)/9)*cH;}
 
   // X labels
-  const labelCount = 6;
-  const labels = [];
-  for (let i = 0; i <= labelCount; i++) {
-    const h = Math.round(minH + (i / labelCount) * rangeH) % 24;
-    labels.push(`${String(h).padStart(2,'0')}:00`);
+  const labels=[];
+  for(let i=0;i<=6;i++){const h=Math.round(minH+(i/6)*rangeH)%24;labels.push(`${String(h).padStart(2,'0')}:00`);}
+  const xNote = tzMode==='real'?`<span style="font-size:10px;color:var(--accent);font-weight:600">← 서울 기준</span>`:'';
+  document.getElementById('journeyXLabels').innerHTML=labels.map(l=>`<span>${l}</span>`).join('')+xNote;
+
+  function curve(pts, offsetH) {
+    const valid = pts.map(p=>({x:xOf(toH(p.timeStr,offsetH)),y:yOf(p.emoji),emoji:p.emoji})).filter(p=>p.x!==null);
+    if(!valid.length) return {d:null,pts:valid};
+    let d=`M${valid[0].x} ${valid[0].y}`;
+    for(let i=1;i<valid.length;i++){const cx=(valid[i-1].x+valid[i].x)/2;d+=` C${cx} ${valid[i-1].y} ${cx} ${valid[i].y} ${valid[i].x} ${valid[i].y}`;}
+    return {d,pts:valid};
   }
-  const xAxisNote = tzMode === 'real'
-    ? `<span style="font-size:10px;color:var(--accent);font-weight:600;">← 서울 시간 기준</span>`
-    : '';
-  document.getElementById('journeyXLabels').innerHTML =
-    labels.map(l => `<span>${l}</span>`).join('') + xAxisNote;
-
-  function buildCurve(pts, isFriend) {
-    const valid = pts.map(p => ({ x: xOfStr(p.timeStr, isFriend), y: yOf(p.emoji), emoji: p.emoji })).filter(p => p.x !== null);
-    if (valid.length === 0) return { d: null, pts: [] };
-    let d = `M ${valid[0].x} ${valid[0].y}`;
-    for (let i = 1; i < valid.length; i++) {
-      const cx = (valid[i-1].x + valid[i].x) / 2;
-      d += ` C ${cx} ${valid[i-1].y} ${cx} ${valid[i].y} ${valid[i].x} ${valid[i].y}`;
-    }
-    return { d, pts: valid };
+  function area(pts,color){
+    if(!pts.length) return '';
+    const bot=PT+cH;
+    let d=`M${pts[0].x} ${bot} L${pts[0].x} ${pts[0].y}`;
+    for(let i=1;i<pts.length;i++){const cx=(pts[i-1].x+pts[i].x)/2;d+=` C${cx} ${pts[i-1].y} ${cx} ${pts[i].y} ${pts[i].x} ${pts[i].y}`;}
+    d+=` L${pts[pts.length-1].x} ${bot} Z`;
+    return `<path d="${d}" fill="${color}" opacity="0.08"/>`;
   }
-
-  function areaFill(pts, color) {
-    if (pts.length < 1) return '';
-    const bot = PT + cH;
-    let d = `M ${pts[0].x} ${bot} L ${pts[0].x} ${pts[0].y}`;
-    for (let i = 1; i < pts.length; i++) {
-      const cx = (pts[i-1].x + pts[i].x) / 2;
-      d += ` C ${cx} ${pts[i-1].y} ${cx} ${pts[i].y} ${pts[i].x} ${pts[i].y}`;
-    }
-    d += ` L ${pts[pts.length-1].x} ${bot} Z`;
-    return `<path d="${d}" fill="${color}" opacity="0.1"/>`;
-  }
-
-  function dotsAndLabels(pts, color) {
-    return pts.map(p => `
-      <circle cx="${p.x}" cy="${p.y}" r="5.5" fill="${color}" stroke="white" stroke-width="2.5"/>
-      <text x="${p.x}" y="${p.y - 11}" text-anchor="middle" font-size="16" style="user-select:none">${p.emoji}</text>
-    `).join('');
-  }
-
-  // Find overlap window
-  const myHs = myPts.map(p => applyTz(p.timeStr, false)).filter(Boolean);
-  const frHs = friendPts.map(p => applyTz(p.timeStr, true)).filter(Boolean);
-  let overlapRect = '';
-  if (myHs.length && frHs.length) {
-    const start = Math.max(Math.min(...myHs), Math.min(...frHs));
-    const end = Math.min(Math.max(...myHs), Math.max(...frHs));
-    if (end > start) {
-      overlapRect = `<rect x="${xOf(start)}" y="${PT}" width="${xOf(end)-xOf(start)}" height="${cH}" fill="#a78bfa" opacity="0.08" rx="4"/>
-        <rect x="${xOf(start)}" y="${PT-4}" width="${xOf(end)-xOf(start)}" height="6" rx="3" fill="#a78bfa" opacity="0.4"/>`;
-
-      // Show overlap banner
-      const banner = document.getElementById('overlapBanner');
-      if (banner) {
-        const s = `${String(Math.floor(start)).padStart(2,'0')}:${String(Math.round((start%1)*60)).padStart(2,'0')}`;
-        const e2 = `${String(Math.floor(end)).padStart(2,'0')}:${String(Math.round((end%1)*60)).padStart(2,'0')}`;
-        banner.style.display = 'block';
-        banner.querySelector('strong').textContent = `✨ 지금 둘 다 깨있어요!`;
-        banner.querySelector('span').textContent = `${s}–${e2} 사이 — 연락하기 딱 좋은 시간이에요`;
-      }
-    }
+  function dots(pts,color){
+    return pts.map(p=>`
+      <circle cx="${p.x}" cy="${p.y}" r="5" fill="${color}" stroke="white" stroke-width="2.5"/>
+      <text x="${p.x}" y="${p.y-10}" text-anchor="middle" font-size="15" style="user-select:none">${p.emoji}</text>`).join('');
   }
 
   // Grid
-  let grid = '';
-  for (let i = 1; i <= 4; i++) {
-    const y = PT + (i / 5) * cH;
-    grid += `<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,4"/>`;
-  }
+  let grid='';
+  for(let i=1;i<=4;i++){const y=PT+(i/5)*cH;grid+=`<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,4"/>`;}
 
-  const my = buildCurve(myPts, false);
-  const fr = buildCurve(friendPts, true);
-  const empty = myPts.length === 0 && friendPts.length === 0;
+  // Overlap (me vs first active friend)
+  let overlapRect='';
+  if(activeFriends.length===1){
+    const f=activeFriends[0];
+    const myHs=myPts.map(p=>toH(p.timeStr,0)).filter(Boolean);
+    const frHs=(friendPtsMap[f.id]||[]).map(p=>toH(p.timeStr,tzDiff(f))).filter(Boolean);
+    if(myHs.length&&frHs.length){
+      const s=Math.max(Math.min(...myHs),Math.min(...frHs));
+      const e2=Math.min(Math.max(...myHs),Math.max(...frHs));
+      if(e2>s){
+        overlapRect=`<rect x="${xOf(s)}" y="${PT}" width="${xOf(e2)-xOf(s)}" height="${cH}" fill="#a78bfa" opacity="0.07" rx="4"/>
+          <rect x="${xOf(s)}" y="${PT-4}" width="${xOf(e2)-xOf(s)}" height="5" rx="3" fill="#a78bfa" opacity="0.4"/>`;
+        const banner=document.getElementById('overlapBanner');
+        banner.style.display='block';
+        banner.querySelector('strong').textContent='✨ 지금 둘 다 깨있어요!';
+        banner.querySelector('span').textContent=`${String(Math.floor(s)).padStart(2,'0')}:00–${String(Math.floor(e2)).padStart(2,'0')}:00 — 연락하기 딱 좋은 시간이에요`;
+      }
+    } else { document.getElementById('overlapBanner').style.display='none'; }
+  } else { document.getElementById('overlapBanner').style.display='none'; }
 
-  svg.innerHTML = `
-    ${grid}
-    ${overlapRect}
-    ${areaFill(my.pts, '#4f46e5')}
-    ${areaFill(fr.pts, '#f59e0b')}
-    ${my.d ? `<path d="${my.d}" fill="none" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>` : ''}
-    ${fr.d ? `<path d="${fr.d}" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7,3"/>` : ''}
-    ${dotsAndLabels(my.pts, '#4f46e5')}
-    ${dotsAndLabels(fr.pts, '#f59e0b')}
-    ${empty ? `<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#9ca3af" font-size="13">아직 체크인 기록이 없어요</text>` : ''}
-  `;
+  const myCurve = curve(myPts,0);
+  let svgContent = grid + overlapRect + area(myCurve.pts, ME.color);
+  activeFriends.forEach(f=>{
+    const fc=curve(friendPtsMap[f.id]||[],tzDiff(f));
+    svgContent+=area(fc.pts,f.color);
+    if(fc.d) svgContent+=`<path d="${fc.d}" fill="none" stroke="${f.color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="7,3"/>`;
+    svgContent+=dots(fc.pts,f.color);
+  });
+  if(myCurve.d) svgContent+=`<path d="${myCurve.d}" fill="none" stroke="${ME.color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+  svgContent+=dots(myCurve.pts,ME.color);
+  if(!myPts.length&&!activeFriends.some(f=>(friendPtsMap[f.id]||[]).length))
+    svgContent+=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#9ca3af" font-size="13">아직 체크인 기록이 없어요</text>`;
+  svg.innerHTML=svgContent;
 }
 
-function updateCapsuleList() {
-  const capsules = getStorage('capsules') || [];
-  const list = document.getElementById('capsuleList');
-  if (capsules.length === 0) {
-    list.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--sub);font-size:13px;">
-      아직 보낸 타임캡슐이 없어요.<br>친구가 자고 있을 때 메시지를 남겨봐요 🌙
+// ── Capsule ───────────────────────────────────────────────
+function selectPreset(btn){
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentPreset=btn.dataset.preset;
+  document.getElementById('capsuleCustomTime').style.display=currentPreset==='custom'?'flex':'none';
+  const p=PRESETS[currentPreset];
+  const ts=p.getTs();
+  document.getElementById('capsulePreview').textContent=currentPreset==='custom'?p.desc:`${p.desc.split('—')[0]}— ${fmtTs(ts)}`;
+}
+function sendCapsule(){
+  const msg=document.getElementById('capsuleMsg').value.trim();
+  const em=gs('emotion_me')||{emoji:'😊'};
+  const p=PRESETS[currentPreset];
+  const openAt=p.getTs();
+  const caps=gs('capsules')||[];
+  caps.push({emoji:em.emoji,msg,ts:Date.now(),openAt,preset:currentPreset,presetLabel:p.label,
+    from:'me',to:currentRoom||'all'});
+  ss('capsules',caps);
+  document.getElementById('capsuleMsg').value='';
+  const el=document.getElementById('capsuleSaved');
+  el.textContent=`✅ ${p.label} — ${fmtTs(openAt)}에 전달돼요`;
+  setTimeout(()=>el.textContent='',4000);
+  showToast(`${p.label} 타임캡슐 보냈어요!`);
+}
+function updateCapsuleList(){
+  const caps=gs('capsules')||[];
+  const list=document.getElementById('capsuleList');
+  if(!caps.length){list.innerHTML=`<div style="text-align:center;padding:40px 0;color:var(--sub);font-size:13px">아직 보낸 타임캡슐이 없어요 🌙</div>`;return;}
+  list.innerHTML=caps.slice().reverse().map(c=>{
+    const opened=Date.now()>=(c.openAt||c.ts+60000);
+    const toName=c.to&&c.to!=='all'?(FRIENDS.find(f=>f.id===c.to)||{name:c.to}).name:'모두에게';
+    return `<div class="capsule-item">
+      <span class="ci-emoji">${c.emoji}</span>
+      <div class="ci-text">
+        <div style="font-weight:600;font-size:11px;color:var(--accent);margin-bottom:2px">${c.presetLabel||'🌅 일어날 때'} → ${toName}</div>
+        <div>${c.msg||'(감정만 공유)'}</div>
+        <div class="ci-when">${c.openAt?fmtTs(c.openAt):'곧'}</div>
+      </div>
+      <span class="capsule-status ${opened?'status-delivered':'status-pending'}">${opened?'전달됨 ✓':'봉인중 🔒'}</span>
     </div>`;
-    return;
-  }
-  list.innerHTML = capsules.slice().reverse().map(c => {
-    const opened = Date.now() >= (c.openAt || c.ts + 60000);
-    const label = c.presetLabel || '🌅 일어날 때';
-    const whenStr = c.openAt ? fmtTs(c.openAt) : '곧';
-    return `
-      <div class="capsule-item">
-        <span class="ci-emoji">${c.emoji}</span>
-        <div class="ci-text">
-          <div style="font-weight:600;font-size:12px;color:var(--accent);margin-bottom:2px;">${label}</div>
-          <div>${c.msg || '(감정만 공유)'}</div>
-          <div class="ci-when">${whenStr}</div>
-        </div>
-        <span class="capsule-status ${opened ? 'status-delivered' : 'status-pending'}">
-          ${opened ? '전달됨 ✓' : '봉인중 🔒'}
-        </span>
-      </div>`;
   }).join('');
 }
 
-// ── Capsule presets ──
-const PRESETS = {
-  wake:   { label: '🌅 일어날 때',    desc: '🌅 친구가 일어날 때 전달돼요',    getTs: () => nextOccurrence(7, 0) },
-  friday: { label: '🎉 불금 밤에',    desc: '🎉 이번 주 금요일 밤 9시에 열려요', getTs: () => nextWeekday(5, 21, 0) },
-  monday: { label: '😤 월요일 아침',  desc: '😤 월요일 아침 8시에 열려요',      getTs: () => nextWeekday(1, 8, 0) },
-  lunch:  { label: '🍜 점심 때',      desc: '🍜 오늘 점심 12시에 전달돼요',     getTs: () => nextOccurrence(12, 0) },
-  sleep:  { label: '🌙 자기 전에',    desc: '🌙 오늘 밤 11시에 열려요',         getTs: () => nextOccurrence(23, 0) },
-  custom: { label: '🕐 직접 지정',    desc: '🕐 지정한 시간에 열려요',           getTs: () => {
-    const v = document.getElementById('capsuleCustomDt').value;
-    return v ? new Date(v).getTime() : Date.now() + 3600000;
-  }},
-};
-let currentPreset = 'wake';
-
-function nextOccurrence(h, m) {
-  const d = new Date(); d.setSeconds(0, 0);
-  d.setHours(h, m);
-  if (d.getTime() <= Date.now()) d.setDate(d.getDate() + 1);
-  return d.getTime();
+// ── Theme ─────────────────────────────────────────────────
+function toggleTheme(){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',isDark?'':'dark');
+  document.querySelector('.theme-btn').textContent=isDark?'🌙':'☀️';
 }
-function nextWeekday(dow, h, m) {
-  const d = new Date(); d.setSeconds(0, 0); d.setHours(h, m);
-  const diff = (dow - d.getDay() + 7) % 7 || 7;
-  d.setDate(d.getDate() + diff);
-  return d.getTime();
-}
-function fmtTs(ts) {
-  return new Date(ts).toLocaleString('ko-KR', { month:'long', day:'numeric', weekday:'short', hour:'2-digit', minute:'2-digit' });
+function applyFriendTheme(){
+  const f=currentRoom?FRIENDS.find(f=>f.id===currentRoom):FRIENDS[0];
+  if(!f) return;
+  const h=cityTime(f.offset).getHours();
+  const isNight=h>=21||h<6;
+  document.documentElement.setAttribute('data-theme',isNight?'dark':'');
+  document.querySelector('.theme-btn').textContent=isNight?'☀️':'🌙';
 }
 
-function selectPreset(btn) {
-  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  currentPreset = btn.dataset.preset;
-  const isCustom = currentPreset === 'custom';
-  document.getElementById('capsuleCustomTime').style.display = isCustom ? 'flex' : 'none';
-  const p = PRESETS[currentPreset];
-  const ts = p.getTs();
-  document.getElementById('capsulePreview').textContent = isCustom
-    ? p.desc : `${p.desc.split('—')[0]}— ${fmtTs(ts)}`;
+// ── Toast ─────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
 }
 
-function sendCapsule() {
-  const msg = document.getElementById('capsuleMsg').value.trim();
-  const saved = getStorage(`emotion_${currentUser}`) || { emoji: '😊' };
-  const p = PRESETS[currentPreset];
-  const openAt = p.getTs();
-  const capsules = getStorage('capsules') || [];
-  capsules.push({
-    emoji: saved.emoji, msg, ts: Date.now(), openAt,
-    preset: currentPreset, presetLabel: p.label, from: currentUser,
-  });
-  setStorage('capsules', capsules);
-  document.getElementById('capsuleMsg').value = '';
-  const el = document.getElementById('capsuleSaved');
-  el.textContent = `✅ ${p.label} — ${fmtTs(openAt)}에 전달돼요`;
-  setTimeout(() => { el.textContent = ''; }, 4000);
-  showToast(`${p.label} 타임캡슐을 보냈어요!`);
+// ── Seed data ─────────────────────────────────────────────
+function seedDemoData(){
+  if(gs('seed_version')==='v3') return;
+  localStorage.clear();
+  ss('seed_version','v3');
+  const now=Date.now();
+  ss('emotion_me',   {emoji:'😊',text:'행복해요',ts:now-300000});
+  ss('emotion_jiwoo',{emoji:'😴',text:'자는 중이에요',ts:now-900000});
+  ss('emotion_minjun',{emoji:'☀️',text:'활기차요',ts:now-1800000});
+  ss('emotion_soyeon',{emoji:'📚',text:'공부 중이에요',ts:now-600000});
+  ss('timeline',[
+    {user:'me',     emoji:'😴',text:'자는 중이에요',  ts:now-43200000,timeStr:'07:00'},
+    {user:'me',     emoji:'☀️',text:'좋은 아침!',     ts:now-36000000,timeStr:'09:00'},
+    {user:'jiwoo',  emoji:'☀️',text:'활기차요',       ts:now-32400000,timeStr:'10:00'},
+    {user:'me',     emoji:'🍜',text:'점심 먹는 중',   ts:now-28800000,timeStr:'12:00'},
+    {user:'minjun', emoji:'🌙',text:'피곤해요',       ts:now-25200000,timeStr:'02:00'},
+    {user:'jiwoo',  emoji:'🍜',text:'브런치!',        ts:now-21600000,timeStr:'13:00'},
+    {user:'me',     emoji:'📚',text:'공부 중이에요',  ts:now-18000000,timeStr:'14:00'},
+    {user:'soyeon', emoji:'☀️',text:'좋은 아침 런던!',ts:now-14400000,timeStr:'10:00'},
+    {user:'me',     emoji:'😔',text:'과제가 너무 많아',ts:now-10800000,timeStr:'16:00'},
+    {user:'jiwoo',  emoji:'😤',text:'발표 망했어ㅠ',  ts:now-7200000, timeStr:'17:30'},
+    {user:'minjun', emoji:'🎉',text:'퇴근했다!',      ts:now-5400000, timeStr:'17:00'},
+    {user:'soyeon', emoji:'🍜',text:'저녁 먹어요',    ts:now-3600000, timeStr:'19:00'},
+    {user:'me',     emoji:'🥰',text:'보고싶어요',     ts:now-1800000, timeStr:'19:30'},
+    {user:'jiwoo',  emoji:'🥰',text:'너 생각났어',    ts:now-900000,  timeStr:'20:00'},
+    {user:'me',     emoji:'😊',text:'저녁 먹고 행복', ts:now-300000,  timeStr:'21:00'},
+  ]);
 }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-function showPage(name, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(`page-${name}`).classList.add('active');
-  btn.classList.add('active');
-  if (name === 'timeline') updateTimeline();
-  if (name === 'capsules') updateCapsuleList();
-}
-
-function switchUser(user) {
-  currentUser = user;
-  document.getElementById('btnMe').classList.toggle('active', user === 'me');
-  document.getElementById('btnFriend').classList.toggle('active', user === 'friend');
-  const me = CONFIGS[currentUser];
-  const other = currentUser === 'me' ? 'friend' : 'me';
-  const otherCfg = CONFIGS[other];
-
-  // Update friend card header
-  document.querySelector('.friend-label').textContent = `지금 ${otherCfg.name === '나' ? '상대방' : otherCfg.name} 상태`;
-
-  buildEmojiGrid();
-  updateMyCard();
-  updateFriendCard();
-}
-
-function toggleTheme() {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
-  document.querySelector('.theme-btn').textContent = isDark ? '🌙' : '☀️';
-}
-
-// Seed demo data — v2: clear old data and reseed with clean 06–22h range
-function seedDemoData() {
-  if (getStorage('seed_version') !== 'v2') {
-    localStorage.removeItem('timeline');
-    localStorage.removeItem('emotion_me');
-    localStorage.removeItem('emotion_friend');
-    setStorage('seed_version', 'v2');
-  }
-  if (!getStorage('emotion_friend')) {
-    setStorage('emotion_friend', { emoji: '😴', text: '자는 중이에요', ts: Date.now() - 15 * 60000 });
-  }
-  if (!getStorage('emotion_me')) {
-    setStorage('emotion_me', { emoji: '😊', text: '행복해요', ts: Date.now() - 3 * 60000 });
-  }
-  if (!getStorage('timeline')) {
-    const now = Date.now();
-    setStorage('timeline', [
-      { user: 'me',     emoji: '😴', text: '자는 중이에요',   ts: now - 43200000, timeStr: '07:00' },
-      { user: 'me',     emoji: '☀️', text: '좋은 아침!',      ts: now - 36000000, timeStr: '09:00' },
-      { user: 'friend', emoji: '☀️', text: '활기차요',        ts: now - 32400000, timeStr: '10:00' },
-      { user: 'me',     emoji: '🍜', text: '점심 먹는 중',    ts: now - 28800000, timeStr: '12:00' },
-      { user: 'friend', emoji: '🍜', text: '브런치 먹었어요', ts: now - 25200000, timeStr: '13:00' },
-      { user: 'me',     emoji: '📚', text: '공부 중이에요',   ts: now - 21600000, timeStr: '14:00' },
-      { user: 'friend', emoji: '😊', text: '날씨 좋다 산책!', ts: now - 18000000, timeStr: '15:00' },
-      { user: 'me',     emoji: '😔', text: '과제가 너무 많아', ts: now - 14400000, timeStr: '16:00' },
-      { user: 'friend', emoji: '😤', text: '발표 망했어ㅠ',   ts: now - 10800000, timeStr: '17:30' },
-      { user: 'me',     emoji: '🥰', text: '보고싶어요',      ts: now - 7200000,  timeStr: '18:00' },
-      { user: 'friend', emoji: '🥰', text: '너 생각났어',     ts: now - 3600000,  timeStr: '20:00' },
-      { user: 'me',     emoji: '😊', text: '저녁 먹고 행복',  ts: now - 900000,   timeStr: '21:00' },
-    ]);
-  }
-}
-
-// Clock tick
-setInterval(() => {
-  updateFriendCard();
-}, 30000);
-
-// Init — 테마는 상대방 도시 시간 기준으로 설정
-function applyFriendTheme() {
-  const other = currentUser === 'me' ? 'friend' : 'me';
-  const friendTime = getCityTime(CONFIGS[other].offset);
-  const h = friendTime.getHours();
-  const isNight = h >= 21 || h < 6;
-  document.documentElement.setAttribute('data-theme', isNight ? 'dark' : '');
-  document.querySelector('.theme-btn').textContent = isNight ? '☀️' : '🌙';
-}
-
+// ── Init ──────────────────────────────────────────────────
 seedDemoData();
+renderFriendList();
 buildEmojiGrid();
 updateMyCard();
-updateFriendCard();
 applyFriendTheme();
+setInterval(()=>{renderFriendList();updateRoomView();},30000);
 </script>
 </body>
 </html>
