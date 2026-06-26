@@ -66,6 +66,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
 .friend-time{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub)}
 .friend-when{font-size:11px;color:var(--sub);margin-top:7px}
 
+/* Friends row (horizontal scroll) */
+.friends-row-wrap{overflow-x:auto;margin:0 -16px;padding:0 16px 12px;scrollbar-width:none}
+.friends-row-wrap::-webkit-scrollbar{display:none}
+.friends-row{display:flex;gap:10px;width:max-content}
+.friend-bubble{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;min-width:58px}
+.friend-bubble-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:26px;border:2.5px solid var(--border);position:relative;transition:border-color .2s}
+.friend-bubble-avatar.active-friend{border-color:var(--accent)}
+.friend-bubble-name{font-size:11px;font-weight:600;color:var(--sub)}
+.friend-bubble-time{font-size:10px;color:var(--sub)}
+
+/* My status bar */
+.my-status-bar{display:flex;align-items:center;gap:12px;padding:12px 14px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  margin-bottom:12px;box-shadow:var(--shadow)}
+
+/* Share sheet */
+.share-targets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.share-target-btn{display:flex;align-items:center;gap:6px;padding:8px 12px;
+  border-radius:40px;border:2px solid var(--border);background:var(--bg);
+  cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;
+  color:var(--sub);transition:all .15s}
+.share-target-btn.selected{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.share-target-btn .st-emoji{font-size:18px}
+.share-send-btn{width:100%;padding:12px;border-radius:12px;border:none;
+  background:var(--accent);color:#fff;font-size:14px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:opacity .2s}
+.share-send-btn:hover{opacity:.88}
+.share-send-btn:disabled{opacity:.4;cursor:default}
+
 /* Check-in */
 .checkin-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
   padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
@@ -199,7 +229,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
 
 <div class="header">
   <div style="display:flex;align-items:center;gap:8px">
-    <button class="back-btn" id="backBtn" onclick="exitRoom()" style="display:none">← 뒤로</button>
     <h1 id="headerTitle">🌍 감정 시계</h1>
   </div>
   <button class="theme-btn" onclick="toggleTheme()">🌙</button>
@@ -210,53 +239,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
   <!-- ── 홈 탭 ── -->
   <div class="page active" id="page-home">
 
-    <!-- Friend list (default) -->
-    <div id="homeList">
-      <div class="section-title">👥 연결된 친구들</div>
-      <div id="friendCards"></div>
+    <!-- 친구 상태 가로 스크롤 -->
+    <div class="friends-row-wrap">
+      <div class="friends-row" id="friendsRow"></div>
     </div>
 
-    <!-- Room view (per friend) -->
-    <div id="roomView" style="display:none">
-      <div class="room-friend-card">
-        <div class="friend-label" id="roomLabel">지금 친구 상태</div>
-        <div class="friend-main">
-          <div class="friend-emoji-big" id="roomEmoji">😴</div>
-          <div class="friend-info">
-            <div class="friend-name" id="roomName">지우</div>
-            <div class="friend-status" id="roomStatus">자는 중이에요</div>
-            <div class="friend-time">
-              <span class="city-badge" id="roomCity">베를린</span>
-              <span id="roomLocalTime">--:--</span>
-              <span class="dot-live"></span>
-            </div>
-          </div>
+    <!-- 내 현재 상태 -->
+    <div class="my-status-bar">
+      <div class="my-emoji-display" id="myEmojiDisplay">😊</div>
+      <div class="my-status-text">
+        <strong id="myStatusLabel">행복해요</strong>
+        <span id="myCheckinTime">방금 전 체크인</span>
+      </div>
+      <span class="my-city" id="myCity">서울</span>
+    </div>
+
+    <!-- 감정 그리드 -->
+    <div class="checkin-card">
+      <div class="emoji-grid" id="emojiGrid"></div>
+
+      <!-- 코멘트 입력 -->
+      <div id="commentBox" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="capsule-input" id="commentInput" placeholder="한 줄 코멘트 남기기... (선택)"
+            maxlength="60" onkeydown="if(event.key==='Enter')submitComment()">
         </div>
-        <div class="friend-when" id="roomWhen">15분 전에 업데이트했어요</div>
+        <div style="font-size:11px;color:var(--sub);margin-top:5px" id="commentHint"></div>
       </div>
 
-      <div class="section-title">✨ 지금 내 상태 공유</div>
-      <div class="checkin-card">
-        <div class="my-current">
-          <div class="my-emoji-display" id="myEmojiDisplay">😊</div>
-          <div class="my-status-text">
-            <strong id="myStatusLabel">행복해요</strong>
-            <span id="myCheckinTime">방금 전 체크인</span>
-          </div>
-          <span class="my-city" id="myCity">서울</span>
-        </div>
-        <div class="emoji-grid" id="emojiGrid"></div>
-
-        <!-- 코멘트 입력 (감정 선택 후 표시) -->
-        <div id="commentBox" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
-          <div style="display:flex;gap:8px;align-items:center">
-            <input class="capsule-input" id="commentInput" placeholder="한 줄 코멘트 남기기... (선택)"
-              maxlength="60" onkeydown="if(event.key==='Enter')submitComment()">
-            <button class="capsule-btn" onclick="submitComment()">공유</button>
-          </div>
-          <div style="font-size:11px;color:var(--sub);margin-top:5px" id="commentHint"></div>
-        </div>
+      <!-- 공유 대상 + 보내기 (셰어시트) -->
+      <div id="shareSheet" style="display:none;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:8px">누구한테 보낼까요?</div>
+        <div class="share-targets" id="shareTargets"></div>
+        <button class="share-send-btn" onclick="submitComment()">지금 공유하기</button>
       </div>
+    </div>
 
       <div class="capsule-card">
         <div class="capsule-title">⏰ 타임캡슐</div>
@@ -381,7 +398,6 @@ const EMOTION_SCORE = {
 const REACT_EMOJIS = ['❤️','😂','😢','🔥','🥰','👏'];
 
 // ── State ─────────────────────────────────────────────────
-let currentRoom = null; // null = list, else friendId
 let tzMode = 'same';
 let tlFilter = 'all'; // 'all' | friendId
 let currentPreset = 'wake';
@@ -421,25 +437,6 @@ const PRESETS = {
 };
 
 // ── Navigation ────────────────────────────────────────────
-function enterRoom(friendId) {
-  currentRoom = friendId;
-  document.getElementById('homeList').style.display = 'none';
-  document.getElementById('roomView').style.display = 'block';
-  document.getElementById('backBtn').style.display = 'flex';
-  const f = FRIENDS.find(f=>f.id===friendId);
-  document.getElementById('headerTitle').textContent = f.name;
-  updateRoomView();
-  buildEmojiGrid();
-  updateMyCard();
-}
-function exitRoom() {
-  currentRoom = null;
-  document.getElementById('homeList').style.display = 'block';
-  document.getElementById('roomView').style.display = 'none';
-  document.getElementById('backBtn').style.display = 'none';
-  document.getElementById('headerTitle').textContent = '🌍 감정 시계';
-  renderFriendList();
-}
 function showPage(name, btn) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -449,44 +446,34 @@ function showPage(name, btn) {
   if(name==='capsules') updateCapsuleList();
 }
 
-// ── Friend list ───────────────────────────────────────────
+// ── Friend bubbles (home row) ─────────────────────────────
+let activeFriendBubble = null;
+
 function renderFriendList() {
-  const el = document.getElementById('friendCards');
+  const el = document.getElementById('friendsRow');
   el.innerHTML = FRIENDS.map(f => {
     const em = gs(`emotion_${f.id}`) || {emoji:'😌',text:'평온해요',ts:Date.now()-3600000};
     const ct = cityTime(f.offset);
     const h = ct.getHours();
     const isNight = h>=21||h<6;
-    return `<div class="friend-list-card" onclick="enterRoom('${f.id}')">
-      <div class="fcard-avatar" style="background:${f.color}22">${em.emoji}</div>
-      <div class="fcard-info">
-        <div class="fcard-name">${f.name}</div>
-        <div class="fcard-sub">
-          <span class="city-badge" style="background:${f.color}22;color:${f.color}">${f.city}</span>
-          <span class="fcard-time">${fmt(ct)}</span>
-          ${isNight?'🌙':'☀️'}
-          <span class="dot-live"></span>
-        </div>
-        <div style="font-size:12px;color:var(--sub);margin-top:3px">${em.text} · ${relTime(em.ts)}</div>
+    return `<div class="friend-bubble" onclick="showFriendDetail('${f.id}')">
+      <div class="friend-bubble-avatar" id="bubble_${f.id}" style="background:${f.color}22">
+        ${em.emoji}
+        <span style="position:absolute;bottom:0;right:0;font-size:10px">${isNight?'🌙':'☀️'}</span>
       </div>
-      <div class="fcard-emotion" style="font-size:28px">›</div>
+      <div class="friend-bubble-name">${f.name}</div>
+      <div class="friend-bubble-time" style="color:${f.color}">${fmt(ct)}</div>
     </div>`;
   }).join('');
 }
 
-// ── Room view ─────────────────────────────────────────────
-function updateRoomView() {
-  if(!currentRoom) return;
-  const f = FRIENDS.find(f=>f.id===currentRoom);
-  const em = gs(`emotion_${f.id}`) || {emoji:'😌',text:'평온해요',ts:Date.now()-900000};
-  document.getElementById('roomEmoji').textContent = em.emoji;
-  document.getElementById('roomName').textContent = f.name;
-  document.getElementById('roomStatus').textContent = em.text;
-  document.getElementById('roomCity').textContent = f.city;
-  document.getElementById('roomLocalTime').textContent = fmt(cityTime(f.offset));
-  document.getElementById('roomWhen').textContent = `${relTime(em.ts||Date.now())}에 업데이트했어요`;
-  document.getElementById('roomLabel').textContent = `지금 ${f.name} 상태`;
+function showFriendDetail(friendId) {
+  const f = FRIENDS.find(f=>f.id===friendId);
+  const em = gs(`emotion_${f.id}`) || {emoji:'😌',text:'평온해요',ts:Date.now()-3600000};
+  showToast(`${f.name} — ${em.emoji} ${em.text} (${fmt(cityTime(f.offset))})`);
 }
+
+// ── Room view ─────────────────────────────────────────────
 function updateMyCard() {
   const em = gs('emotion_me') || {emoji:'😊',text:'행복해요',ts:Date.now()};
   document.getElementById('myEmojiDisplay').textContent = em.emoji;
@@ -505,7 +492,8 @@ function buildEmojiGrid() {
     </button>`).join('');
 }
 
-let pendingEmotion = null; // {emoji, text, ts, timeStr}
+let pendingEmotion = null;
+let selectedTargets = new Set(['all']); // 'all' or friendId set
 
 function selectEmotion(emoji, text, btn) {
   document.querySelectorAll('.emoji-btn').forEach(b=>b.classList.remove('selected'));
@@ -517,31 +505,73 @@ function selectEmotion(emoji, text, btn) {
   ss('emotion_me',{emoji,text,ts});
   document.getElementById('myEmojiDisplay').textContent=emoji;
   document.getElementById('myStatusLabel').textContent=text;
-  document.getElementById('myCheckinTime').textContent='코멘트를 남겨보세요 ✍️';
+  document.getElementById('myCheckinTime').textContent='누구한테 보낼까요?';
   const el=document.getElementById('myEmojiDisplay');
   el.style.transform='scale(1.3)'; setTimeout(()=>el.style.transform='scale(1)',300);
 
-  // 코멘트 박스 열기
-  const box = document.getElementById('commentBox');
-  box.style.display='block';
+  // 코멘트 박스
+  document.getElementById('commentBox').style.display='block';
   document.getElementById('commentInput').value='';
-  document.getElementById('commentHint').textContent=`${emoji} ${text} — 코멘트 없이 공유하려면 그냥 "공유" 눌러요`;
+  document.getElementById('commentHint').textContent=`💬 한 줄 코멘트를 남겨봐요 (선택)`;
+
+  // 셰어시트 열기
+  document.getElementById('shareSheet').style.display='block';
+  renderShareTargets();
+
   setTimeout(()=>document.getElementById('commentInput').focus(), 100);
+}
+
+function renderShareTargets() {
+  const el = document.getElementById('shareTargets');
+  const allSel = selectedTargets.has('all');
+  el.innerHTML = `
+    <button class="share-target-btn ${allSel?'selected':''}" onclick="toggleTarget('all',this)">
+      <span class="st-emoji">🌐</span> 전체
+    </button>
+    ${FRIENDS.map(f=>{
+      const em = gs(`emotion_${f.id}`) || {emoji:'😌'};
+      const sel = selectedTargets.has(f.id) && !allSel;
+      return `<button class="share-target-btn ${sel?'selected':''}"
+        style="${sel?`border-color:${f.color};background:${f.color}22;color:${f.color}`:''}"
+        onclick="toggleTarget('${f.id}',this)">
+        <span class="st-emoji">${em.emoji}</span> ${f.name}
+      </button>`;
+    }).join('')}
+  `;
+}
+
+function toggleTarget(id, btn) {
+  if(id==='all') {
+    selectedTargets = new Set(['all']);
+  } else {
+    selectedTargets.delete('all');
+    if(selectedTargets.has(id)) selectedTargets.delete(id);
+    else selectedTargets.add(id);
+    if(selectedTargets.size===0) selectedTargets.add('all');
+  }
+  renderShareTargets();
 }
 
 function submitComment() {
   if(!pendingEmotion) return;
   const comment = document.getElementById('commentInput').value.trim();
   const {emoji, text, ts, timeStr} = pendingEmotion;
+  const targets = selectedTargets.has('all') ? FRIENDS.map(f=>f.id) : [...selectedTargets];
   const tl = gs('timeline')||[];
-  tl.push({user:'me', friendContext:currentRoom||'all', emoji, text, comment, ts, timeStr});
-  if(tl.length>50) tl.splice(0,tl.length-50);
+  targets.forEach(targetId => {
+    tl.push({user:'me', friendContext:targetId, emoji, text, comment, ts, timeStr});
+  });
+  if(tl.length>50) tl.splice(0, tl.length-50);
   ss('timeline',tl);
+
   document.getElementById('commentBox').style.display='none';
+  document.getElementById('shareSheet').style.display='none';
   document.getElementById('myCheckinTime').textContent='방금 체크인했어요 ✓';
   pendingEmotion = null;
-  updateRoomView();
-  showToast(`${emoji} ${comment ? `"${comment}"` : text} — 전달됐어요!`);
+  selectedTargets = new Set(['all']);
+
+  const toNames = targets.map(id=>FRIENDS.find(f=>f.id===id)?.name||'').join(', ');
+  showToast(`${emoji} ${comment?`"${comment}"`:text} → ${toNames}`);
   if(document.getElementById('page-timeline').classList.contains('active')) updateTimeline();
 }
 
@@ -767,7 +797,7 @@ function sendCapsule(){
   const openAt=p.getTs();
   const caps=gs('capsules')||[];
   caps.push({emoji:em.emoji,msg,ts:Date.now(),openAt,preset:currentPreset,presetLabel:p.label,
-    from:'me',to:currentRoom||'all'});
+    from:'me',to:'all'});
   ss('capsules',caps);
   document.getElementById('capsuleMsg').value='';
   const el=document.getElementById('capsuleSaved');
@@ -801,7 +831,7 @@ function toggleTheme(){
   document.querySelector('.theme-btn').textContent=isDark?'🌙':'☀️';
 }
 function applyFriendTheme(){
-  const f=currentRoom?FRIENDS.find(f=>f.id===currentRoom):FRIENDS[0];
+  const f=FRIENDS[0];
   if(!f) return;
   const h=cityTime(f.offset).getHours();
   const isNight=h>=21||h<6;
@@ -851,7 +881,7 @@ renderFriendList();
 buildEmojiGrid();
 updateMyCard();
 applyFriendTheme();
-setInterval(()=>{renderFriendList();updateRoomView();},30000);
+setInterval(()=>{renderFriendList();},30000);
 </script>
 </body>
 </html>
