@@ -116,16 +116,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
 .my-status-text span{font-size:12px;color:var(--sub)}
 .my-city{font-size:11px;color:var(--accent);font-weight:600;background:var(--accent-soft);
   padding:3px 9px;border-radius:10px}
-.emoji-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
-.emoji-btn{aspect-ratio:1;background:var(--bg);border:2px solid transparent;
-  border-radius:12px;font-size:21px;cursor:pointer;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;transition:all .15s;position:relative;padding:5px 2px 3px}
-.emoji-btn span.label{font-size:8px;color:var(--sub);margin-top:2px;text-align:center;line-height:1.1}
-.emoji-btn:hover{transform:scale(1.1);background:var(--accent-soft)}
-.emoji-btn.selected{border-color:var(--accent);background:var(--accent-soft)}
-.emoji-btn.selected::after{content:'✓';position:absolute;top:-4px;right:-4px;background:var(--accent);
-  color:#fff;width:14px;height:14px;border-radius:50%;font-size:9px;
-  display:flex;align-items:center;justify-content:center}
 
 /* Capsule */
 .capsule-card{background:linear-gradient(135deg,var(--warm1),var(--warm2));
@@ -275,12 +265,76 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
   width:38px;height:38px;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;
   align-items:center;justify-content:center}
 
-/* AI upload zone */
-.ai-upload-zone{margin:12px 16px;border:2px dashed var(--border);border-radius:14px;
-  padding:16px;text-align:center;cursor:pointer;transition:border-color .2s}
-.ai-upload-zone:hover{border-color:var(--accent)}
-.ai-notice{margin:0 16px 10px;background:var(--warm1);border-radius:10px;
-  padding:10px 14px;font-size:12px;color:var(--sub);line-height:1.5}
+/* ── Profile photos & photo moods ── */
+.friend-bubble-avatar{overflow:visible;background:var(--bg)}
+.friend-bubble-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.fcard-avatar img,.bubble-avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.mood-badge{position:absolute;bottom:-3px;right:-3px;min-width:21px;height:21px;border-radius:50%;
+  background:var(--card);border:2px solid var(--card);display:flex;align-items:center;justify-content:center;
+  font-size:12px;box-shadow:0 1px 5px rgba(0,0,0,.18);padding:0 2px}
+
+/* My status photo */
+.my-emoji-display.has-photo{width:46px;height:46px;border-radius:14px;overflow:hidden;font-size:0;flex-shrink:0}
+.my-emoji-display.has-photo img{width:100%;height:100%;object-fit:cover}
+
+/* Mood section (photo-first check-in) */
+.mood-section-label{font-size:12px;font-weight:700;color:var(--sub);margin:2px 0 9px;display:flex;align-items:center;gap:6px}
+.mood-photos-row{display:flex;gap:10px;overflow-x:auto;padding:0 2px 6px;scrollbar-width:none}
+.mood-photos-row::-webkit-scrollbar{display:none}
+.mood-tile{flex-shrink:0;width:74px;cursor:pointer;text-align:center}
+.mood-tile-img{width:74px;height:74px;border-radius:16px;object-fit:cover;border:2.5px solid transparent;
+  transition:all .15s;background:var(--bg);display:block}
+.mood-tile:hover .mood-tile-img{transform:translateY(-2px)}
+.mood-tile.selected .mood-tile-img{border-color:var(--accent);box-shadow:0 3px 12px rgba(79,70,229,.28)}
+.mood-tile-label{font-size:10px;color:var(--sub);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mood-tile.selected .mood-tile-label{color:var(--accent);font-weight:700}
+.mood-add{width:74px;height:74px;border-radius:16px;border:2px dashed var(--border);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:1px;color:var(--sub);font-size:24px;background:var(--bg);transition:all .15s}
+.mood-tile:hover .mood-add{border-color:var(--accent);color:var(--accent)}
+.mood-add small{font-size:9px}
+
+/* Quick emoji row */
+.quick-emoji-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.quick-emoji{width:46px;height:46px;border-radius:13px;background:var(--bg);border:2px solid transparent;
+  font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.quick-emoji:hover{background:var(--accent-soft);transform:scale(1.08)}
+.quick-emoji.selected{border-color:var(--accent);background:var(--accent-soft)}
+
+/* Feeling picker for a freshly uploaded photo */
+.feeling-picker{display:flex;gap:8px;margin-top:8px}
+.feeling-opt{flex:1;padding:9px 4px;border-radius:12px;background:var(--bg);border:2px solid transparent;
+  cursor:pointer;text-align:center;font-size:23px;transition:all .15s}
+.feeling-opt span{display:block;font-size:10px;color:var(--sub);margin-top:3px}
+.feeling-opt:hover{background:var(--accent-soft)}
+.feeling-opt.selected{border-color:var(--accent);background:var(--accent-soft)}
+
+/* Reason photo attach */
+.reason-attach{display:flex;align-items:center;gap:10px;margin-top:10px;min-height:36px}
+.reason-add-btn{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;border:1.5px dashed var(--border);
+  background:var(--bg);color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.reason-add-btn:hover{border-color:var(--accent);color:var(--accent)}
+.reason-thumb{position:relative;width:48px;height:48px;border-radius:10px;overflow:visible;flex-shrink:0}
+.reason-thumb img{width:48px;height:48px;border-radius:10px;object-fit:cover;display:block}
+.reason-thumb button{position:absolute;top:-7px;right:-7px;width:19px;height:19px;border-radius:50%;border:none;
+  background:var(--text);color:var(--bg);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+
+/* Timeline event photo */
+.ev-photo{margin-top:9px;border-radius:10px;overflow:hidden;cursor:pointer}
+.ev-photo img{width:100%;object-fit:cover;display:block;max-height:190px}
+.ev-photo-cap{font-size:11px;color:var(--sub);margin-top:5px}
+
+/* Photo marker on chart dots */
+.tz-desc.ask-hint{background:var(--accent-soft);border-color:#c4b5fd44;color:var(--text)}
+
+/* Lightbox */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;
+  align-items:center;justify-content:center;padding:24px;cursor:zoom-out}
+.lightbox.open{display:flex}
+.lightbox img{max-width:100%;max-height:78%;border-radius:14px;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+.lightbox-cap{position:absolute;bottom:44px;left:0;right:0;text-align:center;color:#fff;font-size:14px;padding:0 24px}
+
+/* Ask panel anchor photo */
+.ask-anchor-photo{width:100%;border-radius:10px;margin-top:8px;max-height:170px;object-fit:cover;display:block;cursor:zoom-in}
 </style>
 </head>
 <body>
@@ -348,16 +402,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
       <span class="my-city" id="myCity">서울</span>
     </div>
 
-    <!-- 감정 그리드 -->
+    <!-- 감정 체크인 (사진 무드 중심) -->
     <div class="checkin-card">
-      <div class="emoji-grid" id="emojiGrid"></div>
+      <div class="mood-section-label" id="moodPhotoLabel">📷 내 무드 · 사진으로 표현해요</div>
+      <div class="mood-photos-row" id="moodPhotosRow"></div>
 
-      <!-- 코멘트 입력 -->
+      <div class="mood-section-label" id="quickEmojiLabel" style="margin-top:14px">🙂 빠른 감정</div>
+      <div class="quick-emoji-row" id="quickEmojiRow"></div>
+
+      <!-- 숨김 파일 입력 -->
+      <input type="file" id="moodPhotoInput" accept="image/*" style="display:none" onchange="handleMoodPhotoUpload(this)">
+      <input type="file" id="reasonPhotoInput" accept="image/*" style="display:none" onchange="handleReasonPhotoUpload(this)">
+
+      <!-- 새 사진 업로드 시: 이 사진의 기분 고르기 -->
+      <div id="feelingPickerBox" style="display:none;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:2px" id="feelingPickerTitle">이 사진은 어떤 기분이에요?</div>
+        <div class="feeling-picker" id="feelingPicker"></div>
+      </div>
+
+      <!-- 코멘트 입력 + 이유 사진 -->
       <div id="commentBox" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
         <div style="display:flex;gap:8px;align-items:center">
           <input class="capsule-input" id="commentInput" placeholder="한 줄 코멘트 남기기... (선택)"
             maxlength="60" onkeydown="if(event.key==='Enter')submitComment()">
         </div>
+        <div class="reason-attach" id="reasonAttach"></div>
         <div style="font-size:11px;color:var(--sub);margin-top:5px" id="commentHint"></div>
       </div>
 
@@ -437,43 +506,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
   <button class="tab-btn" onclick="showPage('capsules',this)"><span class="tab-icon">📦</span>캡슐함</button>
 </div>
 
-<!-- ── DM 오버레이 ── -->
+<!-- ── 순간 물어보기 오버레이 ── -->
 <div class="overlay-panel" id="dmPanel">
   <div class="overlay-header">
     <button class="overlay-back" onclick="closePanel('dmPanel')">←</button>
-    <div class="overlay-title" id="dmTitle">지우와의 대화</div>
-    <span class="overlay-badge badge-dm">💬 DM</span>
+    <div class="overlay-title" id="dmTitle">물어보기</div>
+    <span class="overlay-badge badge-dm" id="dmBadge">💬 어땠어?</span>
   </div>
   <div class="chat-body" id="dmBody"></div>
   <div class="chat-input-bar">
-    <input class="chat-input" id="dmInput" placeholder="메시지 보내기..."
+    <input class="chat-input" id="dmInput" placeholder="이때 어땠는지 물어보기..."
       onkeydown="if(event.key==='Enter')sendDM()">
     <button class="chat-send" onclick="sendDM()">↑</button>
   </div>
 </div>
 
-<!-- ── AI 친구 오버레이 ── -->
-<div class="overlay-panel" id="aiPanel">
-  <div class="overlay-header">
-    <button class="overlay-back" onclick="closePanel('aiPanel')">←</button>
-    <div class="overlay-title" id="aiTitle">지우 AI</div>
-    <span class="overlay-badge badge-ai">🤖 AI</span>
-  </div>
-  <div class="ai-notice" id="aiNotice">
-    🧠 <strong>지우의 말투를 학습했어요</strong><br>
-    카톡 대화 로그를 올리면 더 정확하게 재현할 수 있어요
-  </div>
-  <label class="ai-upload-zone" for="kakaoUpload">
-    📂 카카오톡 대화 내보내기 .txt 올리기
-    <input type="file" id="kakaoUpload" accept=".txt" style="display:none" onchange="handleKakaoUpload(this)">
-    <div style="font-size:11px;color:var(--sub);margin-top:4px">대화 > 더보기 > 대화 내보내기</div>
-  </label>
-  <div class="chat-body" id="aiBody"></div>
-  <div class="chat-input-bar">
-    <input class="chat-input" id="aiInput" placeholder="메시지 보내기..."
-      onkeydown="if(event.key==='Enter')sendAI()">
-    <button class="chat-send" onclick="sendAI()">↑</button>
-  </div>
+<!-- ── 사진 라이트박스 ── -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="">
+  <div class="lightbox-cap" id="lightboxCap"></div>
 </div>
 
 <script>
@@ -581,39 +632,6 @@ const STRINGS = {
   },
 };
 
-// Emotion labels by language
-const EMOTION_LABELS_EN = [
-  {label:'Excited',    text:'Feeling excited!'},
-  {label:'Happy',      text:'Feeling happy'},
-  {label:'Crushing',   text:'Got butterflies'},
-  {label:'Energized',  text:'Full of energy'},
-  {label:'Chill',      text:'Feeling calm'},
-  {label:'Love it',    text:'Absolutely love it!'},
-  {label:'Motivated',  text:'Super motivated'},
-  {label:'Confident',  text:'Feeling confident'},
-  {label:'Good vibes', text:'Good vibes only'},
-  {label:'Lol',        text:'This is too funny'},
-  {label:'Eating',     text:'Having a meal'},
-  {label:'Café',       text:'At a café'},
-  {label:'Studying',   text:'Studying right now'},
-  {label:'Working',    text:'In work mode'},
-  {label:'Commuting',  text:'On the move'},
-  {label:'Workout',    text:'Working out'},
-  {label:'Resting',    text:'Taking a break'},
-  {label:'Sleeping',   text:'Sleeping 😴'},
-  {label:'Tired',      text:'Feeling tired'},
-  {label:'Rough',      text:'Rough day'},
-  {label:'Stressed',   text:'Feeling stressed'},
-  {label:'Sad',        text:'Feeling sad'},
-  {label:'Zoned out',  text:'Zoning out...'},
-  {label:'Thinking',   text:'Deep in thought'},
-  {label:'Nervous',    text:'Feeling nervous'},
-  {label:'Melting',    text:'Absolutely melting...'},
-  {label:'Frustrated', text:'Feeling frustrated'},
-  {label:'Sick',       text:'Not feeling well'},
-  {label:'Miss you',   text:'Missing you'},
-  {label:'Text me',    text:'Want to chat'},
-];
 
 function s(key) { return STRINGS[lang][key]; }
 
@@ -660,8 +678,13 @@ function applyLang() {
     (document.querySelectorAll('#page-timeline .section-title')[0].innerHTML = S.tlTitle);
   // capsule section
   document.querySelector('#page-capsules .section-title').textContent = S.capsuleSection;
-  // emoji grid
-  buildEmojiGrid();
+  // mood section labels
+  const moodLbl = document.getElementById('moodPhotoLabel');
+  if(moodLbl) moodLbl.textContent = lang==='en' ? '📷 My mood · express it with a photo' : '📷 내 무드 · 사진으로 표현해요';
+  const quickLbl = document.getElementById('quickEmojiLabel');
+  if(quickLbl) quickLbl.textContent = lang==='en' ? '🙂 Quick feeling' : '🙂 빠른 감정';
+  // mood section (photo moods + quick emoji)
+  buildMoodSection();
   // re-render dynamic areas
   renderFriendList();
   updateMyCard();
@@ -674,47 +697,30 @@ function applyLang() {
 // ── Data ──────────────────────────────────────────────────
 const ME = { id:'me', name:'나', city:'서울', offset:9, color:'#4f46e5' };
 const FRIENDS = [
-  { id:'jiwoo',  name:'지우',  city:'베를린', offset:2,  color:'#f59e0b' },
-  { id:'minjun', name:'민준',  city:'뉴욕',   offset:-4, color:'#10b981' },
-  { id:'soyeon', name:'소연',  city:'런던',   offset:1,  color:'#ec4899' },
+  { id:'jiwoo',  name:'지우',  city:'베를린', offset:2,  color:'#f59e0b', photo:'images/profile7.png' },
+  { id:'minjun', name:'민준',  city:'뉴욕',   offset:-4, color:'#10b981', photo:'images/profile3.png' },
+  { id:'soyeon', name:'소연',  city:'런던',   offset:1,  color:'#ec4899', photo:'images/profile4.png' },
 ];
 const ALL_USERS = [ME, ...FRIENDS];
-const EMOTIONS = [
-  // 긍정
-  {emoji:'🎉',label:'신나',    text:'신나요!'},
-  {emoji:'😊',label:'행복',    text:'행복해요'},
-  {emoji:'🥰',label:'설레',    text:'설레요'},
-  {emoji:'☀️',label:'활기',    text:'활기차요'},
-  {emoji:'😌',label:'평온',    text:'평온해요'},
-  {emoji:'🤩',label:'짱좋아',  text:'너무 좋아요!'},
-  {emoji:'💪',label:'의욕',    text:'의욕 넘쳐요'},
-  {emoji:'😎',label:'자신감',  text:'자신 있어요'},
-  {emoji:'🌸',label:'기분좋아',text:'기분 좋아요'},
-  {emoji:'😂',label:'웃김',    text:'너무 웃겨요'},
-  // 일상
-  {emoji:'🍜',label:'밥먹는중',text:'밥 먹는 중'},
-  {emoji:'☕',label:'카페',    text:'카페에 있어요'},
-  {emoji:'📚',label:'공부중',  text:'공부 중이에요'},
-  {emoji:'💻',label:'작업중',  text:'작업 중이에요'},
-  {emoji:'🚶',label:'이동중',  text:'이동 중이에요'},
-  {emoji:'🏃',label:'운동중',  text:'운동 중이에요'},
-  {emoji:'🛁',label:'쉬는중',  text:'쉬는 중이에요'},
-  {emoji:'😴',label:'자는중',  text:'자는 중이에요'},
-  // 부정/복잡
-  {emoji:'🌙',label:'피곤',    text:'피곤해요'},
-  {emoji:'😔',label:'힘듦',    text:'힘들어요'},
-  {emoji:'😤',label:'스트레스',text:'스트레스 받아요'},
-  {emoji:'😢',label:'슬퍼',    text:'슬퍼요'},
-  {emoji:'😶',label:'멍함',    text:'멍해요'},
-  {emoji:'🤔',label:'고민중',  text:'고민 중이에요'},
-  {emoji:'😬',label:'긴장',    text:'긴장돼요'},
-  {emoji:'🫠',label:'녹아내림',text:'녹아내리는 중...'},
-  {emoji:'😤',label:'억울',    text:'억울해요'},
-  {emoji:'🤒',label:'아파',    text:'몸이 안 좋아요'},
-  // 연결
-  {emoji:'🥺',label:'보고파',  text:'보고싶어요'},
-  {emoji:'💌',label:'연락해',  text:'연락하고 싶어요'},
+
+// 큐레이션된 핵심 감정 (예전 30칸 그리드를 대체) — 사진 무드의 기분 라벨로도 재사용
+const CORE_MOODS = [
+  {emoji:'🤩', label:'최고',   en:'Amazing',   text:'최고예요!',     textEn:'Feeling amazing!'},
+  {emoji:'😊', label:'행복',   en:'Happy',     text:'행복해요',       textEn:'Feeling happy'},
+  {emoji:'🥰', label:'설렘',   en:'Loved',     text:'설레요',         textEn:'Feeling loved'},
+  {emoji:'😌', label:'평온',   en:'Calm',      text:'평온해요',       textEn:'Feeling calm'},
+  {emoji:'😎', label:'자신감', en:'Confident', text:'자신 있어요',    textEn:'Feeling confident'},
+  {emoji:'🍜', label:'배부름', en:'Full',      text:'잘 먹었어요',    textEn:'Just ate well'},
+  {emoji:'😴', label:'피곤',   en:'Tired',     text:'피곤해요',       textEn:'Feeling tired'},
+  {emoji:'🤔', label:'고민',   en:'Pondering', text:'고민 중이에요',  textEn:'Pondering'},
+  {emoji:'😔', label:'힘듦',   en:'Low',       text:'힘들어요',       textEn:'Feeling low'},
+  {emoji:'😤', label:'스트레스',en:'Stressed',  text:'스트레스 받아요',textEn:'Stressed out'},
+  {emoji:'😢', label:'슬픔',   en:'Sad',       text:'슬퍼요',         textEn:'Feeling sad'},
+  {emoji:'🥺', label:'보고파', en:'Miss you',  text:'보고싶어요',     textEn:'Missing you'},
 ];
+// 사진 업로드 시 기분을 고르는 5단계 (좋음→나쁨)
+const MOOD_LEVELS = ['🤩','😊','😌','😔','😢'];
+function moodMeta(emoji){ return CORE_MOODS.find(m=>m.emoji===emoji) || {emoji,label:'',en:'',text:'',textEn:''}; }
 const EMOTION_SCORE = {
   '🎉':10,'😊':8,'🥰':9,'☀️':8,'😌':7,'🤩':10,'💪':8,'😎':8,'🌸':7,'😂':8,
   '🍜':6,'☕':6,'📚':5,'💻':5,'🚶':5,'🏃':6,'🛁':6,'😴':4,
@@ -786,9 +792,10 @@ function renderFriendList() {
     const h = ct.getHours();
     const isNight = h>=21||h<6;
     return `<div class="friend-bubble" onclick="showFriendDetail('${f.id}')">
-      <div class="friend-bubble-avatar" id="bubble_${f.id}" style="background:${f.color}22">
-        ${em.emoji}
-        <span style="position:absolute;bottom:0;right:0;font-size:10px">${isNight?'🌙':'☀️'}</span>
+      <div class="friend-bubble-avatar" id="bubble_${f.id}" style="border-color:${f.color}">
+        <img src="${f.photo}" alt="${f.name}">
+        <span class="mood-badge">${em.emoji}</span>
+        ${isNight?'<span style="position:absolute;top:-2px;left:-2px;font-size:11px">🌙</span>':''}
       </div>
       <div class="friend-bubble-name">${f.name}</div>
       <div class="friend-bubble-time" style="color:${f.color}">${fmt(ct)}</div>
@@ -796,61 +803,164 @@ function renderFriendList() {
   }).join('');
 }
 
+// 친구 프로필을 누르면 → 그 친구의 타임라인으로 이동해서 "그때 어땠는지" 볼 수 있게
 function showFriendDetail(friendId) {
-  openAIChat(friendId);
+  const f = FRIENDS.find(x=>x.id===friendId);
+  tlFilter = friendId;
+  const tlTab = document.querySelectorAll('.tab-btn')[1];
+  showPage('timeline', tlTab);
+  document.querySelector('.main').scrollTop = 0;
+  showToast(lang==='en'
+    ? `${f?.name||''}'s timeline — tap a moment to ask how it was`
+    : `${f?.name||''}의 타임라인 — 순간을 눌러 "어땠어?" 물어보세요`);
 }
 
 // ── Room view ─────────────────────────────────────────────
 function updateMyCard() {
   const em = gs('emotion_me') || {emoji:'😊',text:'행복해요',ts:Date.now()};
-  document.getElementById('myEmojiDisplay').textContent = em.emoji;
+  const disp = document.getElementById('myEmojiDisplay');
+  if(em.photo){
+    disp.classList.add('has-photo');
+    disp.innerHTML = `<img src="${em.photo}" alt="mood">`;
+  } else {
+    disp.classList.remove('has-photo');
+    disp.textContent = em.emoji;
+  }
   document.getElementById('myStatusLabel').textContent = em.text;
   document.getElementById('myCity').textContent = ME.city;
   document.getElementById('myCheckinTime').textContent = `${relTime(em.ts||Date.now())} ${s('checkinSuffix')}`;
 }
 
-function buildEmojiGrid() {
-  const grid = document.getElementById('emojiGrid');
-  const saved = gs('emotion_me') || {emoji:'😊'};
-  grid.innerHTML = EMOTIONS.map((e,i)=>{
-    const enL = EMOTION_LABELS_EN[i] || {label:e.label, text:e.text};
-    const label = lang==='en' ? enL.label : e.label;
-    const text  = lang==='en' ? enL.text  : e.text;
-    return `<button class="emoji-btn ${e.emoji===saved.emoji?'selected':''}"
-      onclick="selectEmotion('${e.emoji}','${text}',this)">
-      ${e.emoji}<span class="label">${label}</span>
-    </button>`;
+// ── Photo-first mood check-in ─────────────────────────────
+let pendingEmotion = null;
+let pendingReasonPhoto = null;     // 체크인에 붙일 "이유 사진"
+let pendingNewMoodPhoto = null;    // 방금 업로드한, 아직 기분을 안 고른 사진
+let selectedTargets = new Set(['all']); // 'all' or friendId set
+
+function getMyMoods(){ return gs('my_moods') || []; }
+
+function buildMoodSection(){ buildMoodPhotos(); buildQuickEmoji(); }
+
+function buildMoodPhotos(){
+  const row = document.getElementById('moodPhotosRow');
+  const moods = getMyMoods();
+  const saved = gs('emotion_me') || {};
+  const tiles = moods.map(m=>{
+    const label = lang==='en' ? (m.labelEn||m.label||'') : (m.label||'');
+    const sel = !!saved.photo && saved.photo===m.photo;
+    return `<div class="mood-tile ${sel?'selected':''}" onclick="selectMoodPhoto('${m.id}')">
+      <img class="mood-tile-img" src="${m.photo}" alt="${label}">
+      <div class="mood-tile-label">${m.emoji} ${label}</div>
+    </div>`;
+  }).join('');
+  const addTile = `<div class="mood-tile" onclick="document.getElementById('moodPhotoInput').click()">
+      <div class="mood-add">＋<small>${lang==='en'?'photo':'사진'}</small></div>
+      <div class="mood-tile-label">${lang==='en'?'Add':'추가'}</div>
+    </div>`;
+  row.innerHTML = tiles + addTile;
+}
+
+function buildQuickEmoji(){
+  const row = document.getElementById('quickEmojiRow');
+  const saved = gs('emotion_me') || {};
+  row.innerHTML = CORE_MOODS.map(m=>{
+    const sel = !saved.photo && saved.emoji===m.emoji;
+    return `<button class="quick-emoji ${sel?'selected':''}" title="${lang==='en'?m.en:m.label}"
+      onclick="selectQuickEmoji('${m.emoji}')">${m.emoji}</button>`;
   }).join('');
 }
 
-let pendingEmotion = null;
-let selectedTargets = new Set(['all']); // 'all' or friendId set
-
-function selectEmotion(emoji, text, btn) {
-  document.querySelectorAll('.emoji-btn').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
+function setMyMood({emoji, text, photo}){
   const ts = Date.now();
-  const timeStr = fmt(cityTime(ME.offset));
-  pendingEmotion = {emoji, text, ts, timeStr};
+  pendingEmotion = {emoji, text, ts, timeStr: fmt(cityTime(ME.offset)), photo: photo||null};
+  ss('emotion_me', {emoji, text, ts, photo: photo||null});
+  updateMyCard();
+  const el = document.getElementById('myEmojiDisplay');
+  el.style.transform='scale(1.18)'; setTimeout(()=>el.style.transform='scale(1)',300);
+}
 
-  ss('emotion_me',{emoji,text,ts});
-  document.getElementById('myEmojiDisplay').textContent=emoji;
-  document.getElementById('myStatusLabel').textContent=text;
-  document.getElementById('myCheckinTime').textContent=s('checkinWho');
-  const el=document.getElementById('myEmojiDisplay');
-  el.style.transform='scale(1.3)'; setTimeout(()=>el.style.transform='scale(1)',300);
-
-  // 코멘트 박스
+function openShareFlow(){
   document.getElementById('commentBox').style.display='block';
-  document.getElementById('commentInput').value='';
-  document.getElementById('commentInput').placeholder = s('commentPH');
+  const ci = document.getElementById('commentInput');
+  ci.value=''; ci.placeholder = s('commentPH');
   document.getElementById('commentHint').textContent = s('commentHint');
-
-  // 셰어시트 열기
+  // 사진 무드면 그 사진이 곧 "이유 사진"
+  pendingReasonPhoto = pendingEmotion ? (pendingEmotion.photo || null) : null;
+  renderReasonAttach();
   document.getElementById('shareSheet').style.display='block';
   renderShareTargets();
+  document.getElementById('myCheckinTime').textContent = s('checkinWho');
+  setTimeout(()=>ci.focus(), 120);
+}
 
-  setTimeout(()=>document.getElementById('commentInput').focus(), 100);
+function selectQuickEmoji(emoji){
+  const m = moodMeta(emoji);
+  const text = lang==='en' ? (m.textEn||m.en||'') : (m.text||'');
+  setMyMood({emoji, text, photo:null});
+  buildMoodSection();
+  openShareFlow();
+}
+
+function selectMoodPhoto(id){
+  const mood = getMyMoods().find(m=>m.id===id);
+  if(!mood) return;
+  const text = lang==='en' ? (mood.textEn||mood.labelEn||mood.label||'') : (mood.text||mood.label||'');
+  setMyMood({emoji:mood.emoji, text, photo:mood.photo});
+  buildMoodSection();
+  openShareFlow();
+}
+
+// 새 사진 업로드 → 기분 고르기 → 내 무드로 저장
+function handleMoodPhotoUpload(input){
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => { pendingNewMoodPhoto = e.target.result; showFeelingPicker(); };
+  reader.readAsDataURL(file);
+  input.value='';
+}
+function showFeelingPicker(){
+  const box = document.getElementById('feelingPickerBox');
+  const pick = document.getElementById('feelingPicker');
+  document.getElementById('feelingPickerTitle').textContent = lang==='en' ? 'How does this photo feel?' : '이 사진은 어떤 기분이에요?';
+  pick.innerHTML = MOOD_LEVELS.map(em=>{
+    const m = moodMeta(em);
+    return `<div class="feeling-opt" onclick="confirmNewMood('${em}',this)">${em}<span>${lang==='en'?m.en:m.label}</span></div>`;
+  }).join('');
+  box.style.display='block';
+  box.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+function confirmNewMood(emoji, el){
+  document.querySelectorAll('.feeling-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  const m = moodMeta(emoji);
+  const moods = getMyMoods();
+  const id = 'm'+Date.now();
+  moods.push({id, photo:pendingNewMoodPhoto, emoji, label:m.label, labelEn:m.en, text:m.text, textEn:m.textEn});
+  ss('my_moods', moods);
+  pendingNewMoodPhoto = null;
+  document.getElementById('feelingPickerBox').style.display='none';
+  buildMoodPhotos();
+  showToast(lang==='en' ? 'Custom mood added 📷' : '내 무드 사진 추가됨 📷');
+  selectMoodPhoto(id);
+}
+
+// 이유 사진 (감정의 이유)
+function renderReasonAttach(){
+  const el = document.getElementById('reasonAttach');
+  if(pendingReasonPhoto){
+    el.innerHTML = `<div class="reason-thumb"><img src="${pendingReasonPhoto}" alt=""><button onclick="removeReasonPhoto()">✕</button></div>
+      <span style="font-size:11px;color:var(--sub)">${lang==='en'?'why you feel this way':'기분의 이유 사진'}</span>`;
+  } else {
+    el.innerHTML = `<button class="reason-add-btn" onclick="document.getElementById('reasonPhotoInput').click()">📷 ${lang==='en'?'Add reason photo':'이유 사진 추가'}</button>`;
+  }
+}
+function removeReasonPhoto(){ pendingReasonPhoto=null; renderReasonAttach(); }
+function handleReasonPhotoUpload(input){
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => { pendingReasonPhoto = e.target.result; renderReasonAttach(); };
+  reader.readAsDataURL(file);
+  input.value='';
 }
 
 function renderShareTargets() {
@@ -861,12 +971,11 @@ function renderShareTargets() {
       <span class="st-emoji">🌐</span> ${s('shareAll')}
     </button>
     ${FRIENDS.map(f=>{
-      const em = gs(`emotion_${f.id}`) || {emoji:'😌'};
       const sel = selectedTargets.has(f.id) && !allSel;
       return `<button class="share-target-btn ${sel?'selected':''}"
         style="${sel?`border-color:${f.color};background:${f.color}22;color:${f.color}`:''}"
         onclick="toggleTarget('${f.id}',this)">
-        <span class="st-emoji">${em.emoji}</span> ${f.name}
+        <span class="st-emoji" style="width:20px;height:20px;border-radius:50%;overflow:hidden;display:inline-flex"><img src="${f.photo}" style="width:100%;height:100%;object-fit:cover" alt=""></span> ${f.name}
       </button>`;
     }).join('')}
   `;
@@ -888,19 +997,21 @@ function submitComment() {
   if(!pendingEmotion) return;
   const comment = document.getElementById('commentInput').value.trim();
   const {emoji, text, ts, timeStr} = pendingEmotion;
+  const photo = pendingReasonPhoto || null;
   const targets = selectedTargets.has('all') ? FRIENDS.map(f=>f.id) : [...selectedTargets];
-  const tl = gs('timeline')||[];
-  targets.forEach(targetId => {
-    tl.push({user:'me', friendContext:targetId, emoji, text, comment, ts, timeStr});
-  });
-  if(tl.length>50) tl.splice(0, tl.length-50);
-  ss('timeline',tl);
+  const tlArr = gs('timeline')||[];
+  // 내 체크인은 한 번만 기록 (공유 대상은 sharedWith로 보관) — 대상별로 중복 저장하지 않음
+  tlArr.push({user:'me', sharedWith:targets, emoji, text, comment, photo, ts, timeStr});
+  if(tlArr.length>60) tlArr.splice(0, tlArr.length-60);
+  ss('timeline',tlArr);
 
   document.getElementById('commentBox').style.display='none';
   document.getElementById('shareSheet').style.display='none';
   document.getElementById('myCheckinTime').textContent=s('checkinDone');
   pendingEmotion = null;
+  pendingReasonPhoto = null;
   selectedTargets = new Set(['all']);
+  buildMoodSection();
 
   const toNames = targets.map(id=>FRIENDS.find(f=>f.id===id)?.name||'').join(', ');
   showToast(`${emoji} ${comment?`"${comment}"`:text} → ${toNames}`);
@@ -1009,18 +1120,25 @@ function updateTimeline() {
     const isMe = e.user==='me';
     const user = isMe ? ME : (FRIENDS.find(f=>f.id===e.user)||{name:e.user,color:'#888'});
     const color = user.color;
+    const city = (isMe?ME:FRIENDS.find(f=>f.id===e.user)||{city:'?'}).city;
+    const askLabel = lang==='en' ? '💬 How was it?' : '💬 어땠어?';
+    const photoHtml = e.photo
+      ? `<div class="ev-photo" onclick="openLightboxFromEvent(${idx})"><img src="${e.photo}" alt="" loading="lazy"></div>
+         <div class="ev-photo-cap">📷 ${e.comment || e.text}</div>`
+      : '';
     return `<div class="ev-item">
       <div class="ev-top">
-        <span class="ev-emoji" style="cursor:${!isMe?'pointer':''}" ${!isMe?`onclick="openDM(tl[${idx}])"`:''}>${e.emoji}</span>
+        <span class="ev-emoji">${e.emoji}</span>
         <div class="ev-info">
-          <span class="ev-badge" style="background:${color}22;color:${color}">${user.name} (${(isMe?ME:FRIENDS.find(f=>f.id===e.user)||{city:'?'}).city})</span>
+          <span class="ev-badge" style="background:${color}22;color:${color}">${user.name} (${city})</span>
           <div class="ev-text">${e.comment ? `"${e.comment}"` : e.text}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
           <span class="ev-time-label">${e.timeStr||'??:??'}</span>
-          ${!isMe ? `<button onclick="openDM(tl[${idx}])" style="font-size:11px;color:var(--accent);background:var(--accent-soft);border:none;border-radius:8px;padding:2px 8px;cursor:pointer;font-family:inherit;font-weight:600">💬 DM</button>` : ''}
+          ${!isMe ? `<button onclick="openDM(tl[${idx}])" style="font-size:11px;color:var(--accent);background:var(--accent-soft);border:none;border-radius:8px;padding:3px 9px;cursor:pointer;font-family:inherit;font-weight:600">${askLabel}</button>` : ''}
         </div>
       </div>
+      ${photoHtml}
       ${renderReactions(e,idx)}
     </div>`;
   }).join('');
@@ -1056,7 +1174,7 @@ function drawJourneySvg(myPts, friendPtsMap, activeFriends) {
   document.getElementById('journeyXLabels').innerHTML=labels.map(l=>`<span>${l}</span>`).join('')+xNote;
 
   function curve(pts, offsetH) {
-    const valid = pts.map(p=>({x:xOf(toH(p.timeStr,offsetH)),y:yOf(p.emoji),emoji:p.emoji})).filter(p=>p.x!==null);
+    const valid = pts.map(p=>({x:xOf(toH(p.timeStr,offsetH)),y:yOf(p.emoji),emoji:p.emoji,photo:!!p.photo})).filter(p=>p.x!==null);
     if(!valid.length) return {d:null,pts:valid};
     let d=`M${valid[0].x} ${valid[0].y}`;
     for(let i=1;i<valid.length;i++){const cx=(valid[i-1].x+valid[i].x)/2;d+=` C${cx} ${valid[i-1].y} ${cx} ${valid[i].y} ${valid[i].x} ${valid[i].y}`;}
@@ -1073,7 +1191,8 @@ function drawJourneySvg(myPts, friendPtsMap, activeFriends) {
   function dots(pts,color){
     return pts.map(p=>`
       <circle cx="${p.x}" cy="${p.y}" r="5" fill="${color}" stroke="white" stroke-width="2.5"/>
-      <text x="${p.x}" y="${p.y-10}" text-anchor="middle" font-size="15" style="user-select:none">${p.emoji}</text>`).join('');
+      <text x="${p.x}" y="${p.y-10}" text-anchor="middle" font-size="15" style="user-select:none">${p.emoji}</text>
+      ${p.photo?`<text x="${p.x}" y="${p.y+17}" text-anchor="middle" font-size="11" style="user-select:none">📷</text>`:''}`).join('');
   }
 
   // Grid
@@ -1184,30 +1303,39 @@ function showToast(msg){
 
 // ── Seed data ─────────────────────────────────────────────
 function seedDemoData(){
-  if(gs('seed_version')==='v3') return;
+  if(gs('seed_version')==='v4') return;
   localStorage.clear();
-  ss('seed_version','v3');
+  ss('seed_version','v4');
   const now=Date.now();
-  ss('emotion_me',   {emoji:'😊',text:'행복해요',ts:now-300000});
+  // 내 현재 무드 — 사진 무드로 시작
+  ss('emotion_me',   {emoji:'😊',text:'행복해요',ts:now-300000, photo:'images/album_1.png'});
   ss('emotion_jiwoo',{emoji:'😴',text:'자는 중이에요',ts:now-900000});
   ss('emotion_minjun',{emoji:'☀️',text:'활기차요',ts:now-1800000});
   ss('emotion_soyeon',{emoji:'📚',text:'공부 중이에요',ts:now-600000});
+  // 내 앨범에서 만든 커스텀 무드 (➕ 사진으로 더 추가 가능)
+  ss('my_moods',[
+    {id:'seed1', photo:'images/album_1.png', emoji:'😊', label:'행복', labelEn:'Happy',  text:'행복해요',   textEn:'Feeling happy'},
+    {id:'seed2', photo:'images/album_2.png', emoji:'😌', label:'평온', labelEn:'Calm',   text:'평온해요',   textEn:'Feeling calm'},
+    {id:'seed3', photo:'images/album_3.png', emoji:'🤩', label:'최고', labelEn:'Amazing',text:'최고예요!',  textEn:'Feeling amazing!'},
+    {id:'seed4', photo:'images/album_5.png', emoji:'🥰', label:'설렘', labelEn:'Loved',  text:'설레요',     textEn:'Feeling loved'},
+  ]);
+  // 타임라인 — 기분의 "이유"를 사진으로 (친구 것도 포함)
   ss('timeline',[
     {user:'me',     emoji:'😴',text:'자는 중이에요',  ts:now-43200000,timeStr:'07:00'},
-    {user:'me',     emoji:'☀️',text:'좋은 아침!',     ts:now-36000000,timeStr:'09:00'},
-    {user:'jiwoo',  emoji:'☀️',text:'활기차요',       ts:now-32400000,timeStr:'10:00'},
-    {user:'me',     emoji:'🍜',text:'점심 먹는 중',   ts:now-28800000,timeStr:'12:00'},
-    {user:'minjun', emoji:'🌙',text:'피곤해요',       ts:now-25200000,timeStr:'02:00'},
-    {user:'jiwoo',  emoji:'🍜',text:'브런치!',        ts:now-21600000,timeStr:'13:00'},
+    {user:'me',     emoji:'☀️',text:'좋은 아침!',     ts:now-36000000,timeStr:'09:00', comment:'모닝 커피 한 잔', photo:'images/net_coffee.png'},
+    {user:'jiwoo',  emoji:'☀️',text:'활기차요',       ts:now-32400000,timeStr:'10:00', comment:'베를린 카페 발견', photo:'images/net_cafe.png'},
+    {user:'me',     emoji:'🍜',text:'점심 먹는 중',   ts:now-28800000,timeStr:'12:00', comment:'직접 만든 점심', photo:'images/net_cook.png'},
+    {user:'minjun', emoji:'🌙',text:'피곤해요',       ts:now-25200000,timeStr:'02:00', comment:'야근… 뉴욕 새벽', photo:'images/net_city.png'},
+    {user:'jiwoo',  emoji:'🍜',text:'브런치!',        ts:now-21600000,timeStr:'13:00', comment:'주말 브런치', photo:'images/net_dinner.png'},
     {user:'me',     emoji:'📚',text:'공부 중이에요',  ts:now-18000000,timeStr:'14:00'},
-    {user:'soyeon', emoji:'☀️',text:'좋은 아침 런던!',ts:now-14400000,timeStr:'10:00'},
+    {user:'soyeon', emoji:'☀️',text:'좋은 아침 런던!',ts:now-14400000,timeStr:'10:00', comment:'창가 식물들 덕분에', photo:'images/net_plant.png'},
     {user:'me',     emoji:'😔',text:'과제가 너무 많아',ts:now-10800000,timeStr:'16:00'},
-    {user:'jiwoo',  emoji:'😤',text:'발표 망했어ㅠ',  ts:now-7200000, timeStr:'17:30'},
-    {user:'minjun', emoji:'🎉',text:'퇴근했다!',      ts:now-5400000, timeStr:'17:00'},
-    {user:'soyeon', emoji:'🍜',text:'저녁 먹어요',    ts:now-3600000, timeStr:'19:00'},
+    {user:'jiwoo',  emoji:'😤',text:'발표 망했어ㅠ',  ts:now-7200000, timeStr:'17:30', comment:'망한 날엔 커피라도…', photo:'images/net_coffee.png'},
+    {user:'minjun', emoji:'🎉',text:'퇴근했다!',      ts:now-5400000, timeStr:'17:00', comment:'드디어 퇴근! 야경 최고', photo:'images/net_city.png'},
+    {user:'soyeon', emoji:'🍜',text:'저녁 먹어요',    ts:now-3600000, timeStr:'19:00', comment:'친구랑 저녁', photo:'images/net_dinner.png'},
     {user:'me',     emoji:'🥰',text:'보고싶어요',     ts:now-1800000, timeStr:'19:30'},
-    {user:'jiwoo',  emoji:'🥰',text:'너 생각났어',    ts:now-900000,  timeStr:'20:00'},
-    {user:'me',     emoji:'😊',text:'저녁 먹고 행복', ts:now-300000,  timeStr:'21:00'},
+    {user:'jiwoo',  emoji:'🥰',text:'너 생각났어',    ts:now-900000,  timeStr:'20:00', comment:'베를린 달 보면서', photo:'images/net_moon.png'},
+    {user:'me',     emoji:'😊',text:'저녁 먹고 행복', ts:now-300000,  timeStr:'21:00', comment:'행복한 하루 마무리', photo:'images/album_4.png'},
   ]);
 }
 
@@ -1227,7 +1355,9 @@ function openDM(item) {
   dmAnchorItem = item;
   dmMessages = gs(`dm_${f.id}`) || [];
 
-  document.getElementById('dmTitle').textContent = `${f.name}과의 대화`;
+  document.getElementById('dmTitle').textContent = lang==='en' ? `Ask ${f.name}` : `${f.name}에게 물어보기`;
+  document.getElementById('dmBadge').textContent = lang==='en' ? '💬 How was it?' : '💬 어땠어?';
+  document.getElementById('dmInput').placeholder = lang==='en' ? 'Ask how that moment was…' : '이때 어땠는지 물어보기...';
   renderDMBody();
   document.getElementById('dmPanel').classList.add('open');
   setTimeout(() => {
@@ -1237,23 +1367,40 @@ function openDM(item) {
   }, 100);
 }
 
+function quickAsk(text){
+  document.getElementById('dmInput').value = text;
+  sendDM();
+}
+
 function renderDMBody() {
   const body = document.getElementById('dmBody');
   const f = dmFriend;
   const item = dmAnchorItem;
 
+  const photoInAnchor = item && item.photo
+    ? `<img class="ask-anchor-photo" src="${item.photo}" alt="" onclick="openLightbox(dmAnchorItem.photo, dmAnchorItem.comment||dmAnchorItem.text||'')">`
+    : '';
   const anchorHtml = item ? `
     <div class="chat-anchor">
-      <div class="chat-anchor-label">💬 이 순간에 대해 이야기해요</div>
+      <div class="chat-anchor-label">💬 ${lang==='en'?'How was this moment?':'이 순간, 어땠어?'}</div>
       <span style="font-size:20px">${item.emoji}</span>
       <strong>${item.comment || item.text}</strong>
       <span style="font-size:11px;color:var(--sub)"> · ${item.timeStr}</span>
+      ${photoInAnchor}
+    </div>` : '';
+
+  const suggestions = (item && dmMessages.length === 0) ? `
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px">
+      ${(lang==='en'
+        ? ['How was it really?','What happened?','Want to talk about it?']
+        : ['그때 진짜 어땠어?','무슨 일 있었어?','얘기해줄 수 있어?']
+       ).map(q=>`<button class="preset-btn" onclick="quickAsk('${q}')">${q}</button>`).join('')}
     </div>` : '';
 
   const msgs = dmMessages.map(m => {
     const isMe = m.from === 'me';
     return `<div class="bubble-row ${isMe ? 'me' : ''}">
-      ${!isMe ? `<div class="bubble-avatar" style="background:${f.color}22">${gs(`emotion_${f.id}`)?.emoji||'😊'}</div>` : ''}
+      ${!isMe ? `<div class="bubble-avatar" style="background:${f.color}22"><img src="${f.photo}" alt=""></div>` : ''}
       <div>
         ${!isMe ? `<div class="bubble-time">${f.name}</div>` : ''}
         <div class="bubble ${isMe ? 'me' : 'them'}">${m.text}</div>
@@ -1261,9 +1408,22 @@ function renderDMBody() {
     </div>`;
   }).join('');
 
-  body.innerHTML = anchorHtml + msgs;
+  body.innerHTML = anchorHtml + suggestions + msgs;
   body.scrollTop = body.scrollHeight;
 }
+
+// ── 사진 라이트박스 ────────────────────────────────────────
+function openLightbox(src, cap){
+  if(!src) return;
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightboxCap').textContent = cap || '';
+  document.getElementById('lightbox').classList.add('open');
+}
+function openLightboxFromEvent(idx){
+  const e = tl[idx];
+  if(e && e.photo) openLightbox(e.photo, e.comment || e.text || '');
+}
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
 
 function sendDM() {
   const input = document.getElementById('dmInput');
@@ -1275,137 +1435,10 @@ function sendDM() {
   renderDMBody();
 }
 
-// ── AI 친구 채팅 ───────────────────────────────────────────
-let aiFriend = null;
-let aiMessages = [];
-let kakaoLoaded = false;
-
-const AI_PERSONAS = {
-  jiwoo: {
-    name: '지우',
-    greet: ['야 나 사실 지금 엄청 보고싶었어ㅋㅋ', '오 마침 생각하고 있었는데!', '헐 나도 방금 연락하려 했어'],
-    positive: ['진짜?? 나도 기분 좋아졌다ㅋㅋㅋ', '오 그거 완전 좋다', 'ㅋㅋㅋ역시 너랑 얘기하면 기분 풀려'],
-    sad: ['야 무슨 일이야ㅠㅠ', '그거 진짜 힘들었겠다... 나한테 다 얘기해', '아 진짜? 나도 요즘 비슷한 느낌이었어'],
-    casual: ['ㅋㅋㅋ 맞아 맞아', '아 그렇구나~', '헐 나는 몰랐어', '오 근데 나 베를린에서 그거 먹었는데 진짜 맛있더라'],
-    night: ['나 솔직히 지금 약간 외로워ㅋㅋ 베를린 밤은 뭔가 쓸쓸함', '야 근데 진짜 네가 여기 있으면 얼마나 좋을까'],
-    morning: ['굿모닝~! 나 지금 커피 마시는 중ㅋㅋ', '오늘도 수업 가야되는데 귀찮아 죽겠어ㅠ'],
-  },
-  minjun: {
-    name: '민준',
-    greet: ['ㅋㅋㅋㅋ야 뭐해', '오 마침 밥 먹으면서 핸드폰 봤는데', '헐 연락왔다 ㅋㅋㅋ'],
-    positive: ['ㅋㅋㅋㅋㅋ 진짜?? 대박', '오 쩐다 나도 그렇게 생각했어', '굿굿 역시 ㅋㅋㅋ'],
-    sad: ['야 괜찮아?? 무슨 일이야', '아 존나 공감됨... 나도 그런 적 있어', 'ㅠㅠ 힘내 진짜로'],
-    casual: ['ㅋㅋㅋ 알지', '오 진짜?', '뉴욕도 요즘 뭔가 바쁜데 ㅋㅋ', '맞아맞아 나도'],
-    night: ['야 나 지금 퇴근하고 맥주 마시는 중ㅋㅋ', '뉴욕 밤은 항상 시끄러워 근데 좋음'],
-    morning: ['굿모닝! 나 출근해야돼 ㅠㅠ', '아 오늘도 지하철 ㅋㅋㅋ'],
-  },
-  soyeon: {
-    name: '소연',
-    greet: ['어머 연락왔다~ 반가워!', '오 마침 생각하고 있었는데ㅎ', 'hi~ 뭐해?'],
-    positive: ['진짜 좋겠다~ 나도 기분 좋아지는 것 같아', '오 완전 좋은데! 잘됐다', '헤헤 역시~'],
-    sad: ['에구 괜찮아? 많이 힘들었겠다', '나한테 얘기해줘서 고마워... 진짜', '그랬구나 ㅠ 많이 힘들었겠다'],
-    casual: ['맞아ㅎ', '오 그렇구나~', '런던도 요즘 날씨가 좀 나아졌어ㅎ', '그거 완전 공감해'],
-    night: ['런던 밤은 항상 비가 올 것 같은 느낌이야ㅎ 근데 나쁘지 않아', '나 지금 차 마시면서 책 읽는 중이었어'],
-    morning: ['굿모닝~ 오늘 날씨 괜찮아 보여서 기분 좋음ㅎ', '아침부터 도서관 갔다왔어 ㅎ'],
-  },
-};
-
-function openAIChat(friendId) {
-  aiFriend = FRIENDS.find(f => f.id === friendId);
-  aiMessages = gs(`ai_${friendId}`) || [];
-
-  document.getElementById('aiTitle').textContent = `${aiFriend.name} AI`;
-  document.getElementById('aiNotice').innerHTML =
-    `🧠 <strong>${aiFriend.name}의 말투를 학습했어요</strong><br>카톡 대화 로그를 올리면 더 정확하게 재현할 수 있어요`;
-
-  // 첫 진입이면 인사 메시지
-  if (aiMessages.length === 0) {
-    const p = AI_PERSONAS[aiFriend.id];
-    const h = cityTime(aiFriend.offset).getHours();
-    const greet = h >= 21 || h < 6
-      ? p.night[Math.floor(Math.random() * p.night.length)]
-      : h < 10
-        ? p.morning[Math.floor(Math.random() * p.morning.length)]
-        : p.greet[Math.floor(Math.random() * p.greet.length)];
-    aiMessages.push({ from: 'ai', text: greet, ts: Date.now() });
-    ss(`ai_${aiFriend.id}`, aiMessages);
-  }
-
-  renderAIBody();
-  document.getElementById('aiPanel').classList.add('open');
-  setTimeout(() => {
-    const b = document.getElementById('aiBody');
-    b.scrollTop = b.scrollHeight;
-    document.getElementById('aiInput').focus();
-  }, 100);
-}
-
-function renderAIBody() {
-  const f = aiFriend;
-  const body = document.getElementById('aiBody');
-  body.innerHTML = aiMessages.map(m => {
-    const isMe = m.from === 'me';
-    return `<div class="bubble-row ${isMe ? 'me' : ''}">
-      ${!isMe ? `<div class="bubble-avatar" style="background:${f.color}22">${gs(`emotion_${f.id}`)?.emoji||'🤖'}</div>` : ''}
-      <div>
-        ${!isMe && !m.typing ? `<div class="bubble-time">${f.name}</div>` : ''}
-        ${m.typing
-          ? `<div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`
-          : `<div class="bubble ${isMe ? 'me' : 'them'}">${m.text}</div>`}
-      </div>
-    </div>`;
-  }).join('');
-  body.scrollTop = body.scrollHeight;
-}
-
-function getAIReply(text) {
-  const p = AI_PERSONAS[aiFriend.id];
-  const lower = text.toLowerCase();
-  const sad = /힘들|슬퍼|우울|짜증|힘드|못하|모르겠|ㅠ|ㅜ|걱정/.test(lower);
-  const happy = /좋아|행복|신나|최고|완료|했어|성공|잘|됐|ㅋㅋ/.test(lower);
-  if (sad) return p.sad[Math.floor(Math.random() * p.sad.length)];
-  if (happy) return p.positive[Math.floor(Math.random() * p.positive.length)];
-  return p.casual[Math.floor(Math.random() * p.casual.length)];
-}
-
-function sendAI() {
-  const input = document.getElementById('aiInput');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-
-  aiMessages.push({ from: 'me', text, ts: Date.now() });
-  aiMessages.push({ from: 'ai', typing: true, ts: Date.now() });
-  renderAIBody();
-
-  const delay = 800 + Math.random() * 1200;
-  setTimeout(() => {
-    aiMessages = aiMessages.filter(m => !m.typing);
-    aiMessages.push({ from: 'ai', text: getAIReply(text), ts: Date.now() });
-    ss(`ai_${aiFriend.id}`, aiMessages);
-    renderAIBody();
-  }, delay);
-}
-
-function handleKakaoUpload(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const lines = e.target.result.split('\n').length;
-    kakaoLoaded = true;
-    document.getElementById('aiNotice').innerHTML =
-      `✅ <strong>${file.name}</strong> 업로드 완료 (${lines.toLocaleString()}줄)<br>
-       <span style="color:var(--sub)">${aiFriend.name}의 말투를 반영했어요</span>`;
-    showToast(`📂 ${file.name} 학습 완료!`);
-  };
-  reader.readAsText(file, 'utf-8');
-}
-
 // ── Init ──────────────────────────────────────────────────
 seedDemoData();
 renderFriendList();
-buildEmojiGrid();
+buildMoodSection();
 updateMyCard();
 applyFriendTheme();
 setInterval(()=>{renderFriendList();},30000);
