@@ -285,11 +285,23 @@
     transition: opacity 0.2s;
   }
   .capsule-btn:hover { opacity: 0.85; }
+  .capsule-presets {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px;
+  }
+  .preset-btn {
+    padding: 5px 11px; border-radius: 20px; border: 1.5px solid var(--border);
+    background: var(--card); color: var(--sub); font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: all 0.15s;
+  }
+  .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .preset-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .capsule-custom-time { margin-top: 6px; display: flex; }
+  .capsule-preview {
+    font-size: 11px; color: var(--accent); font-weight: 600;
+    margin-top: 8px; padding: 4px 0 0;
+  }
   .capsule-saved {
-    font-size: 12px;
-    color: #059669;
-    margin-top: 8px;
-    display: none;
+    font-size: 12px; color: #059669; margin-top: 8px;
   }
 
   /* ── TZ Toggle ── */
@@ -569,12 +581,30 @@
     <!-- 타임캡슐 -->
     <div class="capsule-card">
       <div class="capsule-title">⏰ 타임캡슐</div>
-      <div class="capsule-desc">지금 감정을 남겨두면 친구가 일어날 때 받아봐요</div>
-      <div class="capsule-row">
-        <input class="capsule-input" id="capsuleMsg" placeholder="짧은 메시지를 남겨봐요..." maxlength="50">
+      <div class="capsule-desc">친구의 특별한 순간에 전달될 메시지를 남겨봐요</div>
+
+      <!-- 프리셋 -->
+      <div class="capsule-presets" id="capsulePresets">
+        <button class="preset-btn active" data-preset="wake"    onclick="selectPreset(this)">🌅 일어날 때</button>
+        <button class="preset-btn"        data-preset="friday"  onclick="selectPreset(this)">🎉 불금 밤에</button>
+        <button class="preset-btn"        data-preset="monday"  onclick="selectPreset(this)">😤 월요일 아침</button>
+        <button class="preset-btn"        data-preset="lunch"   onclick="selectPreset(this)">🍜 점심 때</button>
+        <button class="preset-btn"        data-preset="sleep"   onclick="selectPreset(this)">🌙 자기 전에</button>
+        <button class="preset-btn"        data-preset="custom"  onclick="selectPreset(this)">🕐 직접 지정</button>
+      </div>
+
+      <!-- 직접 지정 (숨김) -->
+      <div class="capsule-custom-time" id="capsuleCustomTime" style="display:none;">
+        <input type="datetime-local" class="capsule-input" id="capsuleCustomDt" style="flex:1;">
+      </div>
+
+      <!-- 메시지 -->
+      <div class="capsule-row" style="margin-top:10px;">
+        <input class="capsule-input" id="capsuleMsg" placeholder="짧은 메시지를 남겨봐요..." maxlength="60">
         <button class="capsule-btn" onclick="sendCapsule()">보내기</button>
       </div>
-      <div class="capsule-saved" id="capsuleSaved">✅ 타임캡슐이 저장됐어요! 친구가 일어나면 전달돼요.</div>
+      <div class="capsule-preview" id="capsulePreview">🌅 친구가 일어날 때 전달돼요</div>
+      <div class="capsule-saved" id="capsuleSaved"></div>
     </div>
 
   </div>
@@ -970,31 +1000,82 @@ function updateCapsuleList() {
     return;
   }
   list.innerHTML = capsules.slice().reverse().map(c => {
-    const isDelivered = (Date.now() - c.ts) > 60000; // demo: 1min = "delivered"
+    const opened = Date.now() >= (c.openAt || c.ts + 60000);
+    const label = c.presetLabel || '🌅 일어날 때';
+    const whenStr = c.openAt ? fmtTs(c.openAt) : '곧';
     return `
       <div class="capsule-item">
         <span class="ci-emoji">${c.emoji}</span>
         <div class="ci-text">
+          <div style="font-weight:600;font-size:12px;color:var(--accent);margin-bottom:2px;">${label}</div>
           <div>${c.msg || '(감정만 공유)'}</div>
-          <div class="ci-when">${relativeTime(c.ts)}</div>
+          <div class="ci-when">${whenStr}</div>
         </div>
-        <span class="capsule-status ${isDelivered ? 'status-delivered' : 'status-pending'}">
-          ${isDelivered ? '전달됨 ✓' : '대기 중 ⏳'}
+        <span class="capsule-status ${opened ? 'status-delivered' : 'status-pending'}">
+          ${opened ? '전달됨 ✓' : '봉인중 🔒'}
         </span>
       </div>`;
   }).join('');
 }
 
+// ── Capsule presets ──
+const PRESETS = {
+  wake:   { label: '🌅 일어날 때',    desc: '🌅 친구가 일어날 때 전달돼요',    getTs: () => nextOccurrence(7, 0) },
+  friday: { label: '🎉 불금 밤에',    desc: '🎉 이번 주 금요일 밤 9시에 열려요', getTs: () => nextWeekday(5, 21, 0) },
+  monday: { label: '😤 월요일 아침',  desc: '😤 월요일 아침 8시에 열려요',      getTs: () => nextWeekday(1, 8, 0) },
+  lunch:  { label: '🍜 점심 때',      desc: '🍜 오늘 점심 12시에 전달돼요',     getTs: () => nextOccurrence(12, 0) },
+  sleep:  { label: '🌙 자기 전에',    desc: '🌙 오늘 밤 11시에 열려요',         getTs: () => nextOccurrence(23, 0) },
+  custom: { label: '🕐 직접 지정',    desc: '🕐 지정한 시간에 열려요',           getTs: () => {
+    const v = document.getElementById('capsuleCustomDt').value;
+    return v ? new Date(v).getTime() : Date.now() + 3600000;
+  }},
+};
+let currentPreset = 'wake';
+
+function nextOccurrence(h, m) {
+  const d = new Date(); d.setSeconds(0, 0);
+  d.setHours(h, m);
+  if (d.getTime() <= Date.now()) d.setDate(d.getDate() + 1);
+  return d.getTime();
+}
+function nextWeekday(dow, h, m) {
+  const d = new Date(); d.setSeconds(0, 0); d.setHours(h, m);
+  const diff = (dow - d.getDay() + 7) % 7 || 7;
+  d.setDate(d.getDate() + diff);
+  return d.getTime();
+}
+function fmtTs(ts) {
+  return new Date(ts).toLocaleString('ko-KR', { month:'long', day:'numeric', weekday:'short', hour:'2-digit', minute:'2-digit' });
+}
+
+function selectPreset(btn) {
+  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentPreset = btn.dataset.preset;
+  const isCustom = currentPreset === 'custom';
+  document.getElementById('capsuleCustomTime').style.display = isCustom ? 'flex' : 'none';
+  const p = PRESETS[currentPreset];
+  const ts = p.getTs();
+  document.getElementById('capsulePreview').textContent = isCustom
+    ? p.desc : `${p.desc.split('—')[0]}— ${fmtTs(ts)}`;
+}
+
 function sendCapsule() {
   const msg = document.getElementById('capsuleMsg').value.trim();
   const saved = getStorage(`emotion_${currentUser}`) || { emoji: '😊' };
+  const p = PRESETS[currentPreset];
+  const openAt = p.getTs();
   const capsules = getStorage('capsules') || [];
-  capsules.push({ emoji: saved.emoji, msg, ts: Date.now(), from: currentUser });
+  capsules.push({
+    emoji: saved.emoji, msg, ts: Date.now(), openAt,
+    preset: currentPreset, presetLabel: p.label, from: currentUser,
+  });
   setStorage('capsules', capsules);
   document.getElementById('capsuleMsg').value = '';
-  document.getElementById('capsuleSaved').style.display = 'block';
-  setTimeout(() => document.getElementById('capsuleSaved').style.display = 'none', 3000);
-  showToast('⏰ 타임캡슐을 보냈어요!');
+  const el = document.getElementById('capsuleSaved');
+  el.textContent = `✅ ${p.label} — ${fmtTs(openAt)}에 전달돼요`;
+  setTimeout(() => { el.textContent = ''; }, 4000);
+  showToast(`${p.label} 타임캡슐을 보냈어요!`);
 }
 
 function showToast(msg) {
