@@ -60,11 +60,19 @@
       margin-bottom: 12px;
     }
 
+    .emotion-group-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #c4b5fd;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 10px 2px 6px;
+    }
     .emotion-scroll {
       display: flex;
       gap: 10px;
       overflow-x: auto;
-      padding-bottom: 4px;
+      padding-bottom: 6px;
       scrollbar-width: none;
     }
     .emotion-scroll::-webkit-scrollbar { display: none; }
@@ -380,7 +388,7 @@
 <!-- 감정 피커 -->
 <div class="section" style="margin-top:16px">
   <div class="section-label">지금 기분이 어때요?</div>
-  <div class="emotion-scroll" id="emotionGrid"></div>
+  <div id="emotionGrid"></div>
 </div>
 
 <!-- 메모 박스 -->
@@ -408,14 +416,41 @@
 
 <script>
 const EMOTIONS = [
-  { key:'happy',   emoji:'😊', label:'기뻐요',   color:'#f59e0b' },
-  { key:'excited', emoji:'🔥', label:'신나요',   color:'#ef4444' },
-  { key:'calm',    emoji:'😌', label:'평온해요', color:'#10b981' },
-  { key:'tired',   emoji:'😫', label:'지쳐요',   color:'#6b7280' },
-  { key:'sad',     emoji:'😢', label:'슬퍼요',   color:'#3b82f6' },
-  { key:'anxious', emoji:'😰', label:'불안해요', color:'#8b5cf6' },
-  { key:'love',    emoji:'🥰', label:'설레요',   color:'#ec4899' },
-  { key:'proud',   emoji:'🤩', label:'뿌듯해요', color:'#f97316' },
+  // 긍정
+  { key:'happy',     emoji:'😊', label:'기뻐요',     color:'#f59e0b' },
+  { key:'excited',   emoji:'🔥', label:'신나요',     color:'#ef4444' },
+  { key:'calm',      emoji:'😌', label:'평온해요',   color:'#10b981' },
+  { key:'proud',     emoji:'🤩', label:'뿌듯해요',   color:'#f97316' },
+  { key:'love',      emoji:'🥰', label:'설레요',     color:'#ec4899' },
+  { key:'grateful',  emoji:'🙏', label:'감사해요',   color:'#14b8a6' },
+  { key:'motivated', emoji:'💪', label:'의욕넘쳐',   color:'#22c55e' },
+  { key:'relaxed',   emoji:'🛋️', label:'쉬고싶어',   color:'#a3e635' },
+  // 일상
+  { key:'hungry',    emoji:'🍔', label:'배고파',     color:'#fb923c' },
+  { key:'sleepy',    emoji:'😴', label:'졸려죽겠어', color:'#818cf8' },
+  { key:'bored',     emoji:'🥱', label:'심심해',     color:'#94a3b8' },
+  { key:'monday',    emoji:'😑', label:'월요일싫어', color:'#64748b' },
+  { key:'coffee',    emoji:'☕', label:'커피필요',   color:'#92400e' },
+  { key:'paycheck',  emoji:'💸', label:'돈없어',     color:'#16a34a' },
+  // 부정/공감
+  { key:'tired',     emoji:'😫', label:'지쳐요',     color:'#6b7280' },
+  { key:'sad',       emoji:'😢', label:'슬퍼요',     color:'#3b82f6' },
+  { key:'anxious',   emoji:'😰', label:'불안해요',   color:'#8b5cf6' },
+  { key:'angry',     emoji:'😤', label:'열받아',     color:'#dc2626' },
+  { key:'stress',    emoji:'🤯', label:'스트레스',   color:'#e11d48' },
+  { key:'wtf',       emoji:'🤬', label:'진짜?!',     color:'#b91c1c' },
+  // 현실공감
+  { key:'awkward',   emoji:'😬', label:'어색해',     color:'#c084fc' },
+  { key:'lonely',    emoji:'🫂', label:'외로워',     color:'#60a5fa' },
+  { key:'confused',  emoji:'🤔', label:'모르겠어',   color:'#fbbf24' },
+  { key:'crying',    emoji:'😭', label:'눈물나',     color:'#38bdf8' },
+  { key:'facepalm',  emoji:'🤦', label:'아 진짜',    color:'#f43f5e' },
+  { key:'whatever',  emoji:'🙄', label:'알아서해',   color:'#a8a29e' },
+  // 찐공감 (약한 욕)
+  { key:'damn',      emoji:'😵', label:'미치겠다',   color:'#7c3aed' },
+  { key:'ugh',       emoji:'🤢', label:'토나와',     color:'#65a30d' },
+  { key:'cringe',    emoji:'😣', label:'쪽팔려',     color:'#db2777' },
+  { key:'exhausted', emoji:'💀', label:'나죽었어',   color:'#374151' },
 ];
 const REACTIONS = [
   { key:'hug',   emoji:'🤗', label:'안아줄게' },
@@ -434,12 +469,28 @@ const FRIEND_KEY = 'emo_friend_posts';
 function getPosts(key) { return JSON.parse(localStorage.getItem(key) || '[]'); }
 function savePosts(key, posts) { localStorage.setItem(key, JSON.stringify(posts)); }
 
+const EMOTION_GROUPS = [
+  { label: '✨ 좋아좋아', keys: ['happy','excited','calm','proud','love','grateful','motivated','relaxed'] },
+  { label: '😑 일상템',   keys: ['hungry','sleepy','bored','monday','coffee','paycheck'] },
+  { label: '😤 힘들어',   keys: ['tired','sad','anxious','angry','stress','wtf'] },
+  { label: '🫠 현실공감', keys: ['awkward','lonely','confused','crying','facepalm','whatever'] },
+  { label: '💀 찐공감',   keys: ['damn','ugh','cringe','exhausted'] },
+];
+
 function renderEmotionGrid() {
-  document.getElementById('emotionGrid').innerHTML = EMOTIONS.map(e => `
-    <button class="emotion-btn" id="eb_${e.key}" style="--clr:${e.color}" onclick="selectEmotion('${e.key}')">
-      <span class="e-emoji">${e.emoji}</span>
-      <span class="e-label">${e.label}</span>
-    </button>
+  const grid = document.getElementById('emotionGrid');
+  grid.innerHTML = EMOTION_GROUPS.map(g => `
+    <div class="emotion-group-label">${g.label}</div>
+    <div class="emotion-scroll">
+      ${g.keys.map(k => {
+        const e = EMOTIONS.find(x => x.key === k);
+        if (!e) return '';
+        return `<button class="emotion-btn" id="eb_${e.key}" style="--clr:${e.color}" onclick="selectEmotion('${e.key}')">
+          <span class="e-emoji">${e.emoji}</span>
+          <span class="e-label">${e.label}</span>
+        </button>`;
+      }).join('')}
+    </div>
   `).join('');
 }
 
