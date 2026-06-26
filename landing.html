@@ -120,6 +120,28 @@
   h2.section-title { font-size: 1.8rem; font-weight: 700; text-align: center; margin-bottom: 16px; }
   p.section-desc { text-align: center; color: #8a7a76; max-width: 600px; margin: 0 auto 48px; }
 
+  /* Emotion Sync */
+  .sync-card {
+    max-width: 640px; margin: 0 auto;
+    background: #fffcfa; border-radius: 20px; padding: 28px 28px 20px;
+    box-shadow: 0 10px 40px rgba(120,90,90,0.1); border: 1px solid #f2e6e3;
+  }
+  .sync-card-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+  .sync-who { font-size: 0.82rem; color: #6b4f54; display: flex; align-items: center; gap: 6px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 2px; }
+  .dot-me { background: #a05a62; }
+  .dot-friend { background: #9b8aa3; margin-left: 14px; }
+  .sync-score {
+    background: #f3e6e2; color: #a05a62; font-weight: 700; font-size: 0.8rem;
+    padding: 5px 14px; border-radius: 999px;
+  }
+  .sync-graph { width: 100%; height: 140px; display: block; }
+  .sync-hours { display: flex; justify-content: space-between; padding: 0 4px; font-size: 0.7rem; color: #a89a96; margin-top: 4px; }
+  .sync-note {
+    margin-top: 16px; background: #f7eeec; border-radius: 12px; padding: 12px 14px;
+    font-size: 0.85rem; color: #6b4f54; text-align: center;
+  }
+
   /* Problem */
   .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
   .problem-card {
@@ -193,7 +215,7 @@
 
   <nav>
     <div class="logo">🌙 다정시차</div>
-    <a href="#signup" class="cta-small">사전 등록</a>
+    <a href="#signup" class="cta-small">지금 시작하기</a>
   </nav>
 
   <header class="hero">
@@ -205,7 +227,7 @@
       <p class="sub">유학과 주재원 생활 속 외로움을, 시차 너머의 가장 가까운 사람과 나눠보세요.
         하루의 감정을 시간대별 이모지 지도로 남기면, 친구가 가능한 시간에 따뜻한 리액션을 보내줍니다.</p>
       <div class="hero-ctas">
-        <a href="#signup" class="btn-primary">사전 등록하기</a>
+        <a href="#signup" class="btn-primary">무료로 시작하기</a>
         <a href="#how" class="btn-ghost">어떻게 작동하나요</a>
       </div>
 
@@ -236,6 +258,41 @@
       </div>
     </div>
   </header>
+
+  <section id="sync">
+    <div class="section-label">Emotion Sync</div>
+    <h2 class="section-title">나와 친구의 감정 그래프가 겹쳐 보여요</h2>
+    <p class="section-desc">내가 남긴 오늘의 감정 곡선 위에, 내가 선택한 친구의 감정 곡선을 겹쳐서 비교해보세요.
+      서로 다른 시간을 살아도 마음의 흐름이 얼마나 닮아있는지 한눈에 느껴집니다.</p>
+    <div class="sync-card">
+      <div class="sync-card-header">
+        <div class="sync-who">
+          <span class="dot dot-me"></span> 나의 감정 곡선
+          <span class="dot dot-friend"></span> 지우의 감정 곡선
+        </div>
+        <span class="sync-score">싱크율 87%</span>
+      </div>
+      <svg class="sync-graph" viewBox="0 0 310 130" preserveAspectRatio="none">
+        <line x1="0" y1="65" x2="310" y2="65" stroke="#ecdedb" stroke-width="1" stroke-dasharray="4 4" />
+        <polyline points="20,46 90,79 160,16 230,10 290,52" fill="none" stroke="#a05a62" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        <polyline points="20,57 90,52 160,35 230,28 290,46" fill="none" stroke="#9b8aa3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2 5" />
+        <circle cx="20" cy="46" r="4" fill="#a05a62" />
+        <circle cx="90" cy="79" r="4" fill="#a05a62" />
+        <circle cx="160" cy="16" r="4" fill="#a05a62" />
+        <circle cx="230" cy="10" r="4" fill="#a05a62" />
+        <circle cx="290" cy="52" r="4" fill="#a05a62" />
+        <circle cx="20" cy="57" r="4" fill="#9b8aa3" />
+        <circle cx="90" cy="52" r="4" fill="#9b8aa3" />
+        <circle cx="160" cy="35" r="4" fill="#9b8aa3" />
+        <circle cx="230" cy="28" r="4" fill="#9b8aa3" />
+        <circle cx="290" cy="46" r="4" fill="#9b8aa3" />
+      </svg>
+      <div class="sync-hours">
+        <span>9AM</span><span>12PM</span><span>3PM</span><span>6PM</span><span>9PM</span>
+      </div>
+      <div class="sync-note">"오늘 둘 다 오후에 마음이 제일 가벼워졌네요 🌤️"</div>
+    </div>
+  </section>
 
   <section id="problem">
     <div class="section-label">Problem</div>
@@ -304,11 +361,11 @@
 
   <section id="signup">
     <div class="final-cta">
-      <h2>가장 먼저 다정시차를 만나보세요</h2>
-      <p>출시 소식과 베타 초대를 가장 먼저 받아보실 수 있어요.</p>
-      <form class="signup-form" onsubmit="event.preventDefault(); document.getElementById('signupResult').textContent='🎉 등록 완료! 베타 오픈 소식을 가장 먼저 보내드릴게요.'; this.reset();">
+      <h2>지금, 다정시차를 시작해보세요</h2>
+      <p>가입은 무료예요. 오늘 하루의 감정을 남기고, 가장 가까운 사람과 시차를 넘어 마음을 나눠보세요.</p>
+      <form class="signup-form" onsubmit="event.preventDefault(); document.getElementById('signupResult').textContent='🎉 가입 완료! 오늘의 감정 지도를 남겨보세요.'; this.reset();">
         <input type="email" placeholder="이메일 주소를 입력해주세요" required />
-        <button type="submit">사전 등록하기</button>
+        <button type="submit">무료로 가입하기</button>
       </form>
       <div class="signup-result" id="signupResult"></div>
     </div>
