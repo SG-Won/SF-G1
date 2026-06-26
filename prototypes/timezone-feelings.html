@@ -292,6 +292,27 @@
     display: none;
   }
 
+  /* ── TZ Toggle ── */
+  .tz-toggle {
+    display: flex;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  .tz-btn {
+    padding: 5px 11px; border: none; background: transparent;
+    color: var(--sub); cursor: pointer; font-size: 11px;
+    font-family: inherit; font-weight: 600; transition: all 0.2s; white-space: nowrap;
+  }
+  .tz-btn.active { background: var(--accent); color: #fff; }
+  .tz-desc {
+    font-size: 12px; color: var(--sub); margin-bottom: 10px;
+    padding: 8px 12px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 10px; line-height: 1.5;
+  }
+  .tz-desc strong { color: var(--text); }
+
   /* ── Journey Map ── */
   .journey-legend {
     display: flex; align-items: center; gap: 6px;
@@ -560,7 +581,13 @@
 
   <!-- ── 타임라인 탭 ── -->
   <div class="page" id="page-timeline">
-    <div class="section-title">🌡️ 오늘 감정 온도 흐름</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div class="section-title" style="margin-bottom:0;">🌡️ 오늘 감정 온도 흐름</div>
+      <div class="tz-toggle">
+        <button id="btnSameTime" class="tz-btn active" onclick="setTzMode('same')">같은 시간대</button>
+        <button id="btnRealTime" class="tz-btn" onclick="setTzMode('real')">시차 반영</button>
+      </div>
+    </div>
 
     <!-- Legend -->
     <div class="journey-legend">
@@ -568,6 +595,11 @@
       <span id="tlMyName" class="legend-label">나 (서울)</span>
       <span class="legend-dot" style="background:#f59e0b;margin-left:14px;"></span>
       <span id="tlFriendName" class="legend-label">지우 (베를린)</span>
+    </div>
+
+    <!-- Mode description -->
+    <div class="tz-desc" id="tzDesc">
+      🕰️ <strong>같은 시간대</strong> — 나는 이미 네 미래를 살고 있어
     </div>
 
     <!-- Overlap banner -->
@@ -640,10 +672,24 @@ const EMOTIONS = [
 
 // State
 let currentUser = 'me'; // 'me' or 'friend'
+let tzMode = 'same'; // 'same' | 'real'
 const CONFIGS = {
   me: { name: '나', city: '서울', offset: 9 },
   friend: { name: '지우', city: '베를린', offset: 2 },
 };
+
+const TZ_COPY = {
+  same: { label: '같은 시간대', desc: '🕰️ <strong>같은 시간대</strong> — 나는 이미 네 미래를 살고 있어' },
+  real: { label: '시차 반영',   desc: '🌍 <strong>시차 반영</strong> — 내가 잠들 때 너는 아침을 시작해' },
+};
+
+function setTzMode(mode) {
+  tzMode = mode;
+  document.getElementById('btnSameTime').classList.toggle('active', mode === 'same');
+  document.getElementById('btnRealTime').classList.toggle('active', mode === 'real');
+  document.getElementById('tzDesc').innerHTML = TZ_COPY[mode].desc;
+  updateTimeline();
+}
 
 function getStorage(key) {
   try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
@@ -795,22 +841,28 @@ function drawJourneySvg(myPts, friendPts, me, otherConfig) {
   const W = 600, H = 260, PT = 24, PB = 24, PL = 4, PR = 16;
   const cW = W - PL - PR, cH = H - PT - PB;
 
-  // X축 범위: 데이터 최솟값~최댓값 ±1시간, 최소 8시간 폭
-  const allHours = [...myPts, ...friendPts]
-    .map(p => p.timeStr ? (parseInt(p.timeStr) + parseInt(p.timeStr.split(':')[1]||0)/60) : null)
-    .filter(h => h !== null);
-  const minH = allHours.length ? Math.max(0, Math.min(...allHours) - 1) : 0;
-  const maxH = allHours.length ? Math.min(24, Math.max(...allHours) + 1) : 24;
-  const rangeH = Math.max(maxH - minH, 8);
-
-  function timeStrToH(timeStr) {
+  // 시차 offset: 'real' 모드일 때 친구 시간에 시차를 더함 (서울 UTC+9, 베를린 UTC+2 → +7h)
+  const tzDiff = (CONFIGS[currentUser === 'me' ? 'me' : 'friend'].offset)
+               - (CONFIGS[currentUser === 'me' ? 'friend' : 'me'].offset);
+  function applyTz(timeStr, isFriend) {
     if (!timeStr) return null;
     const [h, m] = timeStr.split(':').map(Number);
-    return h + m / 60;
+    const totalH = isFriend && tzMode === 'real' ? h + tzDiff : h;
+    return totalH + m / 60;
   }
+
+  // X축 범위: 데이터 최솟값~최댓값 ±1시간, 최소 8시간 폭
+  const allHours = [
+    ...myPts.map(p => applyTz(p.timeStr, false)),
+    ...friendPts.map(p => applyTz(p.timeStr, true)),
+  ].filter(h => h !== null);
+  const minH = allHours.length ? Math.max(0, Math.min(...allHours) - 1) : 0;
+  const maxH = allHours.length ? Math.min(30, Math.max(...allHours) + 1) : 24;
+  const rangeH = Math.max(maxH - minH, 8);
+
   function xOf(h) { return PL + ((h - minH) / rangeH) * cW; }
-  function xOfStr(timeStr) {
-    const h = timeStrToH(timeStr);
+  function xOfStr(timeStr, isFriend) {
+    const h = applyTz(timeStr, isFriend);
     return h === null ? null : xOf(h);
   }
   function yOf(emoji) {
@@ -822,13 +874,17 @@ function drawJourneySvg(myPts, friendPts, me, otherConfig) {
   const labelCount = 6;
   const labels = [];
   for (let i = 0; i <= labelCount; i++) {
-    const h = Math.round(minH + (i / labelCount) * rangeH);
+    const h = Math.round(minH + (i / labelCount) * rangeH) % 24;
     labels.push(`${String(h).padStart(2,'0')}:00`);
   }
-  document.getElementById('journeyXLabels').innerHTML = labels.map(l => `<span>${l}</span>`).join('');
+  const xAxisNote = tzMode === 'real'
+    ? `<span style="font-size:10px;color:var(--accent);font-weight:600;">← 서울 시간 기준</span>`
+    : '';
+  document.getElementById('journeyXLabels').innerHTML =
+    labels.map(l => `<span>${l}</span>`).join('') + xAxisNote;
 
-  function buildCurve(pts) {
-    const valid = pts.map(p => ({ x: xOfStr(p.timeStr), y: yOf(p.emoji), emoji: p.emoji })).filter(p => p.x !== null);
+  function buildCurve(pts, isFriend) {
+    const valid = pts.map(p => ({ x: xOfStr(p.timeStr, isFriend), y: yOf(p.emoji), emoji: p.emoji })).filter(p => p.x !== null);
     if (valid.length === 0) return { d: null, pts: [] };
     let d = `M ${valid[0].x} ${valid[0].y}`;
     for (let i = 1; i < valid.length; i++) {
@@ -857,9 +913,9 @@ function drawJourneySvg(myPts, friendPts, me, otherConfig) {
     `).join('');
   }
 
-  // Find overlap window (both have data today)
-  const myHs = myPts.map(p => timeStrToH(p.timeStr)).filter(Boolean);
-  const frHs = friendPts.map(p => timeStrToH(p.timeStr)).filter(Boolean);
+  // Find overlap window
+  const myHs = myPts.map(p => applyTz(p.timeStr, false)).filter(Boolean);
+  const frHs = friendPts.map(p => applyTz(p.timeStr, true)).filter(Boolean);
   let overlapRect = '';
   if (myHs.length && frHs.length) {
     const start = Math.max(Math.min(...myHs), Math.min(...frHs));
@@ -887,8 +943,8 @@ function drawJourneySvg(myPts, friendPts, me, otherConfig) {
     grid += `<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,4"/>`;
   }
 
-  const my = buildCurve(myPts);
-  const fr = buildCurve(friendPts);
+  const my = buildCurve(myPts, false);
+  const fr = buildCurve(friendPts, true);
   const empty = myPts.length === 0 && friendPts.length === 0;
 
   svg.innerHTML = `
