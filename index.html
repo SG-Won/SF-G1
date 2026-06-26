@@ -209,8 +209,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
 .tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
   background:none;border:none;cursor:pointer;color:var(--sub);font-size:10px;
   font-family:inherit;padding:6px 0;transition:color .2s}
-.tab-btn .tab-icon{font-size:20px}
+.tab-btn .tab-icon{font-size:20px;height:23px;display:flex;align-items:center;justify-content:center}
+.tab-btn .tab-icon svg{width:23px;height:23px;display:block}
 .tab-btn.active{color:var(--accent)}
+
+/* Timeline view-mode toggle (오늘 흐름 / 나의 기록보기) */
+.view-mode-toggle{display:flex;gap:8px;margin-bottom:12px}
+.vm-btn{flex:1;padding:10px;border-radius:12px;border:1.5px solid var(--border);background:var(--card);
+  color:var(--sub);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;gap:6px}
+.vm-btn svg{width:17px;height:17px;flex-shrink:0}
+.vm-btn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.mine-stats{display:flex;gap:8px;margin-bottom:10px}
+.mine-stat{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 6px;text-align:center}
+.mine-stat .v{font-size:18px;font-weight:800;line-height:1.1}
+.mine-stat .k{font-size:10px;color:var(--sub);margin-top:3px}
 
 /* Toast */
 .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-20px);
@@ -335,6 +348,36 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
 
 /* Ask panel anchor photo */
 .ask-anchor-photo{width:100%;border-radius:10px;margin-top:8px;max-height:170px;object-fit:cover;display:block;cursor:zoom-in}
+
+/* ── Moment sheet (bottom sheet) ── */
+.sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:120;display:none;align-items:flex-end;justify-content:center}
+.sheet-backdrop.open{display:flex}
+.sheet{background:var(--card);width:100%;max-width:430px;border-radius:20px 20px 0 0;max-height:86%;
+  display:flex;flex-direction:column;animation:sheetUp .26s cubic-bezier(.2,.8,.2,1)}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet-handle{width:40px;height:4px;border-radius:2px;background:var(--border);margin:9px auto 2px}
+.sheet-head{display:flex;align-items:center;gap:10px;padding:8px 16px 12px;border-bottom:1px solid var(--border)}
+.sheet-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:20px;overflow:hidden;flex-shrink:0}
+.sheet-avatar img{width:100%;height:100%;object-fit:cover}
+.sheet-head-info{flex:1;min-width:0}
+.sheet-name{font-size:15px;font-weight:700}
+.sheet-time{font-size:12px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sheet-close{background:none;border:none;font-size:17px;color:var(--sub);cursor:pointer;padding:4px 6px}
+.sheet-body{flex:1;overflow-y:auto;padding:14px 16px;-webkit-overflow-scrolling:touch}
+.ms-photo{width:100%;border-radius:14px;object-fit:cover;max-height:300px;cursor:zoom-in;display:block}
+.ms-nophoto{padding:26px;text-align:center;color:var(--sub);font-size:13px;background:var(--bg);border-radius:12px}
+.ms-caption{font-size:14px;margin:12px 2px 4px;line-height:1.5}
+.ms-cap-time{color:var(--sub);font-size:12px}
+.ms-chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.ms-thread{margin-top:10px;display:flex;flex-direction:column;gap:10px}
+.ms-empty{text-align:center;color:var(--sub);font-size:12px;padding:14px 0}
+.ms-cmt{display:flex;flex-direction:column;align-items:flex-start;gap:2px}
+.ms-cmt.mine{align-items:flex-end}
+.ms-cmt-bubble{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:8px 12px;font-size:13px;max-width:82%;word-break:break-word}
+.ms-cmt.mine .ms-cmt-bubble{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ms-cmt-meta{font-size:10px;color:var(--sub)}
+.sheet-input-bar{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);background:var(--card)}
 </style>
 </head>
 <body>
@@ -463,18 +506,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
 
   <!-- ── 타임라인 탭 ── -->
   <div class="page" id="page-timeline">
-    <div class="tl-top-row">
-      <div class="section-title" style="margin-bottom:0">🌡️ 감정 온도 흐름</div>
-      <div class="tz-toggle">
-        <button id="btnSameTime" class="tz-btn active" onclick="setTzMode('same')">같은 시간대</button>
-        <button id="btnRealTime" class="tz-btn" onclick="setTzMode('real')">시차 반영</button>
-      </div>
+    <!-- 보기 전환: 오늘(나+친구) vs 나의 장기 기록 -->
+    <div class="view-mode-toggle">
+      <button id="btnViewDaily" class="vm-btn active" onclick="setTimelineView('daily')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3.4l2.6-7 4 14 2.6-7H21"/></svg><span class="vm-label">오늘 흐름</span></button>
+      <button id="btnViewMine" class="vm-btn" onclick="setTimelineView('mine')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="12"/><line x1="12" y1="20" x2="12" y2="5"/><line x1="18" y1="20" x2="18" y2="15"/></svg><span class="vm-label">나의 기록보기</span></button>
     </div>
 
-    <div class="friend-filter-tabs" id="filterTabs"></div>
+    <!-- 오늘 흐름 컨트롤 -->
+    <div id="dailyControls">
+      <div class="tl-top-row">
+        <div class="section-title" style="margin-bottom:0">🌡️ 감정 온도 흐름</div>
+        <div class="tz-toggle">
+          <button id="btnSameTime" class="tz-btn active" onclick="setTzMode('same')">같은 시간대</button>
+          <button id="btnRealTime" class="tz-btn" onclick="setTzMode('real')">시차 반영</button>
+        </div>
+      </div>
+      <div class="friend-filter-tabs" id="filterTabs"></div>
+      <div class="tz-desc" id="tzDesc">🕰️ <strong>같은 시간대</strong> — 나는 이미 네 미래를 살고 있어</div>
+      <div class="overlap-banner" id="overlapBanner" style="display:none"><strong></strong><span></span></div>
+    </div>
 
-    <div class="tz-desc" id="tzDesc">🕰️ <strong>같은 시간대</strong> — 나는 이미 네 미래를 살고 있어</div>
-    <div class="overlap-banner" id="overlapBanner" style="display:none"><strong></strong><span></span></div>
+    <!-- 나의 장기 기록 컨트롤 -->
+    <div id="mineControls" style="display:none">
+      <div class="tl-top-row">
+        <div class="section-title" style="margin-bottom:0" id="mineTitle">📈 나의 감정온도 흐름</div>
+        <div class="tz-toggle">
+          <button id="btnP30" class="tz-btn active" onclick="setMinePeriod('30d')">30일</button>
+          <button id="btnP6m" class="tz-btn" onclick="setMinePeriod('6m')">6개월</button>
+          <button id="btnP1y" class="tz-btn" onclick="setMinePeriod('1y')">1년</button>
+        </div>
+      </div>
+      <div class="tz-desc" id="mineDesc">📈 <strong>최근 30일</strong> — 나만의 감정 변화예요</div>
+      <div class="mine-stats" id="mineStats"></div>
+    </div>
 
     <div class="journey-legend" id="journeyLegend"></div>
 
@@ -488,7 +552,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
     </div>
     <div class="journey-x-labels" id="journeyXLabels"></div>
 
-    <div class="section-title">📋 체크인 기록</div>
+    <div class="section-title" id="eventListTitle">📋 체크인 기록</div>
     <div id="timelineEventList"></div>
   </div>
 
@@ -501,23 +565,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Go
 </div>
 
 <div class="bottom-tabs">
-  <button class="tab-btn active" onclick="showPage('home',this)"><span class="tab-icon">🏠</span>홈</button>
-  <button class="tab-btn" onclick="showPage('timeline',this)"><span class="tab-icon">📅</span>타임라인</button>
-  <button class="tab-btn" onclick="showPage('capsules',this)"><span class="tab-icon">📦</span>캡슐함</button>
+  <button class="tab-btn active" onclick="showPage('home',this)"><span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5"/><path d="M5 9.8V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.8"/><path d="M9.5 21v-6h5v6"/></svg></span>홈</button>
+  <button class="tab-btn" onclick="showPage('timeline',this)"><span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3.4l2.6-7 4 14 2.6-7H21"/></svg></span>타임라인</button>
+  <button class="tab-btn" onclick="showPage('capsules',this)"><span class="tab-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M10 12h4"/></svg></span>캡슐함</button>
 </div>
 
-<!-- ── 순간 물어보기 오버레이 ── -->
-<div class="overlay-panel" id="dmPanel">
-  <div class="overlay-header">
-    <button class="overlay-back" onclick="closePanel('dmPanel')">←</button>
-    <div class="overlay-title" id="dmTitle">물어보기</div>
-    <span class="overlay-badge badge-dm" id="dmBadge">💬 어땠어?</span>
-  </div>
-  <div class="chat-body" id="dmBody"></div>
-  <div class="chat-input-bar">
-    <input class="chat-input" id="dmInput" placeholder="이때 어땠는지 물어보기..."
-      onkeydown="if(event.key==='Enter')sendDM()">
-    <button class="chat-send" onclick="sendDM()">↑</button>
+<!-- ── 순간 상세 시트 (그래프 점/기록 클릭 → 사진 + 코멘트) ── -->
+<div class="sheet-backdrop" id="momentSheet" onclick="if(event.target===this)closeMomentSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div class="sheet-avatar" id="msAvatar"></div>
+      <div class="sheet-head-info">
+        <div class="sheet-name" id="msName"></div>
+        <div class="sheet-time" id="msTime"></div>
+      </div>
+      <button class="sheet-close" onclick="closeMomentSheet()">✕</button>
+    </div>
+    <div class="sheet-body" id="msBody"></div>
+    <div class="sheet-input-bar">
+      <input class="chat-input" id="msInput" placeholder="코멘트 남기기..."
+        onkeydown="if(event.key==='Enter')sendMomentComment()">
+      <button class="chat-send" onclick="sendMomentComment()">↑</button>
+    </div>
   </div>
 </div>
 
@@ -676,6 +746,20 @@ function applyLang() {
   // timeline section
   document.querySelector('#page-timeline .section-title:not(.tl-top-row .section-title)') &&
     (document.querySelectorAll('#page-timeline .section-title')[0].innerHTML = S.tlTitle);
+  // timeline view toggle + 나의 기록 controls
+  const vmLabels = document.querySelectorAll('.vm-label');
+  if(vmLabels[0]) vmLabels[0].textContent = lang==='en' ? 'Today' : '오늘 흐름';
+  if(vmLabels[1]) vmLabels[1].textContent = lang==='en' ? 'My records' : '나의 기록보기';
+  const mineTitleEl = document.getElementById('mineTitle');
+  if(mineTitleEl) mineTitleEl.textContent = lang==='en' ? '📈 My emotion trend' : '📈 나의 감정온도 흐름';
+  const eltT = document.getElementById('eventListTitle');
+  if(eltT) eltT.textContent = (tlView==='mine')
+    ? (lang==='en' ? '📋 My check-in log' : '📋 나의 체크인 기록')
+    : (lang==='en' ? '📋 Check-in log' : '📋 체크인 기록');
+  const p30=document.getElementById('btnP30'), p6=document.getElementById('btnP6m'), p1=document.getElementById('btnP1y');
+  if(p30) p30.textContent = lang==='en' ? '30d'  : '30일';
+  if(p6)  p6.textContent  = lang==='en' ? '6mo'  : '6개월';
+  if(p1)  p1.textContent  = lang==='en' ? '1yr'  : '1년';
   // capsule section
   document.querySelector('#page-capsules .section-title').textContent = S.capsuleSection;
   // mood section labels
@@ -732,6 +816,8 @@ const REACT_EMOJIS = ['❤️','😂','😢','🔥','🥰','👏'];
 // ── State ─────────────────────────────────────────────────
 let tzMode = 'same';
 let tlFilter = 'all'; // 'all' | friendId
+let tlView = 'daily';   // 'daily' (나+친구, 시간대별) | 'mine' (나만, 장기 추세)
+let minePeriod = '30d'; // '30d' | '6m' | '1y'
 let currentPreset = 'wake';
 
 // ── Storage ───────────────────────────────────────────────
@@ -809,6 +895,7 @@ function showFriendDetail(friendId) {
   tlFilter = friendId;
   const tlTab = document.querySelectorAll('.tab-btn')[1];
   showPage('timeline', tlTab);
+  setTimelineView('daily'); // 친구는 '오늘 흐름'에서 봐야 함 (나의 기록 뷰였더라도 전환)
   document.querySelector('.main').scrollTop = 0;
   showToast(lang==='en'
     ? `${f?.name||''}'s timeline — tap a moment to ask how it was`
@@ -1002,7 +1089,7 @@ function submitComment() {
   const tlArr = gs('timeline')||[];
   // 내 체크인은 한 번만 기록 (공유 대상은 sharedWith로 보관) — 대상별로 중복 저장하지 않음
   tlArr.push({user:'me', sharedWith:targets, emoji, text, comment, photo, ts, timeStr});
-  if(tlArr.length>60) tlArr.splice(0, tlArr.length-60);
+  if(tlArr.length>1000) tlArr.splice(0, tlArr.length-1000); // 장기 기록 보존
   ss('timeline',tlArr);
 
   document.getElementById('commentBox').style.display='none';
@@ -1084,33 +1171,58 @@ function setTzMode(mode) {
   updateTimeline();
 }
 
+// 보기 전환: 오늘 흐름 ↔ 나의 기록
+function setTimelineView(v){
+  tlView = v;
+  document.getElementById('btnViewDaily').classList.toggle('active', v==='daily');
+  document.getElementById('btnViewMine').classList.toggle('active', v==='mine');
+  document.getElementById('dailyControls').style.display = v==='daily' ? 'block' : 'none';
+  document.getElementById('mineControls').style.display  = v==='mine'  ? 'block' : 'none';
+  updateTimeline();
+}
+function setMinePeriod(p){
+  minePeriod = p;
+  document.getElementById('btnP30').classList.toggle('active', p==='30d');
+  document.getElementById('btnP6m').classList.toggle('active', p==='6m');
+  document.getElementById('btnP1y').classList.toggle('active', p==='1y');
+  updateTimeline();
+}
+
 function updateTimeline() {
+  if(tlView==='mine'){ updateMyTrend(); return; }
   buildFilterTabs();
   const yEl = document.getElementById('journeyYLabels');
   if(yEl) yEl.innerHTML = STRINGS[lang].yLabels.map(l=>`<span>${l}</span>`).join('');
+  const eltTitle = document.getElementById('eventListTitle');
+  if(eltTitle) eltTitle.textContent = lang==='en' ? '📋 Check-in log' : '📋 체크인 기록';
   const allTl = gs('timeline')||[];
+  const recentWin = Date.now() - 50*3600000; // 오늘 흐름은 최근 ~2일만 (장기 기록 제외)
   // which friends to show
   const activeFriends = tlFilter==='all' ? FRIENDS : FRIENDS.filter(f=>f.id===tlFilter);
 
   // Legend
   const legend = document.getElementById('journeyLegend');
   legend.innerHTML = [
-    `<span class="legend-dot" style="background:${ME.color}"></span><span class="legend-label">나 (${ME.city})</span>`,
+    `<span class="legend-dot" style="background:${ME.color}"></span><span class="legend-label">${lang==='en'?'Me':'나'} (${ME.city})</span>`,
     ...activeFriends.map(f=>`<span class="legend-dot" style="background:${f.color};margin-left:10px"></span><span class="legend-label">${f.name} (${f.city})</span>`)
   ].join('');
 
-  // Collect points per user
-  const myPts = allTl.filter(e=>e.user==='me').sort((a,b)=>a.ts-b.ts);
+  // Collect points per user (최근 window만)
+  const myPts = allTl.filter(e=>e.user==='me' && e.ts>=recentWin).sort((a,b)=>a.ts-b.ts);
   const friendPtsMap = {};
   activeFriends.forEach(f=>{
-    friendPtsMap[f.id] = allTl.filter(e=>e.user===f.id).sort((a,b)=>a.ts-b.ts);
+    friendPtsMap[f.id] = allTl.filter(e=>e.user===f.id && e.ts>=recentWin).sort((a,b)=>a.ts-b.ts);
   });
 
   drawJourneySvg(myPts, friendPtsMap, activeFriends);
 
-  // Event list — all relevant events
-  tl = [...allTl].filter(e=> e.user==='me' || activeFriends.some(f=>f.id===e.user))
+  // Event list — all relevant recent events
+  tl = [...allTl].filter(e=> (e.user==='me' || activeFriends.some(f=>f.id===e.user)) && e.ts>=recentWin)
     .sort((a,b)=>b.ts-a.ts).slice(0,15);
+  renderEventList();
+}
+
+function renderEventList(){
   const listEl = document.getElementById('timelineEventList');
   if(!tl.length){
     listEl.innerHTML=`<div style="text-align:center;padding:30px 0;color:var(--sub);font-size:13px">${s('checkinEmpty')}</div>`;
@@ -1121,21 +1233,23 @@ function updateTimeline() {
     const user = isMe ? ME : (FRIENDS.find(f=>f.id===e.user)||{name:e.user,color:'#888'});
     const color = user.color;
     const city = (isMe?ME:FRIENDS.find(f=>f.id===e.user)||{city:'?'}).city;
-    const askLabel = lang==='en' ? '💬 How was it?' : '💬 어땠어?';
+    const cmtN = getMomentComments(e).length;
+    const baseLabel = isMe ? (lang==='en'?'💬 Comment':'💬 코멘트') : (lang==='en'?'💬 How was it?':'💬 어땠어?');
+    const btnLabel = baseLabel + (cmtN?` · ${cmtN}`:'');
     const photoHtml = e.photo
       ? `<div class="ev-photo" onclick="openLightboxFromEvent(${idx})"><img src="${e.photo}" alt="" loading="lazy"></div>
          <div class="ev-photo-cap">📷 ${e.comment || e.text}</div>`
       : '';
     return `<div class="ev-item">
       <div class="ev-top">
-        <span class="ev-emoji">${e.emoji}</span>
+        <span class="ev-emoji" style="cursor:pointer" onclick="openMoment(tl[${idx}])">${e.emoji}</span>
         <div class="ev-info">
           <span class="ev-badge" style="background:${color}22;color:${color}">${user.name} (${city})</span>
           <div class="ev-text">${e.comment ? `"${e.comment}"` : e.text}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
           <span class="ev-time-label">${e.timeStr||'??:??'}</span>
-          ${!isMe ? `<button onclick="openDM(tl[${idx}])" style="font-size:11px;color:var(--accent);background:var(--accent-soft);border:none;border-radius:8px;padding:3px 9px;cursor:pointer;font-family:inherit;font-weight:600">${askLabel}</button>` : ''}
+          <button onclick="openMoment(tl[${idx}])" style="font-size:11px;color:var(--accent);background:var(--accent-soft);border:none;border-radius:8px;padding:3px 9px;cursor:pointer;font-family:inherit;font-weight:600">${btnLabel}</button>
         </div>
       </div>
       ${photoHtml}
@@ -1145,8 +1259,10 @@ function updateTimeline() {
 }
 
 // ── Journey SVG ───────────────────────────────────────────
+let dotItems = []; // 그래프 점 클릭 → 원본 체크인 매핑
 function drawJourneySvg(myPts, friendPtsMap, activeFriends) {
   const svg = document.getElementById('journeySvg');
+  dotItems = [];
   const W=600,H=240,PT=22,PB=22,PL=4,PR=16,cW=W-PL-PR,cH=H-PT-PB;
 
   const tzDiff = (f) => tzMode==='real' ? (ME.offset - f.offset) : 0;
@@ -1174,7 +1290,7 @@ function drawJourneySvg(myPts, friendPtsMap, activeFriends) {
   document.getElementById('journeyXLabels').innerHTML=labels.map(l=>`<span>${l}</span>`).join('')+xNote;
 
   function curve(pts, offsetH) {
-    const valid = pts.map(p=>({x:xOf(toH(p.timeStr,offsetH)),y:yOf(p.emoji),emoji:p.emoji,photo:!!p.photo})).filter(p=>p.x!==null);
+    const valid = pts.map(p=>({x:xOf(toH(p.timeStr,offsetH)),y:yOf(p.emoji),emoji:p.emoji,photo:!!p.photo,item:p})).filter(p=>p.x!==null);
     if(!valid.length) return {d:null,pts:valid};
     let d=`M${valid[0].x} ${valid[0].y}`;
     for(let i=1;i<valid.length;i++){const cx=(valid[i-1].x+valid[i].x)/2;d+=` C${cx} ${valid[i-1].y} ${cx} ${valid[i].y} ${valid[i].x} ${valid[i].y}`;}
@@ -1189,10 +1305,16 @@ function drawJourneySvg(myPts, friendPtsMap, activeFriends) {
     return `<path d="${d}" fill="${color}" opacity="0.08"/>`;
   }
   function dots(pts,color){
-    return pts.map(p=>`
-      <circle cx="${p.x}" cy="${p.y}" r="5" fill="${color}" stroke="white" stroke-width="2.5"/>
-      <text x="${p.x}" y="${p.y-10}" text-anchor="middle" font-size="15" style="user-select:none">${p.emoji}</text>
-      ${p.photo?`<text x="${p.x}" y="${p.y+17}" text-anchor="middle" font-size="11" style="user-select:none">📷</text>`:''}`).join('');
+    return pts.map(p=>{
+      const di = dotItems.push(p.item)-1; // 클릭 매핑용 인덱스
+      return `
+      <g style="cursor:pointer" onclick="openMomentByDot(${di})">
+        <circle cx="${p.x}" cy="${p.y}" r="13" fill="transparent" style="pointer-events:all"/>
+        <circle cx="${p.x}" cy="${p.y}" r="5" fill="${color}" stroke="white" stroke-width="2.5" style="pointer-events:none"/>
+        <text x="${p.x}" y="${p.y-10}" text-anchor="middle" font-size="15" style="user-select:none;pointer-events:none">${p.emoji}</text>
+        ${p.photo?`<text x="${p.x}" y="${p.y+17}" text-anchor="middle" font-size="11" style="user-select:none;pointer-events:none">📷</text>`:''}
+      </g>`;
+    }).join('');
   }
 
   // Grid
@@ -1232,6 +1354,103 @@ function drawJourneySvg(myPts, friendPtsMap, activeFriends) {
   if(!myPts.length&&!activeFriends.some(f=>(friendPtsMap[f.id]||[]).length))
     svgContent+=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#9ca3af" font-size="13">${s('svgEmpty')}</text>`;
   svg.innerHTML=svgContent;
+}
+
+// ── 나의 장기 감정 추세 (30일 / 6개월 / 1년) ───────────────
+function scoreEmoji(sc){
+  const t=['😢','😢','😤','😔','😴','😐','🙂','😊','😊','🤩','🤩'];
+  return t[Math.max(0,Math.min(10,Math.round(sc)))];
+}
+function fmtDateShort(ts){
+  const d=new Date(ts);
+  if(minePeriod==='1y'){
+    return lang==='en'
+      ? ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]
+      : (d.getMonth()+1)+'월';
+  }
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+
+function updateMyTrend(){
+  // y labels (공유)
+  const yEl=document.getElementById('journeyYLabels');
+  if(yEl) yEl.innerHTML=STRINGS[lang].yLabels.map(l=>`<span>${l}</span>`).join('');
+  const allTl=gs('timeline')||[];
+  const now=Date.now();
+  const cfg=({'30d':{days:30,bucket:1},'6m':{days:182,bucket:7},'1y':{days:365,bucket:30}})[minePeriod]||{days:30,bucket:1};
+  const since=now - cfg.days*86400000;
+  const mine=allTl.filter(e=>e.user==='me' && e.ts>=since && EMOTION_SCORE[e.emoji]!=null).sort((a,b)=>a.ts-b.ts);
+
+  // 기간 라벨
+  const pl=({'30d':lang==='en'?'Last 30 days':'최근 30일',
+             '6m':lang==='en'?'Last 6 months':'최근 6개월',
+             '1y':lang==='en'?'Last 1 year':'최근 1년'})[minePeriod];
+  document.getElementById('mineDesc').innerHTML=`📈 <strong>${pl}</strong> — ${lang==='en'?'your own emotion trend':'나만의 감정 변화예요'}`;
+
+  // 범례 (나만)
+  document.getElementById('journeyLegend').innerHTML=
+    `<span class="legend-dot" style="background:${ME.color}"></span><span class="legend-label">${lang==='en'?'Me':'나'} (${ME.city})</span>`;
+
+  // 버킷 평균
+  const bucketMs=cfg.bucket*86400000;
+  const buckets={};
+  mine.forEach(e=>{ const i=Math.floor((e.ts-since)/bucketMs); (buckets[i]=buckets[i]||[]).push(EMOTION_SCORE[e.emoji]); });
+  const points=Object.keys(buckets).map(k=>{
+    const arr=buckets[k];
+    return {ts:since+(+k+0.5)*bucketMs, score:arr.reduce((a,b)=>a+b,0)/arr.length};
+  }).sort((a,b)=>a.ts-b.ts);
+
+  // 통계 카드
+  const scores=mine.map(e=>EMOTION_SCORE[e.emoji]);
+  const statEl=document.getElementById('mineStats');
+  if(scores.length){
+    const avg=scores.reduce((a,b)=>a+b,0)/scores.length;
+    statEl.innerHTML=`
+      <div class="mine-stat"><div class="v">${avg.toFixed(1)}</div><div class="k">${lang==='en'?'avg score':'평균 점수'}</div></div>
+      <div class="mine-stat"><div class="v">${mine.length}</div><div class="k">${lang==='en'?'check-ins':'체크인 수'}</div></div>
+      <div class="mine-stat"><div class="v" style="font-size:22px">${scoreEmoji(avg)}</div><div class="k">${lang==='en'?'overall':'전반적 기분'}</div></div>`;
+  } else { statEl.innerHTML=''; }
+
+  drawMineSvg(points, since, now);
+
+  // 이벤트 목록 — 내 최근 기록
+  const eltTitle=document.getElementById('eventListTitle');
+  if(eltTitle) eltTitle.textContent=lang==='en'?'📋 My check-in log':'📋 나의 체크인 기록';
+  tl=mine.slice().reverse().slice(0,15);
+  renderEventList();
+}
+
+function drawMineSvg(points, since, now){
+  const svg=document.getElementById('journeySvg');
+  const W=600,H=240,PT=22,PB=22,PL=4,PR=16,cW=W-PL-PR,cH=H-PT-PB;
+  const span=Math.max(now-since,1);
+  const xOf=ts=>PL+((ts-since)/span)*cW;
+  const yOf=score=>PT+cH-((score-1)/9)*cH;
+
+  // grid
+  let content='';
+  for(let i=1;i<=4;i++){const y=PT+(i/5)*cH;content+=`<line x1="${PL}" y1="${y}" x2="${W-PR}" y2="${y}" stroke="#e5e7eb" stroke-width="1" stroke-dasharray="4,4"/>`;}
+
+  // x labels (날짜/월)
+  const xl=[];
+  for(let i=0;i<=5;i++){ xl.push(fmtDateShort(since+(i/5)*span)); }
+  document.getElementById('journeyXLabels').innerHTML=xl.map(l=>`<span>${l}</span>`).join('');
+
+  const pts=points.map(p=>({x:xOf(p.ts),y:yOf(p.score)}));
+  if(pts.length){
+    const bot=PT+cH;
+    let ad=`M${pts[0].x} ${bot} L${pts[0].x} ${pts[0].y}`;
+    for(let i=1;i<pts.length;i++){const cx=(pts[i-1].x+pts[i].x)/2;ad+=` C${cx} ${pts[i-1].y} ${cx} ${pts[i].y} ${pts[i].x} ${pts[i].y}`;}
+    ad+=` L${pts[pts.length-1].x} ${bot} Z`;
+    content+=`<path d="${ad}" fill="${ME.color}" opacity="0.10"/>`;
+    let ld=`M${pts[0].x} ${pts[0].y}`;
+    for(let i=1;i<pts.length;i++){const cx=(pts[i-1].x+pts[i].x)/2;ld+=` C${cx} ${pts[i-1].y} ${cx} ${pts[i].y} ${pts[i].x} ${pts[i].y}`;}
+    content+=`<path d="${ld}" fill="none" stroke="${ME.color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    content+=pts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="${pts.length>40?2.5:4}" fill="${ME.color}" stroke="white" stroke-width="${pts.length>40?1:2}"/>`).join('');
+  } else {
+    content+=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#9ca3af" font-size="13">${lang==='en'?'No records in this period':'이 기간엔 기록이 없어요'}</text>`;
+  }
+  svg.innerHTML=content;
 }
 
 // ── Capsule ───────────────────────────────────────────────
@@ -1303,9 +1522,9 @@ function showToast(msg){
 
 // ── Seed data ─────────────────────────────────────────────
 function seedDemoData(){
-  if(gs('seed_version')==='v4') return;
+  if(gs('seed_version')==='v5') return;
   localStorage.clear();
-  ss('seed_version','v4');
+  ss('seed_version','v5');
   const now=Date.now();
   // 내 현재 무드 — 사진 무드로 시작
   ss('emotion_me',   {emoji:'😊',text:'행복해요',ts:now-300000, photo:'images/album_1.png'});
@@ -1319,8 +1538,21 @@ function seedDemoData(){
     {id:'seed3', photo:'images/album_3.png', emoji:'🤩', label:'최고', labelEn:'Amazing',text:'최고예요!',  textEn:'Feeling amazing!'},
     {id:'seed4', photo:'images/album_5.png', emoji:'🥰', label:'설렘', labelEn:'Loved',  text:'설레요',     textEn:'Feeling loved'},
   ]);
-  // 타임라인 — 기분의 "이유"를 사진으로 (친구 것도 포함)
-  ss('timeline',[
+  // 나의 장기 감정 기록(지난 1년) — '나의 기록보기'용 시드
+  const histEmo=[[10,'🤩','최고예요!'],[9,'🥰','설레요'],[8,'😊','행복해요'],[7,'😌','평온해요'],[6,'🍜','잘 먹었어요'],[5,'🤔','고민 중이에요'],[4,'😴','피곤해요'],[3,'😔','힘들어요'],[2,'😤','스트레스 받아요'],[1,'😢','슬퍼요']];
+  const nearEmo=sc=>histEmo.reduce((b,h)=>Math.abs(h[0]-sc)<Math.abs(b[0]-sc)?h:b);
+  const myHistory=[];
+  for(let d=365; d>=3; d--){
+    if(Math.random()<0.42) continue; // 일부 날만 체크인 (~58%)
+    const wave=6.2 + 2.0*Math.sin(d/34) + 1.2*Math.sin(d/8.5) + (Math.random()*2-1);
+    const score=Math.max(1,Math.min(10,Math.round(wave)));
+    const e=nearEmo(score);
+    const hour=8+Math.floor(Math.random()*13), min=Math.floor(Math.random()*60);
+    const ts=now - d*86400000 + hour*3600000 + min*60000;
+    myHistory.push({user:'me', emoji:e[1], text:e[2], ts, timeStr:`${String(hour).padStart(2,'0')}:${String(min).padStart(2,'0')}`});
+  }
+  // 타임라인 — 오늘 흐름 (기분의 "이유"를 사진으로, 친구 것도 포함)
+  const today=[
     {user:'me',     emoji:'😴',text:'자는 중이에요',  ts:now-43200000,timeStr:'07:00'},
     {user:'me',     emoji:'☀️',text:'좋은 아침!',     ts:now-36000000,timeStr:'09:00', comment:'모닝 커피 한 잔', photo:'images/net_coffee.png'},
     {user:'jiwoo',  emoji:'☀️',text:'활기차요',       ts:now-32400000,timeStr:'10:00', comment:'베를린 카페 발견', photo:'images/net_cafe.png'},
@@ -1336,80 +1568,13 @@ function seedDemoData(){
     {user:'me',     emoji:'🥰',text:'보고싶어요',     ts:now-1800000, timeStr:'19:30'},
     {user:'jiwoo',  emoji:'🥰',text:'너 생각났어',    ts:now-900000,  timeStr:'20:00', comment:'베를린 달 보면서', photo:'images/net_moon.png'},
     {user:'me',     emoji:'😊',text:'저녁 먹고 행복', ts:now-300000,  timeStr:'21:00', comment:'행복한 하루 마무리', photo:'images/album_4.png'},
-  ]);
+  ];
+  ss('timeline', myHistory.concat(today));
 }
 
 // ── Panel helpers ─────────────────────────────────────────
 function closePanel(id) {
   document.getElementById(id).classList.remove('open');
-}
-
-// ── DM (감정 스탬프 → 대화) ───────────────────────────────
-let dmFriend = null;
-let dmAnchorItem = null;
-let dmMessages = [];
-
-function openDM(item) {
-  const f = FRIENDS.find(f => f.id === item.user) || FRIENDS[0];
-  dmFriend = f;
-  dmAnchorItem = item;
-  dmMessages = gs(`dm_${f.id}`) || [];
-
-  document.getElementById('dmTitle').textContent = lang==='en' ? `Ask ${f.name}` : `${f.name}에게 물어보기`;
-  document.getElementById('dmBadge').textContent = lang==='en' ? '💬 How was it?' : '💬 어땠어?';
-  document.getElementById('dmInput').placeholder = lang==='en' ? 'Ask how that moment was…' : '이때 어땠는지 물어보기...';
-  renderDMBody();
-  document.getElementById('dmPanel').classList.add('open');
-  setTimeout(() => {
-    const b = document.getElementById('dmBody');
-    b.scrollTop = b.scrollHeight;
-    document.getElementById('dmInput').focus();
-  }, 100);
-}
-
-function quickAsk(text){
-  document.getElementById('dmInput').value = text;
-  sendDM();
-}
-
-function renderDMBody() {
-  const body = document.getElementById('dmBody');
-  const f = dmFriend;
-  const item = dmAnchorItem;
-
-  const photoInAnchor = item && item.photo
-    ? `<img class="ask-anchor-photo" src="${item.photo}" alt="" onclick="openLightbox(dmAnchorItem.photo, dmAnchorItem.comment||dmAnchorItem.text||'')">`
-    : '';
-  const anchorHtml = item ? `
-    <div class="chat-anchor">
-      <div class="chat-anchor-label">💬 ${lang==='en'?'How was this moment?':'이 순간, 어땠어?'}</div>
-      <span style="font-size:20px">${item.emoji}</span>
-      <strong>${item.comment || item.text}</strong>
-      <span style="font-size:11px;color:var(--sub)"> · ${item.timeStr}</span>
-      ${photoInAnchor}
-    </div>` : '';
-
-  const suggestions = (item && dmMessages.length === 0) ? `
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px">
-      ${(lang==='en'
-        ? ['How was it really?','What happened?','Want to talk about it?']
-        : ['그때 진짜 어땠어?','무슨 일 있었어?','얘기해줄 수 있어?']
-       ).map(q=>`<button class="preset-btn" onclick="quickAsk('${q}')">${q}</button>`).join('')}
-    </div>` : '';
-
-  const msgs = dmMessages.map(m => {
-    const isMe = m.from === 'me';
-    return `<div class="bubble-row ${isMe ? 'me' : ''}">
-      ${!isMe ? `<div class="bubble-avatar" style="background:${f.color}22"><img src="${f.photo}" alt=""></div>` : ''}
-      <div>
-        ${!isMe ? `<div class="bubble-time">${f.name}</div>` : ''}
-        <div class="bubble ${isMe ? 'me' : 'them'}">${m.text}</div>
-      </div>
-    </div>`;
-  }).join('');
-
-  body.innerHTML = anchorHtml + suggestions + msgs;
-  body.scrollTop = body.scrollHeight;
 }
 
 // ── 사진 라이트박스 ────────────────────────────────────────
@@ -1425,15 +1590,77 @@ function openLightboxFromEvent(idx){
 }
 function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
 
-function sendDM() {
-  const input = document.getElementById('dmInput');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-  dmMessages.push({ from: 'me', text, ts: Date.now() });
-  ss(`dm_${dmFriend.id}`, dmMessages);
-  renderDMBody();
+// ── 순간 상세 시트 (그래프 점/기록 클릭 → 사진 + 코멘트) ─────
+let momentItem = null;
+function momentCmtKey(it){ return `cmt_${it.user}_${it.ts}`; }
+function getMomentComments(it){ return gs(momentCmtKey(it)) || []; }
+
+function openMomentByDot(i){ if(dotItems[i]) openMoment(dotItems[i]); }
+
+function openMoment(item){
+  if(!item) return;
+  momentItem = item;
+  const isMe = item.user==='me';
+  const u = isMe ? ME : (FRIENDS.find(f=>f.id===item.user)||{name:item.user,color:'#888',city:'?'});
+  const av = document.getElementById('msAvatar');
+  if(isMe){ av.innerHTML=''; av.style.background=ME.color+'22'; av.textContent='🙂'; }
+  else { av.style.background='transparent'; av.innerHTML=`<img src="${u.photo}" alt="">`; }
+  document.getElementById('msName').textContent = isMe
+    ? (lang==='en'?'My moment':'나의 순간')
+    : `${u.name} (${u.city})`;
+  document.getElementById('msTime').textContent = `${item.emoji} ${item.timeStr||''}`;
+  document.getElementById('msInput').placeholder = isMe
+    ? (lang==='en'?'Add a comment...':'코멘트 남기기...')
+    : (lang==='en'?`Comment / ask ${u.name}...`:`${u.name}에게 코멘트·질문 남기기...`);
+  renderMomentBody();
+  document.getElementById('momentSheet').classList.add('open');
+  setTimeout(()=>document.getElementById('msInput').focus(), 160);
 }
+
+function renderMomentBody(){
+  const item = momentItem; if(!item) return;
+  const isMe = item.user==='me';
+  const u = isMe ? ME : (FRIENDS.find(f=>f.id===item.user)||{name:item.user,color:'#888'});
+  const photoHtml = item.photo
+    ? `<img class="ms-photo" src="${item.photo}" alt="" onclick="openLightbox(momentItem.photo, momentItem.comment||momentItem.text||'')">`
+    : `<div class="ms-nophoto">${lang==='en'?'No photo for this moment':'이 순간엔 올린 사진이 없어요'}</div>`;
+  const cmts = getMomentComments(item);
+  const chips = (!isMe && cmts.length===0) ? `
+    <div class="ms-chips">
+      ${(lang==='en'
+        ? ['How was it really?','What happened?','Tell me more']
+        : ['그때 진짜 어땠어?','무슨 일 있었어?','더 얘기해줘']
+       ).map(q=>`<button class="preset-btn" onclick="quickMomentComment('${q}')">${q}</button>`).join('')}
+    </div>` : '';
+  const thread = cmts.map(c=>`
+    <div class="ms-cmt ${c.from==='me'?'mine':''}">
+      <div class="ms-cmt-bubble">${c.text}</div>
+      <div class="ms-cmt-meta">${c.from==='me'?(lang==='en'?'me':'나'):u.name} · ${relTime(c.ts)}</div>
+    </div>`).join('');
+  document.getElementById('msBody').innerHTML = `
+    ${photoHtml}
+    <div class="ms-caption">${item.emoji} ${item.comment?`"${item.comment}"`:(item.text||'')}<span class="ms-cap-time"> · ${item.timeStr||''}</span></div>
+    ${chips}
+    <div class="ms-thread">${thread || `<div class="ms-empty">${lang==='en'?'No comments yet — be the first':'아직 코멘트가 없어요'}</div>`}</div>`;
+}
+
+function quickMomentComment(t){ document.getElementById('msInput').value = t; sendMomentComment(); }
+
+function sendMomentComment(){
+  const input = document.getElementById('msInput');
+  const text = input.value.trim();
+  if(!text || !momentItem) return;
+  input.value='';
+  const arr = getMomentComments(momentItem);
+  arr.push({from:'me', text, ts:Date.now()});
+  ss(momentCmtKey(momentItem), arr);
+  renderMomentBody();
+  // 목록의 코멘트 수 갱신
+  if(document.getElementById('page-timeline').classList.contains('active')) renderEventList();
+  showToast(lang==='en'?'Comment added 💬':'코멘트 남겼어요 💬');
+}
+
+function closeMomentSheet(){ document.getElementById('momentSheet').classList.remove('open'); }
 
 // ── Init ──────────────────────────────────────────────────
 seedDemoData();
