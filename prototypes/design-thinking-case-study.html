@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>교실에서 배운 것</title>
+<meta name="description" content="AI사업팀이 교사들과 함께 프로토타입으로 검증하며 얻은 Design Thinking 적용 사례">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍎</text></svg>">
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+/* ============ RESET / TOKENS ============ */
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#121C17;
+  --bg-2:#0D1611;
+  --surface:#1A2620;
+  --surface-2:#233428;
+  --line:rgba(244,239,225,.12);
+  --line-2:rgba(244,239,225,.22);
+  --chalk:#F4EFE1;
+  --chalk-dim:#9FB0A2;
+  --chalk-faint:#66766A;
+  --gold:#E7B84B;
+  --gold-dim:rgba(231,184,75,.14);
+  --red:#E2694B;
+  --red-dim:rgba(226,105,75,.14);
+
+  --font-display:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic','Segoe UI',Roboto,sans-serif;
+  --font-mono:'Roboto Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,'Noto Sans Mono',monospace;
+
+  --fs-kicker:clamp(11px,1vw,13px);
+  --fs-h1:clamp(38px,6.4vw,88px);
+  --fs-h2:clamp(26px,4vw,50px);
+  --fs-h3:clamp(19px,2.1vw,26px);
+  --fs-quote:clamp(23px,3.1vw,42px);
+  --fs-body:clamp(15px,1.35vw,18px);
+  --fs-small:clamp(12.5px,1vw,14px);
+}
+
+html,body{height:100%;background:var(--bg);}
+body{
+  font-family:var(--font-display);
+  color:var(--chalk);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--gold);color:#1B2318;}
+
+/* subtle chalk-dust texture, fixed over everything */
+body::before{
+  content:'';position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:radial-gradient(rgba(244,239,225,.05) 1px,transparent 1px);
+  background-size:26px 26px;
+  mix-blend-mode:screen;
+  opacity:.5;
+}
+
+/* ============ DECK / SLIDES ============ */
+#deck{
+  height:100vh;height:100dvh;
+  overflow-y:scroll;
+  overflow-x:hidden;
+  scroll-snap-type:y mandatory;
+  scroll-behavior:smooth;
+}
+.slide{
+  position:relative;
+  min-height:100vh;min-height:100dvh;
+  width:100%;
+  scroll-snap-align:start;
+  scroll-snap-stop:always;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:clamp(28px,6vw,64px) clamp(22px,8vw,120px);
+  overflow:hidden;
+}
+.slide + .slide{border-top:1px solid var(--line);}
+
+.frame{
+  position:relative;z-index:2;
+  width:100%;
+  max-width:1180px;
+  margin:0 auto;
+}
+
+/* ambient glow per slide accent */
+.glow{
+  position:absolute;z-index:0;pointer-events:none;
+  width:60vw;height:60vw;max-width:900px;max-height:900px;
+  border-radius:50%;
+  filter:blur(10px);
+  opacity:.55;
+}
+.slide[data-accent="gold"] .glow{background:radial-gradient(circle,var(--gold-dim) 0%,transparent 70%);}
+.slide[data-accent="red"] .glow{background:radial-gradient(circle,var(--red-dim) 0%,transparent 70%);}
+.glow.gtl{top:-18%;left:-12%;}
+.glow.gbr{bottom:-22%;right:-14%;}
+.glow.gtr{top:-16%;right:-10%;}
+
+/* ============ RUNNING HEADER / CHAPTER TAG ============ */
+.chapter{
+  display:flex;align-items:center;gap:10px;
+  font-family:var(--font-mono);
+  font-size:var(--fs-kicker);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--chalk-faint);
+  margin-bottom:clamp(22px,4vw,40px);
+}
+.chapter .num{color:var(--gold);}
+.chapter .rule{flex:1;height:1px;background:var(--line);}
+
+/* ============ TYPE ============ */
+.kicker{
+  font-family:var(--font-mono);
+  font-size:var(--fs-kicker);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:14px;
+}
+h1,h2,h3{font-weight:800;text-wrap:balance;letter-spacing:-.01em;}
+.h1{font-size:var(--fs-h1);line-height:1.08;}
+.h2{font-size:var(--fs-h2);line-height:1.16;margin-bottom:20px;}
+.h3{font-size:var(--fs-h3);line-height:1.32;font-weight:700;}
+.lede{font-size:var(--fs-body);line-height:1.75;color:var(--chalk-dim);max-width:62ch;}
+.lede b{color:var(--chalk);font-weight:700;}
+p.body{font-size:var(--fs-body);line-height:1.75;color:var(--chalk-dim);max-width:62ch;}
+.small{font-size:var(--fs-small);color:var(--chalk-faint);}
+
+/* squiggle underline (chalk marker) */
+.mark{position:relative;white-space:nowrap;}
+.mark svg{position:absolute;left:0;bottom:-.14em;width:100%;height:.3em;}
+.mark svg path{stroke:var(--gold);stroke-width:3;fill:none;}
+.mark.red svg path{stroke:var(--red);}
+
+/* ============ REVEAL ANIMATION ============ */
+.r{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1);}
+.in .r{opacity:1;transform:none;}
+.r.d1{transition-delay:.08s;} .r.d2{transition-delay:.16s;} .r.d3{transition-delay:.24s;}
+.r.d4{transition-delay:.32s;} .r.d5{transition-delay:.4s;} .r.d6{transition-delay:.48s;}
+.r.d7{transition-delay:.56s;} .r.d8{transition-delay:.64s;}
+
+/* ============ CARDS / GRIDS ============ */
+.card{
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:clamp(20px,2.2vw,28px);
+}
+.grid{display:grid;gap:16px;}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+
+/* quote chip (pill-less, chalk tag) */
+.chip{
+  display:inline-flex;align-items:center;
+  font-size:var(--fs-small);
+  color:var(--chalk-dim);
+  border:1px solid var(--line-2);
+  border-radius:999px;
+  padding:8px 16px;
+  background:rgba(244,239,225,.03);
+}
+
+/* stat */
+.stat-num{
+  font-family:var(--font-mono);
+  font-weight:700;
+  font-size:clamp(30px,4vw,56px);
+  color:var(--chalk);
+  font-variant-numeric:tabular-nums;
+}
+.stat-label{font-size:var(--fs-small);color:var(--chalk-dim);margin-top:6px;}
+
+/* numbered step marker */
+.num-tag{
+  font-family:var(--font-mono);
+  font-size:13px;font-weight:700;
+  color:var(--gold);
+  letter-spacing:.06em;
+}
+
+/* divider */
+.hr{height:1px;background:var(--line);width:100%;margin:28px 0;}
+
+/* red-pen strike */
+.strike{position:relative;color:var(--chalk-faint);}
+.strike::after{content:'';position:absolute;left:-4%;right:-4%;top:52%;height:2px;background:var(--red);transform:rotate(-1.2deg);}
+
+/* scroll cue */
+.cue{
+  position:absolute;left:50%;bottom:clamp(24px,4vh,44px);transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;color:var(--chalk-faint);
+  text-transform:uppercase;
+  animation:bob 2.2s ease-in-out infinite;
+}
+@keyframes bob{0%,100%{transform:translate(-50%,0);}50%{transform:translate(-50%,8px);}}
+.cue .ln{width:1px;height:26px;background:linear-gradient(var(--chalk-faint),transparent);}
+
+/* ============ FIXED CHROME ============ */
+#progress{position:fixed;top:0;left:0;height:3px;background:var(--gold);z-index:50;width:0%;transition:width .1s linear;}
+#pgctr{
+  position:fixed;left:clamp(18px,3vw,32px);bottom:clamp(18px,3vw,28px);
+  font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;
+  color:var(--chalk-faint);z-index:50;
+}
+#pgctr b{color:var(--chalk);}
+#dots{
+  position:fixed;right:clamp(14px,2.4vw,26px);top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:10px;z-index:50;
+}
+.dot{
+  width:7px;height:7px;border-radius:50%;
+  background:rgba(244,239,225,.22);
+  border:none;cursor:pointer;padding:0;
+  transition:all .25s;
+}
+.dot.on{background:var(--gold);transform:scale(1.5);}
+.dot:hover{background:var(--chalk-dim);}
+.dot:focus-visible{outline:2px solid var(--gold);outline-offset:3px;}
+
+/* ============ SLIDE-SPECIFIC ============ */
+
+/* --- Cover --- */
+#s1 .cover-quote{
+  font-size:var(--fs-quote);
+  font-weight:700;line-height:1.4;color:var(--chalk-dim);
+  margin-top:34px;max-width:46ch;
+}
+#s1 .meta-row{
+  display:flex;gap:28px;margin-top:clamp(40px,6vw,64px);
+  font-family:var(--font-mono);font-size:var(--fs-small);color:var(--chalk-faint);
+}
+
+/* --- flow steps (bg strategy) --- */
+.flow{display:flex;flex-direction:column;gap:0;margin-top:8px;}
+.flow-item{display:grid;grid-template-columns:52px 1fr;gap:20px;padding:20px 0;border-bottom:1px solid var(--line);}
+.flow-item:last-child{border-bottom:none;}
+.flow-q{color:var(--gold);font-weight:700;font-size:var(--fs-body);margin-bottom:6px;}
+.flow-a{color:var(--chalk-dim);font-size:var(--fs-body);line-height:1.7;}
+
+/* --- market stats --- */
+.stat-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:26px 22px;}
+.stat-total{
+  display:flex;align-items:baseline;gap:14px;margin-top:26px;
+  padding-top:26px;border-top:1px solid var(--line-2);
+}
+
+/* --- hypothesis fail card --- */
+.hypo-list{list-style:none;display:flex;flex-direction:column;gap:14px;}
+.hypo-list li{font-size:var(--fs-body);color:var(--chalk-dim);}
+.stamp{
+  display:inline-block;font-family:var(--font-mono);font-weight:700;font-size:13px;
+  letter-spacing:.1em;color:var(--red);border:1.5px solid var(--red);
+  border-radius:6px;padding:4px 12px;transform:rotate(-3deg);
+}
+
+/* --- pull quote hero (turning point) --- */
+#s7{align-items:center;text-align:center;}
+#s7 .frame{max-width:920px;}
+.pull-quote{
+  font-size:clamp(26px,4.4vw,58px);
+  font-weight:800;line-height:1.42;letter-spacing:-.01em;
+}
+.attrib{margin-top:26px;font-family:var(--font-mono);font-size:var(--fs-small);color:var(--chalk-faint);}
+
+/* --- timeline steps (solution) --- */
+.timeline{display:flex;flex-direction:column;}
+.tl-item{display:grid;grid-template-columns:68px 1fr;gap:22px;padding:22px 0;border-bottom:1px solid var(--line);align-items:start;}
+.tl-item:last-child{border-bottom:none;}
+.tl-circle{
+  width:44px;height:44px;border-radius:50%;
+  border:1.5px solid var(--line-2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--gold);
+}
+
+/* --- before/after compare --- */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.compare-col{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:26px;}
+.compare-col.after{border-color:rgba(226,105,75,.35);}
+.compare-label{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--chalk-faint);margin-bottom:16px;}
+.compare-col.after .compare-label{color:var(--red);}
+.compare-col ul{list-style:none;display:flex;flex-direction:column;gap:12px;}
+.compare-col li{font-size:var(--fs-body);line-height:1.6;padding-left:18px;position:relative;color:var(--chalk-dim);}
+.compare-col.before li::before{content:'"';position:absolute;left:0;color:var(--chalk-faint);}
+.compare-col.after li{color:var(--chalk);font-weight:600;}
+.compare-col.after li::before{content:'"';position:absolute;left:0;color:var(--red);}
+
+/* --- result cards --- */
+.result-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px;display:flex;flex-direction:column;gap:10px;}
+.result-num{font-family:var(--font-mono);color:var(--gold);font-size:13px;font-weight:700;}
+
+/* --- cost compare (6mo -> 2wk) --- */
+.cost-row{display:flex;align-items:center;gap:22px;margin-top:30px;flex-wrap:wrap;}
+.cost-box{display:flex;flex-direction:column;gap:4px;}
+.cost-arrow{font-family:var(--font-mono);color:var(--chalk-faint);font-size:22px;}
+
+/* --- insight cards --- */
+.insight-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:28px;display:flex;flex-direction:column;gap:14px;}
+
+/* --- closing --- */
+#s12{align-items:flex-start;}
+.closing-line{font-size:var(--fs-quote);font-weight:800;line-height:1.4;margin-top:24px;max-width:24ch;}
+.fin{margin-top:clamp(40px,7vw,80px);font-family:var(--font-mono);font-size:13px;letter-spacing:.2em;color:var(--chalk-faint);text-transform:uppercase;}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:820px){
+  .grid-4{grid-template-columns:repeat(2,1fr);}
+  .grid-3{grid-template-columns:1fr;}
+  .grid-2{grid-template-columns:1fr;}
+  .compare{grid-template-columns:1fr;}
+  .flow-item,.tl-item{grid-template-columns:36px 1fr;gap:14px;}
+  #dots{display:none;}
+}
+@media (max-width:520px){
+  .cost-row{flex-direction:column;align-items:flex-start;}
+  .cost-arrow{transform:rotate(90deg);}
+}
+
+/* ============ REDUCED MOTION ============ */
+@media (prefers-reduced-motion:reduce){
+  .r{transition:opacity .3s linear;transform:none;}
+  .cue{animation:none;}
+  #deck{scroll-behavior:auto;}
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="pgctr"><b id="pgnow">01</b> / 12</div>
+<div id="dots"></div>
+
+<div id="deck">
+
+  <!-- 01 :: COVER -->
+  <section class="slide" id="s1" data-accent="gold">
+    <div class="glow gtl"></div>
+    <div class="glow gbr"></div>
+    <div class="frame">
+      <div class="kicker r">AI사업담당 · DESIGN THINKING CASE STUDY</div>
+      <h1 class="h1 r d1">AI Agent 사업팀,<br>Design Thinking으로<br>다시 설계하다</h1>
+      <p class="cover-quote r d2">"고객을 이해하려고 했던 조직에서,<br>고객과 함께 만드는 조직으로"</p>
+      <div class="meta-row r d3">
+        <span>FIELD&nbsp;·&nbsp;교육 행정 혁신</span>
+        <span>PARTNER&nbsp;·&nbsp;교육 분야 파트너사</span>
+      </div>
+    </div>
+    <div class="cue"><span class="ln"></span>SCROLL</div>
+  </section>
+
+  <!-- 02 :: 배경 - 전략 흐름 -->
+  <section class="slide" id="s2" data-accent="gold">
+    <div class="glow gtr"></div>
+    <div class="frame">
+      <div class="chapter r"><span class="num">01</span><span>배경</span><span class="rule"></span></div>
+      <h2 class="h2 r d1">왜 교육 시장부터 시작했는가</h2>
+      <p class="lede r d2">AI사업담당은 AICC에서 검증된 기술을 <b>'AI Agent SaaS'</b>로 모듈화·고도화해 신사업 기회를 모색했습니다. 각 산업은 이미 고객을 오래 만나온 전문 기업의 영역인 만큼, 직접 진출보다 기존 플레이어에게 기술을 제공하는 <b>'전략적 제휴'</b>가 가장 빠르고 확실한 접근이라 판단했습니다.</p>
+
+      <div class="flow r d3">
+        <div class="flow-item">
+          <span class="num-tag">Q1</span>
+          <div>
+            <div class="flow-q">우리 AI 기술을 어떻게 '실질적인 매출이 나는 상품'으로 만들 것인가?</div>
+            <div class="flow-a">국내 약 400만 명 규모의 '사람 중심 서비스 종사자' 시장에 주목 — 교육, 시니어·돌봄, 의료·헬스케어, 심리·상담.</div>
+          </div>
+        </div>
+        <div class="flow-item">
+          <span class="num-tag">Q2</span>
+          <div>
+            <div class="flow-q">우리가 그 산업의 고객을 기존 플레이어보다 더 잘 이해할 수 있을까?</div>
+            <div class="flow-a">아니다. 그래서 직접 진출 대신, 오랜 시간 고객을 만나온 기업에게 AI Agent를 제공하는 전략적 제휴를 선택.</div>
+          </div>
+        </div>
+        <div class="flow-item">
+          <span class="num-tag">Q3</span>
+          <div>
+            <div class="flow-q">이 거대한 시장에서 가장 절실하게 AI를 필요로 하는 '진짜 문제'는 무엇인가?</div>
+            <div class="flow-a">여러 산업군을 탐색하며 현장의 목소리를 직접 청취.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 :: 배경 - 시장 규모 -->
+  <section class="slide" id="s3" data-accent="gold">
+    <div class="glow gtl"></div>
+    <div class="frame">
+      <div class="chapter r"><span class="num">01</span><span>배경</span><span class="rule"></span></div>
+      <h2 class="h2 r d1">사람 중심 서비스 시장, 약 400만 명</h2>
+      <p class="lede r d2">탐색 끝에 만난 것은 교육 시장의 가장 고질적인 문제 — <b>'교사들의 과도한 행정 업무'</b>였습니다. 지금은 교육 분야 파트너사와 함께 '교사 행정 혁신' 비즈니스의 가능성을 깊이 들여다보고 있습니다.</p>
+
+      <div class="grid grid-4 r d3">
+        <div class="stat-card">
+          <div class="stat-num countup" data-target="100">0</div>
+          <div class="stat-label">교육 (만 명)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num countup" data-target="90">0</div>
+          <div class="stat-label">시니어·돌봄 (만 명)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num countup" data-target="80">0</div>
+          <div class="stat-label">의료·헬스케어 (만 명)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num countup" data-target="10">0</div>
+          <div class="stat-label">심리·상담 (만 명)</div>
+        </div>
+      </div>
+
+      <div class="stat-total r d4">
+        <div class="stat-num countup" data-target="400" style="color:var(--gold);">0</div>
+        <div class="stat-label" style="margin-top:0;">만 명 — 국내 '사람 중심 서비스 종사자' 전체 규모</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 :: 문제 - 칭찬은 받았지만 -->
+  <section class="slide" id="s4" data-accent="gold">
+    <div class="glow gtr"></div>
+    <div class="frame">
+      <div class="chapter r"><span class="num">02</span><span>무엇이 문제였나</span><span class="rule"></span></div>
+      <h2 class="h2 r d1">고객은 칭찬했지만,<br>실제로는 움직이지 않았다</h2>
+      <p class="lede r d2">교사의 업무를 줄여줄 다양한 AI 기능을 준비해 설명회와 현장 미팅에서 소개했습니다. 반응은 기대 이상이었습니다.</p>
+
+      <div class="grid grid-3 r d3" style="margin-top:22px;">
+        <div class="chip">"좋은 기능이다"</div>
+        <div class="chip">"업무에 도움이 될 것 같다"</div>
+        <div class="chip">"실제로 도입해보고 싶다"</div>
+      </div>
+
+      <div class="hr r d4"></div>
+      <p class="h3 r d5">하지만 이상한 현상이 반복됐습니다.<br><span style="color:var(--red);">설명회 만족도는 높았지만, 실제 사용과 만족도로는 이어지지 않았습니다.</span></p>
+    </div>
+  </section>
+
+  <!-- 05 :: 문제 - 신뢰 가설의 기각 -->
+  <section class="slide" id="s5" data-accent="red">
+    <div class="glow gtl"></div>
+    <div class="frame">
+      <div class="chapter r"><span class="num">02</span><span>무엇이 문제였나</span><span class="rule"></span></div>
+      <h2 class="h2 r d1">"AI를 신뢰하지 못하는 걸까?"</h2>
+      <p class="lede r d2">교육 현장은 학생·개인정보를 다루는 환경이기에, 처음에는 원인을 <b>AI 자체에 대한 낮은 신뢰도</b>에서 찾았습니다.</p>
+
+      <ul class="hypo-list r d3" style="margin-top:22px;">
+        <li>· AI를 믿을 수 있는가?</li>
+        <li>· 개인정보 유출 위험은 없는가?</li>
+        <li>· AI가 생성한 결과를 신뢰할 수 있는가?</li>
+        <li>· AI가 교사의 전문성을 대체하는 것은 아닌가?</li>
+      </ul>
+
+      <div class="hr r d4"></div>
+
+      <div class="r d5" style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+        <span class="stamp">가설 기각</span>
+        <p class="body" style="margin:0;">실제 현장 인터뷰 결과, 많은 교사들이 이미 ChatGPT를 비롯한 AI 서비스를 <b style="color:var(--chalk);">적극적으로 활용</b>하고 있었습니다. 문제는 AI가 아니었습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 :: 문제 - 진짜 문제는 Task -->
+  <section class="slide" id="s6" data-accent="gold">
+    <div class="glow gbr"></div>
+    <div class="frame">
+      <div class="chapter r"><span class="num">02</span><span>무엇이 문제였나</span><span class="rule"></span></div>
+      <p class="pull-quote r d1" style="text-align:left;font-size:var(--fs-h2);max-width:16ch;">고객은 <span class="mark">기능</span>으로 일하지 않는다.<br>고객은 <span class="mark">업무</span>로 일한다.</p>
+
+      <div class="grid grid-3 r d2" style="margin-top:30px;">
+        <div class="chip">생활기록부를 더 빨리 작성</div>
+        <div class="chip">상담 내용을 더 쉽게 정리</div>
+        <div class="chip">반복 행정업무 줄이기</div>
+      </div>
+
+      <div class="hr r d3"></div>
+
+      <p class="body r d4"><b style="color:var(--chalk);">그런데 인터뷰에도 한계가 있었습니다.</b> 교사들은 "좋아 보인다", "도움이 될 것 같다" 정도의 말은 했지만, 어떤 업무가 진짜 힘든지, 무엇이 문제인지는 좀처럼 드러나지 않았습니다. 고객을 만나지 않아서가 아니라, <b style="color:var(--chalk);">고객이 진짜 문제를 말할 수 있는 환경을 만들지 못했기 때문</b>이었습니다.</p>
+    </div>
+  </section>
+
+  <!-- 07 :: 전환점 - OpenAI 커피챗 -->
+  <section class="slide" id="s7" data-accent="gold">
+    <div class="glow gtl" style="left:20%;top:-30%;"></div>
+    <div class="frame">
+      <div class="kicker r" style="text-align:center;">전환점 · OPENAI와의 커피챗</div>
+      <p class="pull-quote r d1">"고객은 물어본다고<br>진짜 문제를 이야기하지 않는다.<br><span class="mark">직접 사용해봐야</span> 진짜 문제를 이야기한다."</p>
+      <p class="attrib r d2">— OpenAI 관계자와의 커피챗 중</p>
+      <p class="body r d3" style="max-width:52ch;margin:30px auto 0;text-align:center;">문제는 인터뷰 횟수가 아니었습니다. 고객이 스스로 문제를 발견하고 말할 수 있는 <b style="color:var(--chalk);">경험</b>을 제공하지 못했던 것입니다.<br><br>그래서 결론을 내렸습니다. <b style="color:var(--gold);">고객을 조사 대상이 아니라, 개발 과정의 참여자로.</b></p>
+    </div>
+  </section>
+
+  <!-- 08 :: 해결 - 5 Step -->
+  <section class="slide" id="s8" data-accent="gold">
+    <div class="glow gtr"></div>
+    <div class="frame">
+      <div class="chapter r"><span class="num">04</span><span>어떻게 바꿨나</span><span class="rule"></span></div>
+      <h2 class="h2 r d1">고객을 사용자에서<br>공동개발자로 바꾸다</h2>
+
+      <div class="timeline r d2" style="margin-top:10px;">
+        <div class="tl-item">
+          <div class="tl-circle">01</div>
+          <div>
+            <div class="h3">가장 비판적인 고객부터 만났다</div>
+            <p class="small" style="margin-top:6px;line-height:1.6;">좋은 이야기보다 진짜 문제를 발견하는 것이 중요했기에, AI에 회의적인 교사들을 우선 인터뷰.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-circle">02</div>
+          <div>
+            <div class="h3">현장에서 바로 프로토타입을 만들었다</div>
+            <p class="small" style="margin-top:6px;line-height:1.6;">몇 달짜리 기획서 대신, 현장 의견을 바탕으로 바로 프로토타입을 제작해 직접 경험하게 했다.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-circle">03</div>
+          <div>
+            <div class="h3">프로토타입을 보여주자 진짜 목소리가 나왔다</div>
+            <p class="small" style="margin-top:6px;line-height:1.6;">사용하는 순간부터 교사들의 이야기가 완전히 달라졌다.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-circle">04</div>
+          <div>
+            <div class="h3">칭찬 대신 비판을 수집하기 시작했다</div>
+            <p class="small" style="margin-top:6px;line-height:1.6;">목표를 '인정받기'에서 '틀린 부분을 빨리 찾기'로 전환. 수정 → 검증 → 개선을 반복.</p>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-circle">05</div>
+          <div>
+            <div class="h3">고객이 고객을 설득하기 시작했다</div>
+            <p class="small" style="margin-top:6px;line-height:1.6;">회사가 만든 제품이 아니라, 교사들과 함께 만든 서비스가 되었다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09 :: 해결 - Before/After -->
+  <section class="slide" id="s9" data-accent="red">
+    <div class="glow gbr"></div>
+    <div class="frame">
+      <div class="chapter r"><span class="num">04</span><span>어떻게 바꿨나</span><span class="rule"></span></div>
+      <h2 class="h2 r d1">설명 대신, 경험</h2>
+
+      <div class="compare r d2">
+        <div class="compare-col before">
+          <div class="compare-label">설명회에서</div>
+          <ul>
+            <li>좋다</li>
+            <li>도움이 될 것 같다</li>
+            <li>필요할 것 같다</li>
+          </ul>
+        </div>
+        <div class="compare-col after">
+          <div class="compare-label">프로토타입 사용 후</div>
+          <ul>
+            <li>교사는 실제로 이렇게 일하지 않는다</li>
+            <li>이 업무 흐름이 틀렸다</li>
+            <li>이 기능보다 더 시급한 문제가 있다</li>
+            <li>이 정보가 먼저 보여야 한다</li>
+          </ul>
+        </div>
+      </div>
+
+      <p class="h3 r d3" style="margin-top:28px;max-width:44ch;">고객은 보기 전까지는 칭찬합니다.<br>사용하면 비판합니다.<br><span style="color:var(--red);">그 비판이야말로 고객의 진짜 목소리였습니다.</span></p>
+    </div>
+  </section>
+
+  <!-- 10 :: 결과 -->
+  <section class="slide" id="s10" data-accent="gold">
+    <div class="glow gtl"></div>
+    <div class="frame">
+      <div class="chapter r"><span class="num">05</span><span>어떤 결과를 얻었나</span><span class="rule"></span></div>
+      <h2 class="h2 r d1">네 가지 변화</h2>
+
+      <div class="grid grid-4 r d2">
+        <div class="result-card">
+          <div class="result-num">01</div>
+          <div class="h3" style="font-size:18px;">무관심 → 관심</div>
+          <p class="small" style="line-height:1.6;">듣기만 하던 고객이 직접 의견을 내기 시작했다.</p>
+        </div>
+        <div class="result-card">
+          <div class="result-num">02</div>
+          <div class="h3" style="font-size:18px;">고객이 제품의 주인</div>
+          <p class="small" style="line-height:1.6;">"회사 서비스"가 아닌 "우리가 함께 만든 서비스"로.</p>
+        </div>
+        <div class="result-card">
+          <div class="result-num">03</div>
+          <div class="h3" style="font-size:18px;">고객이 고객을 설득</div>
+          <p class="small" style="line-height:1.6;">회사의 설명보다 실제 교사의 경험이 더 강력했다.</p>
+        </div>
+        <div class="result-card">
+          <div class="result-num">04</div>
+          <div class="h3" style="font-size:18px;">실패 비용 감소</div>
+          <p class="small" style="line-height:1.6;">틀린 방향을 훨씬 빠르게 수정할 수 있었다.</p>
+        </div>
+      </div>
+
+      <div class="cost-row r d3">
+        <div class="cost-box">
+          <span class="small strike">6개월 뒤 실패 발견</span>
+        </div>
+        <span class="cost-arrow">→</span>
+        <div class="cost-box">
+          <span class="h3" style="color:var(--gold);">2주 단위 검증</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 :: Insight -->
+  <section class="slide" id="s11" data-accent="gold">
+    <div class="glow gtr"></div>
+    <div class="frame">
+      <div class="chapter r"><span class="num">06</span><span>Insight</span><span class="rule"></span></div>
+      <h2 class="h2 r d1">서비스 하나가 아니라,<br>사업 방식을 검증했다</h2>
+
+      <div class="grid grid-3 r d2" style="margin-top:6px;">
+        <div class="insight-card">
+          <div class="num-tag">INSIGHT 01</div>
+          <div class="h3">경쟁력은 기능이 아니라 검증 속도다</div>
+          <p class="small" style="line-height:1.7;">6개월이면 기술도, 고객의 기대도, 시장의 기준도 바뀐다. 6개월짜리 기획서보다 2주짜리 프로토타입이 더 큰 경쟁력이다.</p>
+        </div>
+        <div class="insight-card">
+          <div class="num-tag">INSIGHT 02</div>
+          <div class="h3">고객은 검증 대상이 아니라 공동 개발자다</div>
+          <p class="small" style="line-height:1.7;">고객은 완성된 제품을 평가하는 사람이 아니라, 문제를 함께 정의하고 답을 함께 검증하는 파트너다.</p>
+        </div>
+        <div class="insight-card">
+          <div class="num-tag">INSIGHT 03</div>
+          <div class="h3">본질은 기술이 아니라 현장 변화다</div>
+          <p class="small" style="line-height:1.7;">AI Agent 사업은 기술 도입으로 끝나지 않는다. 현장의 업무 방식이 실제로 바뀌고 안착해야 성공한다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 :: 향후계획 / 마무리 -->
+  <section class="slide" id="s12" data-accent="gold">
+    <div class="glow gbr"></div>
+    <div class="frame">
+      <div class="chapter r"><span class="num">07</span><span>향후 계획</span><span class="rule"></span></div>
+      <h2 class="h2 r d1">다음 무대는, 공공과 제조</h2>
+      <p class="lede r d2">교육 시장에서 고객 참여 기반의 사업 방식이 <b>현장의 변화를 만들고, 실패 비용을 줄이며, 고객의 신뢰를 확보</b>한다는 것을 검증했습니다. 앞으로 공공, 제조 등 다른 B2B 시장에서도 같은 방식으로 확장할 계획입니다.</p>
+
+      <p class="closing-line r d3">6개월짜리 기획서보다,<br><span style="color:var(--gold);">2주짜리 프로토타입.</span></p>
+
+      <div class="fin r d4">AI Agent 사업팀 · Design Thinking Case Study</div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  const deck = document.getElementById('deck');
+  const slides = [...document.querySelectorAll('.slide')];
+  const TOTAL = slides.length;
+  const progress = document.getElementById('progress');
+  const pgnow = document.getElementById('pgnow');
+  const dotWrap = document.getElementById('dots');
+
+  slides.forEach((s,i)=>{
+    const d = document.createElement('button');
+    d.className = 'dot';
+    d.setAttribute('aria-label','슬라이드 '+(i+1)+'로 이동');
+    d.addEventListener('click', ()=> s.scrollIntoView({behavior:'smooth', block:'start'}));
+    dotWrap.appendChild(d);
+  });
+  const dots = [...dotWrap.children];
+
+  function countUp(el){
+    if (el.dataset.counted) return;
+    el.dataset.counted = '1';
+    const target = parseFloat(el.dataset.target || el.textContent);
+    const dur = 1100;
+    const t0 = performance.now();
+    function tick(now){
+      const t = Math.min((now - t0) / dur, 1);
+      const ease = 1 - Math.pow(1 - t, 4);
+      el.textContent = Math.round(ease * target).toLocaleString();
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  let current = 0;
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      const idx = slides.indexOf(e.target);
+      if (e.isIntersecting && e.intersectionRatio >= 0.5){
+        current = idx;
+        dots.forEach((d,i)=> d.classList.toggle('on', i===idx));
+        pgnow.textContent = String(idx+1).padStart(2,'0');
+        e.target.classList.add('in');
+        e.target.querySelectorAll('.countup').forEach(countUp);
+      }
+    });
+  }, {root: deck, threshold: 0.5});
+  slides.forEach(s=> io.observe(s));
+
+  deck.addEventListener('scroll', ()=>{
+    const max = deck.scrollHeight - deck.clientHeight;
+    const pct = max > 0 ? (deck.scrollTop / max) * 100 : 0;
+    progress.style.width = pct + '%';
+  }, {passive:true});
+
+  window.addEventListener('keydown', (e)=>{
+    if (['ArrowDown','PageDown'].includes(e.key)){
+      e.preventDefault();
+      slides[Math.min(current+1, TOTAL-1)].scrollIntoView({behavior:'smooth', block:'start'});
+    } else if (['ArrowUp','PageUp'].includes(e.key)){
+      e.preventDefault();
+      slides[Math.max(current-1, 0)].scrollIntoView({behavior:'smooth', block:'start'});
+    } else if (e.key === 'Home'){
+      e.preventDefault();
+      slides[0].scrollIntoView({behavior:'smooth', block:'start'});
+    } else if (e.key === 'End'){
+      e.preventDefault();
+      slides[TOTAL-1].scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  });
+
+  setTimeout(()=>{
+    slides[0].classList.add('in');
+    slides[0].querySelectorAll('.countup').forEach(countUp);
+    dots[0]?.classList.add('on');
+  }, 150);
+})();
+</script>
+</body>
+</html>
